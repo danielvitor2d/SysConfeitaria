@@ -47,7 +47,6 @@ export default function SignIn() {
         variant: "left-accent",
         position: "bottom-right",
       })
-      document.location.reload()
       navigate('/home')
     } else {
       toast({
