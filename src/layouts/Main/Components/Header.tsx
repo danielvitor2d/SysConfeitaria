@@ -1,10 +1,30 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
+import Sidebar from "./Sidebar";
 
-export default function Header() {
+interface HeaderProps {
+  page: React.ReactNode
+}
+
+export default function Header({ page }: HeaderProps) {
   return (
-    <>
-      <Box left={0} height={"86px"} backgroundColor={"#482017"} />
-      <Box top={0} width={""} backgroundColor={"#482017"} />
-    </>
-  );
+    <Flex
+      height={'100vh'}
+      width={'100vw'}
+      backgroundColor={'#C9A795'}
+    >
+      <Sidebar />
+      <Box
+        left={0}
+        width={'100%'}
+      >
+        <Box
+          top={0}
+          width={'100%'}
+          height={"86px"}
+          backgroundColor={"#482017"}
+        />
+        {page}
+      </Box>
+    </Flex>
+  )
 }

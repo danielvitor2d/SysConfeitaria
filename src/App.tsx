@@ -3,10 +3,11 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/Auth";
 
 import Routes from "./routes";
+import { customTheme } from "./util/themeTable";
 
 function App() {
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={customTheme} >
       <AuthProvider>
         <BrowserRouter>
           <Routes />

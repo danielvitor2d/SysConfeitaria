@@ -24,5 +24,6 @@ export default function Routes() {
     )
   }, [alreadyRegistered, signed])
 
-  return route;
+  return <AuthenticatedRoutes />
+  // return route;
 }

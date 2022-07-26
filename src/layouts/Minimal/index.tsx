@@ -1,9 +1,10 @@
 import { Flex } from "@chakra-ui/react";
+import { ReactNode } from "react";
 
 import full_background from "../../assets/full_background.svg";
 
 interface MinimalLayoutProps {
-  page: JSX.Element;
+  page: ReactNode;
 }
 
 export default function MinimalLayout({ page }: MinimalLayoutProps) {

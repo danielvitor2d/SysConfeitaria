@@ -70,6 +70,11 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     })
   }, [])
 
+  useEffect(() => {
+    console.log('signed: ', signed)
+    console.log('alreadyRegistered: ', alreadyRegistered)
+  }, [signed, alreadyRegistered])
+
   return (
     <AuthContext.Provider value={{ signed, alreadyRegistered, login, register, logout }}>
       {children}
