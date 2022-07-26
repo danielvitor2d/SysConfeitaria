@@ -1,12 +1,12 @@
 import { initializeApp } from "firebase/app"
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_API_KEY,
-  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_APP_ID,
+  apiKey: "AIzaSyBumEZSB80azwbn_1w0Q2baTfHFTHY2R8U",
+  authDomain: "sysconfeitaria-a0005.firebaseapp.com",
+  projectId: "sysconfeitaria-a0005",
+  storageBucket: "sysconfeitaria-a0005.appspot.com",
+  messagingSenderId: "1068137673729",
+  appId: "1:1068137673729:web:0a9798306b4f68fb453c00"
 }
 
 const app = initializeApp(firebaseConfig)

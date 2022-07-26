@@ -1,7 +1,7 @@
 {
   "hosting": {
-    "site": "sys-confeitaria",
     "public": "dist",
+    "site": "sys-confeitaria",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
