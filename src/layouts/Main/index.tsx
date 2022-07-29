@@ -10,5 +10,5 @@ export default function MainLayout({ page }: MainlLayoutProps) {
     <div>
       <Header page={page} />
     </div>
-  )
+  );
 }

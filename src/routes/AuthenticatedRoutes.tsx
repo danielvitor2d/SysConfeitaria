@@ -11,5 +11,5 @@ export default function AuthenticatedRoutes() {
       <Route path="/home" element={<MainLayout page={<Home />} />} />
       <Route path="*" element={<MinimalLayout page={<NotFound />} />} />
     </Routes>
-  )
+  );
 }

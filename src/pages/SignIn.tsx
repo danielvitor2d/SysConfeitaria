@@ -5,17 +5,9 @@ import { Box, Button, Input, Text, useToast, VStack } from "@chakra-ui/react";
 
 import { ReactComponent as Logo } from "../assets/login.svg";
 import { useForm } from "react-hook-form";
-import {
-  collection,
-  getDocs,
-  getFirestore,
-  query,
-  where,
-} from "firebase/firestore/lite";
-import app from "../settings/setupFirebase";
-import { compare } from "bcryptjs";
-import { useContext } from "react";
-import AuthContext from "../contexts/Auth";
+import { useContext, useEffect } from "react";
+import AuthContext from "../contexts/AuthContext";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 interface FormData {
   email: string;
@@ -33,10 +25,10 @@ export default function SignIn() {
 
   const toast = useToast();
 
-  const { login } = useContext(AuthContext)
+  const { signed, login } = useContext(AuthContext);
 
   async function handleSignIn(data: FormData) {
-    const logged = await login(data.email, data.password)
+    const logged = await login(data.email, data.password);
 
     if (logged) {
       toast({
@@ -46,8 +38,8 @@ export default function SignIn() {
         status: "success",
         variant: "left-accent",
         position: "bottom-right",
-      })
-      navigate('/home')
+      });
+      // navigate("/home");
     } else {
       toast({
         title: "Erro ao tentar fazer login",
@@ -57,9 +49,23 @@ export default function SignIn() {
         status: "warning",
         variant: "left-accent",
         position: "bottom-right",
-      })
+      });
     }
   }
+
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("Já tá logado")
+        if (signed) {
+          navigate('/home')
+        } else {
+          navigate('/')
+        }
+      }
+    });
+  }, [signed])
 
   return (
     <Box

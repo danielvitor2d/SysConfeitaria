@@ -7,7 +7,7 @@ export const customTheme = extendTheme({
       variants: {
         mytable: {
           table: {
-            backgroundColor: '#E8E8E8',
+            backgroundColor: "#E8E8E8",
           },
           tr: {
             // marginLeft: '10px',
@@ -22,7 +22,7 @@ export const customTheme = extendTheme({
             // borderColor: '#FFFFFF',
           },
           tbody: {
-            marginLeft: '10px',
+            marginLeft: "10px",
             tr: {
               "&:nth-of-type(odd)": {
                 "th, td": {
@@ -30,7 +30,7 @@ export const customTheme = extendTheme({
                   // borderColor: '#7C7C8A',
                 },
                 td: {
-                  background: 'rgba(234, 195, 174, 0.8)',
+                  background: "rgba(234, 195, 174, 0.8)",
                 },
               },
             },
@@ -42,8 +42,8 @@ export const customTheme = extendTheme({
               },
             },
           },
-        }
-      }
-    }
-  }
-})
+        },
+      },
+    },
+  },
+});

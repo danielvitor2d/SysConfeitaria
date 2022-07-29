@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import { Box, Button, Input, Text, useToast, VStack } from "@chakra-ui/react";
 
 import { useForm } from "react-hook-form";
 import { ReactComponent as Logo } from "../assets/first_access.svg";
-import AuthContext from "../contexts/Auth";
+import AuthContext from "../contexts/AuthContext";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 interface FormData {
   email: string;
@@ -19,13 +20,13 @@ export default function FirstAccess() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>()
+  } = useForm<FormData>();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const toast = useToast()
+  const toast = useToast();
 
-  const { register: registerUser } = useContext(AuthContext)
+  const { signed, register: registerUser } = useContext(AuthContext);
 
   async function handleRegister(data: FormData) {
     if (data.password !== data.confirm_password) {
@@ -37,10 +38,10 @@ export default function FirstAccess() {
         variant: "left-accent",
         position: "bottom-right",
       });
-      return
+      return;
     }
 
-    const registered = await registerUser(data.email, data.password)
+    const registered = await registerUser(data.email, data.password);
 
     if (registered) {
       toast({
@@ -48,9 +49,9 @@ export default function FirstAccess() {
         description: "Dados cadastrados com sucesso",
         isClosable: true,
         status: "success",
-      })
-      document.location.reload()
-      navigate('/login')
+      });
+      // document.location.reload();
+      // navigate("/login");
     } else {
       toast({
         title: "Erro ao tentar salvar dados",
@@ -60,9 +61,16 @@ export default function FirstAccess() {
         status: "warning",
         variant: "left-accent",
         position: "bottom-right",
-      })
+      });
     }
   }
+
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      navigate('/')
+    });
+  }, [signed])
 
   return (
     <Box

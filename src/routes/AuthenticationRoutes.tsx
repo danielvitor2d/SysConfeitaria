@@ -12,5 +12,5 @@ export default function AuthenticationRoutes() {
       <Route path="/sign-in" element={<MinimalLayout page={<SignIn />} />} />
       <Route path="*" element={<MinimalLayout page={<NotFound />} />} />
     </Routes>
-  )
+  );
 }
