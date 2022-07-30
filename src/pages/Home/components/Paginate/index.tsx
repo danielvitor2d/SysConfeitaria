@@ -62,7 +62,7 @@ export default function Paginate({
           aria-label="previous-page"
           backgroundColor={"#E8E8E8"}
           isDisabled={!canPreviousPage}
-          onClick={() => previousPage()}
+          onClick={previousPage}
         >
           <ChevronLeftIcon
             backgroundColor={"#63342B"}
@@ -76,7 +76,7 @@ export default function Paginate({
           aria-label="next-page"
           backgroundColor={"#E8E8E8"}
           isDisabled={!canNextPage}
-          onClick={() => nextPage()}
+          onClick={nextPage}
         >
           <ChevronRightIcon
             backgroundColor={"#63342B"}

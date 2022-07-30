@@ -6,27 +6,15 @@ import {
   HStack,
   Input,
   InputGroup,
-  InputRightElement,
   SimpleGrid,
-  Table,
-  TableCaption,
-  TableContainer,
-  Tbody,
-  Td,
   Text,
-  Tfoot,
-  Th,
-  Thead,
-  Tr,
   VStack,
 } from "@chakra-ui/react";
 import {
-  faCircleXmark,
   faPlus,
-  faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
+import {
   useCallback,
   useContext,
   useEffect,
@@ -37,13 +25,9 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import {
   Column,
-  useFilters,
-  usePagination,
-  useSortBy,
-  useTable,
 } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
-import Paginate from "./components/Paginate";
+import ProductTable from "./components/ProductTable";
 
 import makeData from "./makeData";
 
@@ -61,18 +45,10 @@ export default function Home() {
 
   const { signed } = useContext(AuthContext);
 
-  const [filterInput, setFilterInput] = useState<string>("");
-
   const [data, setData] = useState<Array<Product>>([]);
   const [loading, setLoading] = useState(false);
-  const [controlledPageCount, setControlledPageCount] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
   const fetchIdRef = useRef(0);
-
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value || "";
-    setFilterInput(value);
-    setFilter("productName", value);
-  };
 
   const columns = useMemo(
     () =>
@@ -108,43 +84,13 @@ export default function Home() {
     []
   );
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    footerGroups,
-    prepareRow,
-    setFilter,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex: 0 },
-      manualPagination: true,
-      pageCount: controlledPageCount,
-    },
-    useFilters,
-    useSortBy,
-    usePagination
-  );
-
   async function handleRemoveRow() {}
 
   async function handleUpdateRow() {}
 
   const fetchData = useCallback(
     ({ pageSize, pageIndex }: { pageSize: number; pageIndex: number }) => {
-      const fetchId = ++fetchIdRef.current;
+      const fetchId = ++fetchIdRef.current
 
       setLoading(true);
 
@@ -154,7 +100,7 @@ export default function Home() {
           const endRow = startRow + pageSize;
           setData(serverData.slice(startRow, endRow));
 
-          setControlledPageCount(Math.ceil(serverData.length / pageSize));
+          setPageCount(Math.ceil(serverData.length / pageSize));
 
           setLoading(false);
         }
@@ -162,10 +108,6 @@ export default function Home() {
     },
     []
   );
-
-  useEffect(() => {
-    fetchData({ pageIndex, pageSize });
-  }, [fetchData, pageIndex, pageSize]);
 
   useEffect(() => {
     if (!signed) {
@@ -247,10 +189,10 @@ export default function Home() {
                 }}
                 placeholder={"Ex. Pedaço de bolo"}
                 backgroundColor={"#E8E8E8"}
-                onChange={handleFilterChange}
-                value={filterInput}
+                // onChange={handleFilterChange}
+                // value={filterInput}
               />
-              <InputRightElement
+              {/* <InputRightElement
                 children={
                   <FontAwesomeIcon
                     icon={filterInput?.length > 0 ? faCircleXmark : faSearch}
@@ -264,89 +206,17 @@ export default function Home() {
                     color={"#63342B"}
                   />
                 }
-              />
+              /> */}
             </InputGroup>
           </GridItem>
         </SimpleGrid>
-        <TableContainer
-          width={"100%"}
-          borderRadius={"10px"}
-          borderWidth={"1px"}
-          borderColor={"#7C7C8A"}
-          padding={"12px"}
-          backgroundColor={"#E8E8E8"}
-        >
-          <Table {...getTableProps()} variant={"mytable"}>
-            <TableCaption>
-              <Paginate
-                page={page}
-                canPreviousPage={canPreviousPage}
-                canNextPage={canNextPage}
-                pageOptions={pageOptions}
-                pageCount={pageCount}
-                gotoPage={gotoPage}
-                nextPage={nextPage}
-                previousPage={previousPage}
-                setPageSize={setPageSize}
-                pageSize={pageSize}
-                pageIndex={pageIndex}
-              />
-            </TableCaption>
-            <Thead>
-              {headerGroups.map((headerGroup) => (
-                <Tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map((column) => (
-                    <Th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className={
-                        column.isSorted
-                          ? column.isSortedDesc
-                            ? "sort-desc"
-                            : "sort-asc"
-                          : ""
-                      }
-                    >
-                      {column.render("Header")}
-                    </Th>
-                  ))}
-                </Tr>
-              ))}
-            </Thead>
-            <Tbody {...getTableBodyProps()}>
-              {page.map((row, i) => {
-                prepareRow(row);
-                return (
-                  <Tr {...row.getRowProps()}>
-                    {row.cells.map((cell) => (
-                      <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
-                    ))}
-                  </Tr>
-                );
-              })}
-            </Tbody>
-            <Tfoot>
-              {footerGroups.map((footerGroup) => (
-                <Tr {...footerGroup.getFooterGroupProps()}>
-                  {footerGroup.headers.map((column) => (
-                    <Th {...column.getFooterProps()}>
-                      {column.render("Footer")}
-                    </Th>
-                  ))}
-                </Tr>
-              ))}
-              <Tr>
-                {loading ? (
-                  <Th>Loading...</Th>
-                ) : (
-                  <Th>
-                    Showing {page.length} of ~{controlledPageCount * pageSize}{" "}
-                    results
-                  </Th>
-                )}
-              </Tr>
-            </Tfoot>
-          </Table>
-        </TableContainer>
+        <ProductTable 
+          columns={columns}
+          data={data}
+          fetchData={fetchData}
+          loading={loading}
+          pageCount={pageCount}
+        />
       </VStack>
     </Box>
   );
