@@ -1,13 +1,16 @@
 import { useNavigate } from "react-router-dom";
 
 import { ChevronRightIcon } from "@chakra-ui/icons";
-import { Box, Button, Input, Text, useToast, VStack } from "@chakra-ui/react";
+import { Box, Button, Input, InputGroup, InputRightElement, Text, useToast, VStack } from "@chakra-ui/react";
 
 import { ReactComponent as Logo } from "../assets/login.svg";
 import { useForm } from "react-hook-form";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import AuthContext from "../contexts/AuthContext";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-regular-svg-icons";
+import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 interface FormData {
   email: string;
@@ -20,6 +23,12 @@ export default function SignIn() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
+
+  const [showPass, setShowPass] = useState<boolean>(false)
+
+  const handleClickEye = () => {
+    setShowPass(!showPass)
+  }
 
   const navigate = useNavigate();
 
@@ -39,7 +48,6 @@ export default function SignIn() {
         variant: "left-accent",
         position: "bottom-right",
       });
-      // navigate("/home");
     } else {
       toast({
         title: "Erro ao tentar fazer login",
@@ -54,18 +62,13 @@ export default function SignIn() {
   }
 
   useEffect(() => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("Já tá logado")
-        if (signed) {
-          navigate('/home')
-        } else {
-          navigate('/')
-        }
-      }
-    });
-  }, [signed])
+    if (signed) {
+      console.log("Já tá logado");
+      navigate("/home");
+    } else {
+      navigate("/");
+    }
+  }, [signed]);
 
   return (
     <Box
@@ -122,19 +125,30 @@ export default function SignIn() {
                 <></>
               )}
               <Box>
-                <Input
-                  {...register("password", { required: true })}
-                  width={"full"}
-                  type={"password"}
-                  borderRadius={"8px"}
-                  focusBorderColor={"#623329"}
-                  borderWidth={"1px"}
-                  placeholder={"Senha"}
-                  fontFamily={"Montserrat, sans-serif"}
-                  fontWeight={"500"}
-                  fontSize={"15px"}
-                  textColor={"black"}
-                />
+                <InputGroup>
+                  <Input
+                    {...register("password", { required: true })}
+                    width={"full"}
+                    type={showPass ? "text" : "password"}
+                    borderRadius={"8px"}
+                    focusBorderColor={"#623329"}
+                    borderWidth={"1px"}
+                    placeholder={"Senha"}
+                    fontFamily={"Montserrat, sans-serif"}
+                    fontWeight={"500"}
+                    fontSize={"15px"}
+                    textColor={"black"}
+                  />
+                  <InputRightElement 
+                    children={
+                      <FontAwesomeIcon
+                        icon={showPass ? faEye : faEyeSlash}
+                        cursor={'pointer'}
+                        onClick={handleClickEye}
+                      />
+                    }
+                  />
+                </InputGroup>
                 {errors.password ? (
                   <Text fontSize={"10px"} textColor={"red"} alignSelf={"start"}>
                     Campo senha é obrigatório

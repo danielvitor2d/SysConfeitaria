@@ -14,12 +14,12 @@ export default function Routes() {
   useEffect(() => {
     if (alreadyRegistered) {
       if (signed) {
-        console.log("Rota autenticada")
+        console.log("Rota autenticada");
       } else {
-        console.log("Rota de autenticação")
+        console.log("Rota de autenticação");
       }
     } else {
-      console.log("Rota de cadastro")
+      console.log("Rota de cadastro");
     }
 
     setRoute(
@@ -32,7 +32,7 @@ export default function Routes() {
       ) : (
         <FirstAccessRoutes />
       )
-    )
+    );
   }, [alreadyRegistered, signed]);
 
   return route;

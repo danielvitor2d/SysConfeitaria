@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { ChevronRightIcon } from "@chakra-ui/icons";
-import { Box, Button, Input, Text, useToast, VStack } from "@chakra-ui/react";
+import { Box, Button, Input, InputGroup, InputRightElement, Text, useToast, VStack } from "@chakra-ui/react";
 
 import { useForm } from "react-hook-form";
 import { ReactComponent as Logo } from "../assets/first_access.svg";
 import AuthContext from "../contexts/AuthContext";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 interface FormData {
   email: string;
@@ -21,6 +23,12 @@ export default function FirstAccess() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
+
+  const [showPass, setShowPass] = useState<boolean>(false)
+
+  const handleClickEye = () => {
+    setShowPass(!showPass)
+  }
 
   const navigate = useNavigate();
 
@@ -50,8 +58,6 @@ export default function FirstAccess() {
         isClosable: true,
         status: "success",
       });
-      // document.location.reload();
-      // navigate("/login");
     } else {
       toast({
         title: "Erro ao tentar salvar dados",
@@ -66,11 +72,10 @@ export default function FirstAccess() {
   }
 
   useEffect(() => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      navigate('/')
-    });
-  }, [signed])
+    if (signed) {
+      navigate("/");
+    }
+  }, [signed]);
 
   return (
     <Box
@@ -127,20 +132,31 @@ export default function FirstAccess() {
               ) : (
                 <></>
               )}
-              <Input
-                {...register("password", { required: true })}
-                width={"full"}
-                type={"password"}
-                borderRadius={"8px"}
-                focusBorderColor={"#623329"}
-                borderColor={!errors.password ? "#C4C4C4" : "red"}
-                borderWidth={"1px"}
-                placeholder={"Senha"}
-                fontFamily={"Montserrat, sans-serif"}
-                fontWeight={"500"}
-                fontSize={"15px"}
-                textColor={"black"}
-              />
+              <InputGroup>
+                <Input
+                  {...register("password", { required: true })}
+                  width={"full"}
+                  type={showPass ? "text" : "password"}
+                  borderRadius={"8px"}
+                  focusBorderColor={"#623329"}
+                  borderColor={!errors.password ? "#C4C4C4" : "red"}
+                  borderWidth={"1px"}
+                  placeholder={"Senha"}
+                  fontFamily={"Montserrat, sans-serif"}
+                  fontWeight={"500"}
+                  fontSize={"15px"}
+                  textColor={"black"}
+                />
+                <InputRightElement 
+                  children={
+                    <FontAwesomeIcon
+                      icon={showPass ? faEye : faEyeSlash}
+                      cursor={'pointer'}
+                      onClick={handleClickEye}
+                    />
+                  }
+                />
+              </InputGroup>
               {errors.password ? (
                 <Text fontSize={"10px"} textColor={"red"} alignSelf={"start"}>
                   Campo senha é obrigatório
@@ -148,20 +164,31 @@ export default function FirstAccess() {
               ) : (
                 <></>
               )}
-              <Input
-                {...register("confirm_password", { required: true })}
-                width={"full"}
-                type={"password"}
-                borderRadius={"8px"}
-                focusBorderColor={"#623329"}
-                borderColor={!errors.confirm_password ? "#C4C4C4" : "red"}
-                borderWidth={"1px"}
-                placeholder={"Confirmar senha"}
-                fontFamily={"Montserrat, sans-serif"}
-                fontWeight={"500"}
-                fontSize={"15px"}
-                textColor={"black"}
-              />
+              <InputGroup>
+                <Input
+                  {...register("confirm_password", { required: true })}
+                  width={"full"}
+                  type={showPass ? "text" : "password"}
+                  borderRadius={"8px"}
+                  focusBorderColor={"#623329"}
+                  borderColor={!errors.confirm_password ? "#C4C4C4" : "red"}
+                  borderWidth={"1px"}
+                  placeholder={"Confirmar senha"}
+                  fontFamily={"Montserrat, sans-serif"}
+                  fontWeight={"500"}
+                  fontSize={"15px"}
+                  textColor={"black"}
+                />
+                <InputRightElement 
+                  children={
+                    <FontAwesomeIcon
+                      icon={showPass ? faEye : faEyeSlash}
+                      cursor={'pointer'}
+                      onClick={handleClickEye}
+                    />
+                  }
+                />
+              </InputGroup>
               {errors.confirm_password ? (
                 <Text fontSize={"10px"} textColor={"red"} alignSelf={"start"}>
                   Campo confirmar senha é obrigatório

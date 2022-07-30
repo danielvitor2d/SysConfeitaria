@@ -6,10 +6,11 @@ import {
   HStack,
   Image,
   Text,
+  useMediaQuery,
   VStack,
 } from "@chakra-ui/react";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import ChapeuChef from "../../../assets/chapeu-de-chef-96.png";
 import Left from "../../../assets/left-96.png";
@@ -30,23 +31,28 @@ interface SidebarStateProp {
   mode: "open" | "close";
 }
 
-interface SidebarProps {
-  
-}
+export default function Sidebar() {
+  const [isLargerThan1440] = useMediaQuery('(min-width: 1440px)')
 
-export default function Sidebar({ }: SidebarProps) {
-  const [sidebarState, setSidebarState] = useState<SidebarStateProp>({
-    mode: "open",
+  const [sidebarState, setSidebarState] = useState<SidebarStateProp>(() => {
+    return { mode: isLargerThan1440 ? "open" : "close" }
   });
 
-  const { logout } = useContext(AuthContext)
+  const { logout } = useContext(AuthContext);
+
+  useEffect(() => {
+    setSidebarState({
+      mode: isLargerThan1440 ? "open" : "close"
+    })
+  }, [isLargerThan1440])
 
   return (
     <Box
       left={0}
       top={0}
-      height={"full"}
-      width={sidebarState.mode == "open" ? "450px" : "70px"}
+      height={"100%"}
+      width={sidebarState.mode == "open" ? "25rem" : "4rem"}
+      transition={'0.5s'}
       backgroundColor={"#63342B"}
     >
       <VStack>
@@ -66,7 +72,7 @@ export default function Sidebar({ }: SidebarProps) {
                 fontSize={"20px"}
                 textColor={"white"}
               >
-                SysConfeitaria
+                {'SysConfeitaria'}
               </Text>
             </HStack>
           )}
@@ -77,7 +83,8 @@ export default function Sidebar({ }: SidebarProps) {
             height={"30px"}
             width={"30px"}
             onClick={() => {
-              setSidebarState(() => {
+              setSidebarState(prevSidebarState => {
+                if (!isLargerThan1440) return prevSidebarState
                 const newSidebarState = {
                   mode: sidebarState.mode == "close" ? "open" : "close",
                 } as SidebarStateProp;
@@ -86,10 +93,7 @@ export default function Sidebar({ }: SidebarProps) {
             }}
           />
         </HStack>
-        <VStack 
-          gap={5}
-          width={'100%'}
-        >
+        <VStack gap={5} width={"100%"}>
           {sidebarState.mode == "open" && (
             <VStack textAlign={"center"}>
               <LogoHome width={"60%"} style={{ margin: "0 auto" }} />
@@ -116,7 +120,7 @@ export default function Sidebar({ }: SidebarProps) {
             <Button
               backgroundColor={"#EAC3AE"}
               borderRadius={sidebarState.mode == "open" ? "15px" : "full"}
-              width={"80%"}
+              width={"70%"}
             >
               <HStack alignItems={"center"}>
                 {sidebarState.mode == "open" && (
@@ -144,21 +148,23 @@ export default function Sidebar({ }: SidebarProps) {
             alignItems={sidebarState.mode == "open" ? "flex-start" : "center"}
           >
             <Flex
-              width={'100%'}
-              cursor={'pointer'}
+              width={"100%"}
+              cursor={"pointer"}
               _hover={{
-                backgroundColor: 'rgba(217, 217, 217, 0.19)',
+                backgroundColor: "rgba(217, 217, 217, 0.19)",
               }}
-              paddingY={'10px'}
-              alignItems={'center'}
+              paddingY={"10px"}
+              alignItems={"center"}
             >
               <HStack
                 gap={4}
-                justifyContent={sidebarState.mode == 'close' ? 'center' : undefined}
-                alignItems={'center'}
-                cursor={'pointer'}
-                margin={'auto'}
-                width={'80%'}
+                justifyContent={
+                  sidebarState.mode == "close" ? "center" : undefined
+                }
+                alignItems={"center"}
+                cursor={"pointer"}
+                margin={"auto"}
+                width={"80%"}
               >
                 <Box height={"30px"} width={"30px"} textAlign={"center"}>
                   <FontAwesomeIcon
@@ -181,21 +187,23 @@ export default function Sidebar({ }: SidebarProps) {
               </HStack>
             </Flex>
             <Flex
-              width={'100%'}
-              cursor={'pointer'}
+              width={"100%"}
+              cursor={"pointer"}
               _hover={{
-                backgroundColor: 'rgba(217, 217, 217, 0.19)',
+                backgroundColor: "rgba(217, 217, 217, 0.19)",
               }}
-              paddingY={'10px'}
-              alignItems={'center'}
+              paddingY={"10px"}
+              alignItems={"center"}
             >
               <HStack
                 gap={4}
-                justifyContent={sidebarState.mode == 'close' ? 'center' : undefined}
-                alignItems={'center'}
-                cursor={'pointer'}
-                margin={'auto'}
-                width={'80%'}
+                justifyContent={
+                  sidebarState.mode == "close" ? "center" : undefined
+                }
+                alignItems={"center"}
+                cursor={"pointer"}
+                margin={"auto"}
+                width={"80%"}
               >
                 <Box height={"30px"} width={"30px"} textAlign={"center"}>
                   <FontAwesomeIcon
@@ -218,21 +226,23 @@ export default function Sidebar({ }: SidebarProps) {
               </HStack>
             </Flex>
             <Flex
-              width={'100%'}
-              cursor={'pointer'}
+              width={"100%"}
+              cursor={"pointer"}
               _hover={{
-                backgroundColor: 'rgba(217, 217, 217, 0.19)',
+                backgroundColor: "rgba(217, 217, 217, 0.19)",
               }}
-              paddingY={'10px'}
-              alignItems={'center'}
+              paddingY={"10px"}
+              alignItems={"center"}
             >
               <HStack
                 gap={4}
-                justifyContent={sidebarState.mode == 'close' ? 'center' : undefined}
-                alignItems={'center'}
-                cursor={'pointer'}
-                margin={'auto'}
-                width={'80%'}
+                justifyContent={
+                  sidebarState.mode == "close" ? "center" : undefined
+                }
+                alignItems={"center"}
+                cursor={"pointer"}
+                margin={"auto"}
+                width={"80%"}
               >
                 <Box height={"30px"} width={"30px"} textAlign={"center"}>
                   <FontAwesomeIcon
@@ -255,21 +265,23 @@ export default function Sidebar({ }: SidebarProps) {
               </HStack>
             </Flex>
             <Flex
-              width={'100%'}
-              cursor={'pointer'}
+              width={"100%"}
+              cursor={"pointer"}
               _hover={{
-                backgroundColor: 'rgba(217, 217, 217, 0.19)',
+                backgroundColor: "rgba(217, 217, 217, 0.19)",
               }}
-              paddingY={'10px'}
-              alignItems={'center'}
+              paddingY={"10px"}
+              alignItems={"center"}
             >
               <HStack
                 gap={4}
-                justifyContent={sidebarState.mode == 'close' ? 'center' : undefined}
-                alignItems={'center'}
-                cursor={'pointer'}
-                margin={'auto'}
-                width={'80%'}
+                justifyContent={
+                  sidebarState.mode == "close" ? "center" : undefined
+                }
+                alignItems={"center"}
+                cursor={"pointer"}
+                margin={"auto"}
+                width={"80%"}
               >
                 <Box height={"30px"} width={"30px"} textAlign={"center"}>
                   <FontAwesomeIcon
@@ -291,24 +303,26 @@ export default function Sidebar({ }: SidebarProps) {
                 )}
               </HStack>
             </Flex>
-            <Divider width={'80%'} alignSelf={'center'} />
+            <Divider width={"80%"} alignSelf={"center"} />
             <Flex
-              width={'100%'}
-              cursor={'pointer'}
+              width={"100%"}
+              cursor={"pointer"}
               _hover={{
-                backgroundColor: 'rgba(217, 217, 217, 0.19)',
+                backgroundColor: "rgba(217, 217, 217, 0.19)",
               }}
               onClick={logout}
-              paddingY={'10px'}
-              alignItems={'center'}
+              paddingY={"10px"}
+              alignItems={"center"}
             >
               <HStack
                 gap={4}
-                justifyContent={sidebarState.mode == 'close' ? 'center' : undefined}
-                alignItems={'center'}
-                cursor={'pointer'}
-                margin={'auto'}
-                width={'80%'}
+                justifyContent={
+                  sidebarState.mode == "close" ? "center" : undefined
+                }
+                alignItems={"center"}
+                cursor={"pointer"}
+                margin={"auto"}
+                width={"80%"}
               >
                 <Box height={"30px"} width={"30px"} textAlign={"center"}>
                   <FontAwesomeIcon

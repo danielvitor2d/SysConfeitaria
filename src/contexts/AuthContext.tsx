@@ -9,7 +9,11 @@ import {
   setDoc,
   where,
 } from "firebase/firestore/lite";
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { FC, ReactNode, useEffect } from "react";
 import { useState, createContext } from "react";
 
@@ -30,51 +34,55 @@ interface AuthContextData {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
-  const auth = getAuth()
+  const auth = getAuth();
 
   const [signed, setSigned] = useState<boolean>(() => {
-    return auth.currentUser !== null
+    return auth.currentUser !== null;
   });
   const [alreadyRegistered, setAlreadyRegistered] = useState<boolean>(false);
 
   async function register(email: string, password: string): Promise<boolean> {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-      const user = userCredential.user
-  
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
       const db = getFirestore(app);
-  
+
       const dataToSave = {
         email: email,
         password: await hash(password, 10),
       };
-  
+
       await setDoc(doc(db, "user", user.uid), dataToSave);
 
       // setSigned(true)
-      setAlreadyRegistered(true)
+      setAlreadyRegistered(true);
 
-      return true
+      return true;
     } catch (error) {
-      console.log(error)
-      return false
+      console.log(error);
+      return false;
     }
   }
 
   async function login(email: string, password: string): Promise<boolean> {
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      await signInWithEmailAndPassword(auth, email, password);
 
-      setSigned(true)
-      return true
+      setSigned(true);
+      return true;
     } catch (error) {
-      console.log(error)
-      return false
+      console.log(error);
+      return false;
     }
   }
 
   async function logout() {
-    await auth.signOut()
+    await auth.signOut();
     setSigned(false);
   }
 
@@ -90,14 +98,14 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (auth.currentUser !== null) {
-      setSigned(true)
+      setSigned(true);
     }
-  }, [auth.currentUser])
+  }, [auth.currentUser]);
 
   useEffect(() => {
     console.log("signed: ", signed);
     console.log("alreadyRegistered: ", alreadyRegistered);
-    console.log("logado no Authentication: ", auth.currentUser?.uid)
+    console.log("logado no Authentication: ", auth.currentUser?.uid);
   }, [signed, alreadyRegistered, auth.currentUser]);
 
   return (
