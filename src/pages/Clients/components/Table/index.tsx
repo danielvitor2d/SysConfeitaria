@@ -53,6 +53,7 @@ interface ClientTableProps {
   }) => void;
   loading: boolean;
   pageCount: number;
+  onOpenDrawerAddClient: () => void
 }
 
 export default function Table({
@@ -61,6 +62,7 @@ export default function Table({
   fetchData,
   loading,
   pageCount: controlledPageCount,
+  onOpenDrawerAddClient
 }: ClientTableProps) {
   const cssResizer = {
     _hover: {
@@ -159,6 +161,7 @@ export default function Table({
             borderWidth={"1px"}
             borderColor={"#63342B"}
             width={"100%"}
+            onClick={onOpenDrawerAddClient}
           >
             <HStack alignItems={"center"}>
               <Text

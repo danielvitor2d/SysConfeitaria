@@ -17,7 +17,7 @@ import Table from "./components/Table";
 
 import makeData from "./makeData";
 
-const serverData = makeData(1);
+const serverData = makeData(5);
 
 export type Product = {
   productCode: string;
@@ -25,13 +25,6 @@ export type Product = {
   unitaryValue: string;
   actions?: string;
 };
-
-type DataForm = {
-  productName: string
-  productCode: string
-  productValue: number
-  productUnid: string
-}
 
 export default function Products() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
@@ -244,7 +237,7 @@ export default function Products() {
             fetchData={fetchData}
             loading={loading}
             pageCount={pageCount}
-            onOpenDrawerAppProduct={onOpen}
+            onOpenDrawerAddProduct={onOpen}
           />
         </VStack>
       </Box>
