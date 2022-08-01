@@ -54,6 +54,13 @@ export default function Products() {
         {
           Header: "Nome do Produto".toUpperCase(),
           Footer: "Nome do Produto".toUpperCase(),
+          Cell: ({ value }) => (
+            <Text 
+              whiteSpace={'normal'}
+            >
+              {value}
+            </Text>
+          ),
           accessor: "productName",
           disableResizing: false,
           width: isLargerThan1440 ? 900 : 500,
