@@ -16,7 +16,6 @@ import { ReactComponent as Logo } from "../assets/login.svg";
 import { useForm } from "react-hook-form";
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../contexts/AuthContext";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-regular-svg-icons";
 import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
