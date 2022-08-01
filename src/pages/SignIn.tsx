@@ -1,7 +1,16 @@
 import { useNavigate } from "react-router-dom";
 
 import { ChevronRightIcon } from "@chakra-ui/icons";
-import { Box, Button, Input, InputGroup, InputRightElement, Text, useToast, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
 
 import { ReactComponent as Logo } from "../assets/login.svg";
 import { useForm } from "react-hook-form";
@@ -24,11 +33,11 @@ export default function SignIn() {
     formState: { errors },
   } = useForm<FormData>();
 
-  const [showPass, setShowPass] = useState<boolean>(false)
+  const [showPass, setShowPass] = useState<boolean>(false);
 
   const handleClickEye = () => {
-    setShowPass(!showPass)
-  }
+    setShowPass(!showPass);
+  };
 
   const navigate = useNavigate();
 
@@ -64,7 +73,7 @@ export default function SignIn() {
   useEffect(() => {
     if (signed) {
       console.log("Já tá logado");
-      navigate("/home");
+      navigate("/products");
     } else {
       navigate("/");
     }
@@ -139,11 +148,11 @@ export default function SignIn() {
                     fontSize={"15px"}
                     textColor={"black"}
                   />
-                  <InputRightElement 
+                  <InputRightElement
                     children={
                       <FontAwesomeIcon
                         icon={showPass ? faEye : faEyeSlash}
-                        cursor={'pointer'}
+                        cursor={"pointer"}
                         onClick={handleClickEye}
                       />
                     }

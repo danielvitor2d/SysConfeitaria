@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Product } from ".";
+import { Client } from ".";
 
 const range = (len: any) => {
   const arr = [];
@@ -9,12 +9,15 @@ const range = (len: any) => {
   return arr;
 };
 
-const newPerson = (): Product => {
-  const statusChance = Math.random();
+const newPerson = (): Client => {
+  const clientFirstName = faker.name.firstName();
+  const clientlastName = faker.name.lastName();
   return {
-    productCode: faker.random.numeric(6),
-    productName: faker.commerce.product(),
-    unitaryValue: faker.commerce.price().toString(),
+    clientCode: faker.random.numeric(6),
+    clientName:
+      clientFirstName + " " + faker.name.middleName() + " " + clientlastName,
+    clientEmail: faker.internet.email(clientFirstName, clientlastName),
+    contact: faker.phone.number("(8#) 9####-####"),
   };
 };
 

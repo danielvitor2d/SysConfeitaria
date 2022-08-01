@@ -1,7 +1,7 @@
 import { Box, Flex } from "@chakra-ui/react";
 import { ReactNode } from "react";
-import Header from "./Components/Header";
-import Sidebar from "./Components/Sidebar";
+import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
 
 interface MainlLayoutProps {
   page: ReactNode;

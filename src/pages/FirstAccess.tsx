@@ -2,7 +2,16 @@ import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 
 import { ChevronRightIcon } from "@chakra-ui/icons";
-import { Box, Button, Input, InputGroup, InputRightElement, Text, useToast, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
 
 import { useForm } from "react-hook-form";
 import { ReactComponent as Logo } from "../assets/first_access.svg";
@@ -24,11 +33,11 @@ export default function FirstAccess() {
     formState: { errors },
   } = useForm<FormData>();
 
-  const [showPass, setShowPass] = useState<boolean>(false)
+  const [showPass, setShowPass] = useState<boolean>(false);
 
   const handleClickEye = () => {
-    setShowPass(!showPass)
-  }
+    setShowPass(!showPass);
+  };
 
   const navigate = useNavigate();
 
@@ -147,11 +156,11 @@ export default function FirstAccess() {
                   fontSize={"15px"}
                   textColor={"black"}
                 />
-                <InputRightElement 
+                <InputRightElement
                   children={
                     <FontAwesomeIcon
                       icon={showPass ? faEye : faEyeSlash}
-                      cursor={'pointer'}
+                      cursor={"pointer"}
                       onClick={handleClickEye}
                     />
                   }
@@ -179,11 +188,11 @@ export default function FirstAccess() {
                   fontSize={"15px"}
                   textColor={"black"}
                 />
-                <InputRightElement 
+                <InputRightElement
                   children={
                     <FontAwesomeIcon
                       icon={showPass ? faEye : faEyeSlash}
-                      cursor={'pointer'}
+                      cursor={"pointer"}
                       onClick={handleClickEye}
                     />
                   }

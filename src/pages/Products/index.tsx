@@ -1,19 +1,5 @@
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  GridItem,
-  HStack,
-  Input,
-  InputGroup,
-  SimpleGrid,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-import {
-  faPlus,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Box, HStack, Text, useMediaQuery, VStack } from "@chakra-ui/react";
 import {
   useCallback,
   useContext,
@@ -23,11 +9,9 @@ import {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Column,
-} from "react-table";
+import { Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
-import ProductTable from "./components/ProductTable";
+import Table from "./components/Table";
 
 import makeData from "./makeData";
 
@@ -40,7 +24,9 @@ export type Product = {
   actions?: string;
 };
 
-export default function Home() {
+export default function Products() {
+  const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
+
   const navigate = useNavigate();
 
   const { signed } = useContext(AuthContext);
@@ -57,16 +43,23 @@ export default function Home() {
           Header: "Código".toUpperCase(),
           Footer: "Código".toUpperCase(),
           accessor: "productCode",
+          disableResizing: false,
+          width: 100,
         },
         {
           Header: "Nome do Produto".toUpperCase(),
           Footer: "Nome do Produto".toUpperCase(),
           accessor: "productName",
+          disableResizing: false,
+          width: isLargerThan1440 ? 900 : 500,
         },
         {
           Header: "Valor Unitário/Kg/L".toUpperCase(),
           Footer: "Valor Unitário/Kg/L".toUpperCase(),
           accessor: "unitaryValue",
+          disableResizing: false,
+          isNumeric: true,
+          width: 250,
         },
         {
           Header: "Ações".toUpperCase(),
@@ -78,10 +71,12 @@ export default function Home() {
               <DeleteIcon color={"red"} />
             </HStack>
           ),
+          disableResizing: true,
           disableSortBy: true,
+          width: 100,
         },
       ] as Array<Column<Product>>,
-    []
+    [isLargerThan1440]
   );
 
   async function handleRemoveRow() {}
@@ -90,7 +85,7 @@ export default function Home() {
 
   const fetchData = useCallback(
     ({ pageSize, pageIndex }: { pageSize: number; pageIndex: number }) => {
-      const fetchId = ++fetchIdRef.current
+      const fetchId = ++fetchIdRef.current;
 
       setLoading(true);
 
@@ -122,7 +117,7 @@ export default function Home() {
       overflowY={"auto"}
       paddingBottom={"1rem"}
     >
-      <VStack gap={5} paddingTop={"20px"} alignItems={"flex-start"}>
+      <VStack gap={2} paddingTop={"20px"} alignItems={"flex-start"}>
         <VStack alignItems={"flex-start"}>
           <Text
             fontFamily={"Inter"}
@@ -144,73 +139,7 @@ export default function Home() {
             {"Gerencie seus produtos aqui!"}
           </Text>
         </VStack>
-        <SimpleGrid
-          width={"100%"}
-          alignItems={"flex-start"}
-          justifyContent={"space-between"}
-          gap={7}
-          flex={1}
-          columns={[1, 1, 5, 6, 6]}
-        >
-          <GridItem colSpan={[1, 1, 2, 2, 1]}>
-            <Button
-              backgroundColor={"#EAC3AE"}
-              borderRadius={"6px"}
-              borderWidth={"1px"}
-              borderColor={"#63342B"}
-              width={"100%"}
-            >
-              <HStack alignItems={"center"}>
-                <Text
-                  fontFamily={"Montserrat"}
-                  fontWeight={"500"}
-                  textColor={"#63342B"}
-                  marginTop={"2px"}
-                >
-                  {"Novo produto".toUpperCase()}
-                </Text>
-                <Box height={"25px"} width={"25px"} textAlign={"center"}>
-                  <FontAwesomeIcon
-                    color={"#63342B"}
-                    icon={faPlus}
-                    fontSize={"25px"}
-                  />
-                </Box>
-              </HStack>
-            </Button>
-          </GridItem>
-          <GridItem colSpan={[1, 1, 3, 2, 2]} colStart={[1, 1, 3, 5, 5]}>
-            <InputGroup>
-              <Input
-                borderColor={"#63342B"}
-                focusBorderColor={"#482017"}
-                _hover={{
-                  borderColor: "#482017",
-                }}
-                placeholder={"Ex. Pedaço de bolo"}
-                backgroundColor={"#E8E8E8"}
-                // onChange={handleFilterChange}
-                // value={filterInput}
-              />
-              {/* <InputRightElement
-                children={
-                  <FontAwesomeIcon
-                    icon={filterInput?.length > 0 ? faCircleXmark : faSearch}
-                    cursor={filterInput?.length > 0 ? "pointer" : undefined}
-                    onClick={() => {
-                      if (filterInput?.length > 0) {
-                        setFilterInput("");
-                        setFilter("productName", "");
-                      }
-                    }}
-                    color={"#63342B"}
-                  />
-                }
-              /> */}
-            </InputGroup>
-          </GridItem>
-        </SimpleGrid>
-        <ProductTable 
+        <Table
           columns={columns}
           data={data}
           fetchData={fetchData}

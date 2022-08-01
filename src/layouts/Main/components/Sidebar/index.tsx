@@ -12,10 +12,10 @@ import {
 
 import { useContext, useEffect, useState } from "react";
 
-import ChapeuChef from "../../../assets/chapeu-de-chef-96.png";
-import Left from "../../../assets/left-96.png";
-import Right from "../../../assets/right-96.png";
-import { ReactComponent as LogoHome } from "../../../assets/logo_home.svg";
+import ChapeuChef from "../../../../assets/chapeu-de-chef-96.png";
+import Left from "../../../../assets/left-96.png";
+import Right from "../../../../assets/right-96.png";
+import { ReactComponent as LogoHome } from "../../../../assets/logo_home.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRightFromBracket,
@@ -25,13 +25,16 @@ import {
   faPlus,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
-import AuthContext from "../../../contexts/AuthContext";
+import AuthContext from "../../../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarStateProp {
   mode: "open" | "close";
 }
 
 export default function Sidebar() {
+  const navigate = useNavigate()
+
   const [isLargerThan1440] = useMediaQuery('(min-width: 1440px)')
 
   const [sidebarState, setSidebarState] = useState<SidebarStateProp>(() => {
@@ -51,7 +54,8 @@ export default function Sidebar() {
       left={0}
       top={0}
       height={"100%"}
-      width={sidebarState.mode == "open" ? "25rem" : "4rem"}
+      width={sidebarState.mode == "open" ? "20rem" : "4rem"}
+      minWidth={sidebarState.mode == "open" ? "20rem" : "4rem"}
       transition={'0.5s'}
       backgroundColor={"#63342B"}
     >
@@ -69,7 +73,7 @@ export default function Sidebar() {
                 fontFamily={"Inter"}
                 fontWeight={"700"}
                 fontStyle={"normal"}
-                fontSize={"20px"}
+                fontSize={["12px", "20px"]}
                 textColor={"white"}
               >
                 {'SysConfeitaria'}
@@ -83,13 +87,7 @@ export default function Sidebar() {
             height={"30px"}
             width={"30px"}
             onClick={() => {
-              setSidebarState(prevSidebarState => {
-                if (!isLargerThan1440) return prevSidebarState
-                const newSidebarState = {
-                  mode: sidebarState.mode == "close" ? "open" : "close",
-                } as SidebarStateProp;
-                return newSidebarState;
-              });
+              setSidebarState({ mode: sidebarState.mode == "close" ? "open" : "close" });
             }}
           />
         </HStack>
@@ -155,6 +153,9 @@ export default function Sidebar() {
               }}
               paddingY={"10px"}
               alignItems={"center"}
+              onClick={() => {
+                navigate('/vendas')
+              }}
             >
               <HStack
                 gap={4}
@@ -194,6 +195,9 @@ export default function Sidebar() {
               }}
               paddingY={"10px"}
               alignItems={"center"}
+              onClick={() => {
+                navigate('/clients')
+              }}
             >
               <HStack
                 gap={4}
@@ -233,6 +237,9 @@ export default function Sidebar() {
               }}
               paddingY={"10px"}
               alignItems={"center"}
+              onClick={() => {
+                navigate('/products')
+              }}
             >
               <HStack
                 gap={4}
