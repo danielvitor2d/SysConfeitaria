@@ -31,8 +31,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import {
   Column,
+  useAsyncDebounce,
   useBlockLayout,
   useFilters,
+  useGlobalFilter,
   usePagination,
   useResizeColumns,
   useSortBy,
@@ -52,7 +54,6 @@ interface ClientTableProps {
     pageIndex: number;
   }) => void;
   loading: boolean;
-  pageCount: number;
   onOpenDrawerAddClient: () => void
 }
 
@@ -61,7 +62,6 @@ export default function Table({
   data,
   fetchData,
   loading,
-  pageCount: controlledPageCount,
   onOpenDrawerAddClient
 }: ClientTableProps) {
   const cssResizer = {
@@ -86,8 +86,6 @@ export default function Table({
     },
   };
 
-  const [filterInput, setFilterInput] = useState<string>("");
-
   const defaultColumn = React.useMemo(
     () => ({
       minWidth: 80,
@@ -103,7 +101,6 @@ export default function Table({
     headerGroups,
     footerGroups,
     prepareRow,
-    setFilter,
     page,
     canPreviousPage,
     canNextPage,
@@ -113,36 +110,31 @@ export default function Table({
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize },
-    // resetResizing,
+    setGlobalFilter,
+    state: { pageIndex, pageSize, globalFilter },
   } = useTable(
     {
       columns,
       data,
       initialState: { pageIndex: 0 },
-      manualPagination: true,
-      pageCount: controlledPageCount,
       autoResetPage: false,
+      autoResetFilters: false,
+      autoResetExpanded: false,
+      autoResetSortBy: false,
       defaultColumn,
     },
-    useFilters,
+    useBlockLayout,
+    useResizeColumns,
+    useGlobalFilter,
     useSortBy,
     usePagination,
-    useBlockLayout,
-    useResizeColumns
   );
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value || "";
-    setFilterInput(value);
-    setFilter("clientName", value);
-  };
+  const [filter, setFilter] = useState(globalFilter);
 
-  useEffect(() => {
-    fetchData({ pageIndex, pageSize });
-    console.log("pageIndex: " + pageIndex);
-    console.log("pageSize: " + pageSize);
-  }, [pageIndex, pageSize]);
+  const onChange = useAsyncDebounce(value => {
+    setGlobalFilter(value || undefined)
+  }, 200)
 
   return (
     <VStack gap={1}>
@@ -193,18 +185,21 @@ export default function Table({
               }}
               placeholder={"Ex. Fulano de Tal"}
               backgroundColor={"#E8E8E8"}
-              onChange={handleFilterChange}
-              value={filterInput}
+              value={filter || ''}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                onChange(event.target.value)
+                setFilter(event.target.value)
+              }}
             />
             <InputRightElement
               children={
                 <FontAwesomeIcon
-                  icon={filterInput?.length > 0 ? faCircleXmark : faSearch}
-                  cursor={filterInput?.length > 0 ? "pointer" : undefined}
+                  icon={filter?.length > 0 ? faCircleXmark : faSearch}
+                  cursor={filter?.length > 0 ? "pointer" : undefined}
                   onClick={() => {
-                    if (filterInput?.length > 0) {
-                      setFilterInput("");
-                      setFilter("clientName", "");
+                    if (filter?.length > 0) {
+                      setGlobalFilter("");
+                      setFilter("")
                     }
                   }}
                   color={"#63342B"}
@@ -317,16 +312,6 @@ export default function Table({
                 ))}
               </Tr>
             ))}
-            {/* <Tr>
-              {loading ? (
-                <Th>Loading...</Th>
-              ) : (
-                <Th>
-                  Showing {page.length} of ~{controlledPageCount * pageSize}{" "}
-                  results
-                </Th>
-              )}
-            </Tr> */}
           </Tfoot>
         </ChakraUITable>
       </TableContainer>

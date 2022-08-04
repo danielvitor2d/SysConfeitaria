@@ -17,7 +17,7 @@ import Table from "./components/Table";
 
 import makeData from "./makeData";
 
-const serverData = makeData(5);
+const serverData = makeData(25);
 
 export type Client = {
   clientCode: string;
@@ -34,9 +34,8 @@ export default function Clients() {
 
   const { signed } = useContext(AuthContext);
 
-  const [data, setData] = useState<Array<Client>>([]);
+  const [data, setData] = useState<Client[]>(() => makeData(25));
   const [loading, setLoading] = useState(false);
-  const [pageCount, setPageCount] = useState(0);
   const fetchIdRef = useRef(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -86,6 +85,8 @@ export default function Clients() {
           ),
           disableResizing: true,
           disableSortBy: true,
+          disableFilters: true,
+          disableGlobalFilter: true,
           width: 100,
         },
       ] as Array<Column<Client>>,
@@ -130,8 +131,6 @@ export default function Clients() {
           const startRow = pageSize * pageIndex;
           const endRow = startRow + pageSize;
           setData(serverData.slice(startRow, endRow));
-
-          setPageCount(Math.ceil(serverData.length / pageSize));
 
           setLoading(false);
         }
@@ -242,7 +241,6 @@ export default function Clients() {
             data={data}
             fetchData={fetchData}
             loading={loading}
-            pageCount={pageCount}
             onOpenDrawerAddClient={onOpen}
           />
         </VStack>

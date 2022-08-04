@@ -17,7 +17,7 @@ import Table from "./components/Table";
 
 import makeData from "./makeData";
 
-const serverData = makeData(5);
+const serverData = makeData(50);
 
 export type Product = {
   productCode: string;
@@ -33,9 +33,9 @@ export default function Products() {
 
   const { signed } = useContext(AuthContext);
 
-  const [data, setData] = useState<Product[]>([]);
+  const [data, setData] = useState<Product[]>(() => makeData(50));
   const [loading, setLoading] = useState(false);
-  const [pageCount, setPageCount] = useState(0);
+
   const fetchIdRef = useRef(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -85,6 +85,8 @@ export default function Products() {
           ),
           disableResizing: true,
           disableSortBy: true,
+          disableFilters: true,
+          disableGlobalFilter: true,
           width: 100,
         },
       ] as Array<Column<Product>>,
@@ -128,8 +130,6 @@ export default function Products() {
           const startRow = pageSize * pageIndex;
           const endRow = startRow + pageSize;
           setData(serverData.slice(startRow, endRow));
-
-          setPageCount(Math.ceil(serverData.length / pageSize));
 
           setLoading(false);
         }
@@ -243,7 +243,7 @@ export default function Products() {
             data={data}
             fetchData={fetchData}
             loading={loading}
-            pageCount={pageCount}
+            // pageCount={pageCount}
             onOpenDrawerAddProduct={onOpen}
           />
         </VStack>
