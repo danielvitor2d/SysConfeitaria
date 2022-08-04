@@ -24,6 +24,7 @@ import {
   faGear,
   faPlus,
   faUsers,
+  IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import AuthContext from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -32,22 +33,60 @@ interface SidebarStateProp {
   mode: "open" | "close";
 }
 
-export default function Sidebar() {
-  const navigate = useNavigate()
+type SidebarType = {
+  route: string;
+  title: string;
+  icon: IconDefinition;
+  onClick?: () => void;
+  precedesDivider?: boolean;
+};
 
-  const [isLargerThan1440] = useMediaQuery('(min-width: 1440px)')
+export default function Sidebar() {
+  const navigate = useNavigate();
+
+  const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
 
   const [sidebarState, setSidebarState] = useState<SidebarStateProp>(() => {
-    return { mode: isLargerThan1440 ? "open" : "close" }
+    return { mode: isLargerThan1440 ? "open" : "close" };
   });
 
   const { logout } = useContext(AuthContext);
 
+  const MENUS_SIDEBAR: Array<SidebarType> = [
+    {
+      title: "Vendas",
+      route: "/sales",
+      icon: faCartArrowDown,
+    },
+    {
+      title: "Clientes",
+      route: "/clients",
+      icon: faUsers,
+    },
+    {
+      title: "Produtos",
+      route: "/products",
+      icon: faCake,
+    },
+    {
+      title: "Configurações",
+      route: "/settings",
+      icon: faGear,
+      precedesDivider: true,
+    },
+    {
+      title: "Sair",
+      route: "",
+      icon: faArrowRightFromBracket,
+      onClick: logout,
+    },
+  ];
+
   useEffect(() => {
     setSidebarState({
-      mode: isLargerThan1440 ? "open" : "close"
-    })
-  }, [isLargerThan1440])
+      mode: isLargerThan1440 ? "open" : "close",
+    });
+  }, [isLargerThan1440]);
 
   return (
     <Box
@@ -56,7 +95,7 @@ export default function Sidebar() {
       height={"100%"}
       width={sidebarState.mode == "open" ? "20rem" : "4rem"}
       minWidth={sidebarState.mode == "open" ? "20rem" : "4rem"}
-      transition={'0.5s'}
+      transition={"0.5s"}
       backgroundColor={"#63342B"}
     >
       <VStack>
@@ -76,7 +115,7 @@ export default function Sidebar() {
                 fontSize={["12px", "20px"]}
                 textColor={"white"}
               >
-                {'SysConfeitaria'}
+                {"SysConfeitaria"}
               </Text>
             </HStack>
           )}
@@ -87,7 +126,9 @@ export default function Sidebar() {
             height={"30px"}
             width={"30px"}
             onClick={() => {
-              setSidebarState({ mode: sidebarState.mode == "close" ? "open" : "close" });
+              setSidebarState({
+                mode: sidebarState.mode == "close" ? "open" : "close",
+              });
             }}
           />
         </HStack>
@@ -145,212 +186,63 @@ export default function Sidebar() {
             width={"100%"}
             alignItems={sidebarState.mode == "open" ? "flex-start" : "center"}
           >
-            <Flex
-              width={"100%"}
-              cursor={"pointer"}
-              _hover={{
-                backgroundColor: "rgba(217, 217, 217, 0.19)",
-              }}
-              paddingY={"10px"}
-              alignItems={"center"}
-              onClick={() => {
-                navigate('/vendas')
-              }}
-            >
-              <HStack
-                gap={4}
-                justifyContent={
-                  sidebarState.mode == "close" ? "center" : undefined
-                }
-                alignItems={"center"}
-                cursor={"pointer"}
-                margin={"auto"}
-                width={"80%"}
-              >
-                <Box height={"30px"} width={"30px"} textAlign={"center"}>
-                  <FontAwesomeIcon
-                    color={"#EAC3AE"}
-                    icon={faCartArrowDown}
-                    fontSize={"28px"}
-                  />
-                </Box>
-                {sidebarState.mode == "open" && (
-                  <Text
-                    fontFamily={"Montserrat"}
-                    fontStyle={"normal"}
-                    fontWeight={"500"}
-                    fontSize={"14px"}
-                    textColor={"#FFFFFF"}
+            {MENUS_SIDEBAR.map((menu_sidebar) => {
+              return (
+                <>
+                  <Flex
+                    width={"100%"}
+                    cursor={"pointer"}
+                    _hover={{
+                      backgroundColor: "rgba(217, 217, 217, 0.19)",
+                    }}
+                    paddingY={"10px"}
+                    alignItems={"center"}
+                    onClick={
+                      menu_sidebar.onClick !== undefined
+                        ? () => {
+                          menu_sidebar.onClick?.()
+                        }
+                        : () => {
+                            navigate(menu_sidebar.route);
+                          }
+                    }
                   >
-                    {"Vendas".toUpperCase()}
-                  </Text>
-                )}
-              </HStack>
-            </Flex>
-            <Flex
-              width={"100%"}
-              cursor={"pointer"}
-              _hover={{
-                backgroundColor: "rgba(217, 217, 217, 0.19)",
-              }}
-              paddingY={"10px"}
-              alignItems={"center"}
-              onClick={() => {
-                navigate('/clients')
-              }}
-            >
-              <HStack
-                gap={4}
-                justifyContent={
-                  sidebarState.mode == "close" ? "center" : undefined
-                }
-                alignItems={"center"}
-                cursor={"pointer"}
-                margin={"auto"}
-                width={"80%"}
-              >
-                <Box height={"30px"} width={"30px"} textAlign={"center"}>
-                  <FontAwesomeIcon
-                    color={"#EAC3AE"}
-                    icon={faUsers}
-                    fontSize={"28px"}
-                  />
-                </Box>
-                {sidebarState.mode == "open" && (
-                  <Text
-                    fontFamily={"Montserrat"}
-                    fontStyle={"normal"}
-                    fontWeight={"500"}
-                    fontSize={"14px"}
-                    textColor={"#FFFFFF"}
-                  >
-                    {"Clientes".toUpperCase()}
-                  </Text>
-                )}
-              </HStack>
-            </Flex>
-            <Flex
-              width={"100%"}
-              cursor={"pointer"}
-              _hover={{
-                backgroundColor: "rgba(217, 217, 217, 0.19)",
-              }}
-              paddingY={"10px"}
-              alignItems={"center"}
-              onClick={() => {
-                navigate('/products')
-              }}
-            >
-              <HStack
-                gap={4}
-                justifyContent={
-                  sidebarState.mode == "close" ? "center" : undefined
-                }
-                alignItems={"center"}
-                cursor={"pointer"}
-                margin={"auto"}
-                width={"80%"}
-              >
-                <Box height={"30px"} width={"30px"} textAlign={"center"}>
-                  <FontAwesomeIcon
-                    color={"#EAC3AE"}
-                    icon={faCake}
-                    fontSize={"28px"}
-                  />
-                </Box>
-                {sidebarState.mode == "open" && (
-                  <Text
-                    fontFamily={"Montserrat"}
-                    fontStyle={"normal"}
-                    fontWeight={"500"}
-                    fontSize={"14px"}
-                    textColor={"#FFFFFF"}
-                  >
-                    {"Produtos".toUpperCase()}
-                  </Text>
-                )}
-              </HStack>
-            </Flex>
-            <Flex
-              width={"100%"}
-              cursor={"pointer"}
-              _hover={{
-                backgroundColor: "rgba(217, 217, 217, 0.19)",
-              }}
-              paddingY={"10px"}
-              alignItems={"center"}
-            >
-              <HStack
-                gap={4}
-                justifyContent={
-                  sidebarState.mode == "close" ? "center" : undefined
-                }
-                alignItems={"center"}
-                cursor={"pointer"}
-                margin={"auto"}
-                width={"80%"}
-              >
-                <Box height={"30px"} width={"30px"} textAlign={"center"}>
-                  <FontAwesomeIcon
-                    color={"#EAC3AE"}
-                    icon={faGear}
-                    fontSize={"28px"}
-                  />
-                </Box>
-                {sidebarState.mode == "open" && (
-                  <Text
-                    fontFamily={"Montserrat"}
-                    fontStyle={"normal"}
-                    fontWeight={"500"}
-                    fontSize={"14px"}
-                    textColor={"#FFFFFF"}
-                  >
-                    {"Configurações".toUpperCase()}
-                  </Text>
-                )}
-              </HStack>
-            </Flex>
-            <Divider width={"80%"} alignSelf={"center"} />
-            <Flex
-              width={"100%"}
-              cursor={"pointer"}
-              _hover={{
-                backgroundColor: "rgba(217, 217, 217, 0.19)",
-              }}
-              onClick={logout}
-              paddingY={"10px"}
-              alignItems={"center"}
-            >
-              <HStack
-                gap={4}
-                justifyContent={
-                  sidebarState.mode == "close" ? "center" : undefined
-                }
-                alignItems={"center"}
-                cursor={"pointer"}
-                margin={"auto"}
-                width={"80%"}
-              >
-                <Box height={"30px"} width={"30px"} textAlign={"center"}>
-                  <FontAwesomeIcon
-                    color={"#EAC3AE"}
-                    icon={faArrowRightFromBracket}
-                    fontSize={"28px"}
-                  />
-                </Box>
-                {sidebarState.mode == "open" && (
-                  <Text
-                    fontFamily={"Montserrat"}
-                    fontStyle={"normal"}
-                    fontWeight={"500"}
-                    fontSize={"14px"}
-                    textColor={"#FFFFFF"}
-                  >
-                    {"Sair".toUpperCase()}
-                  </Text>
-                )}
-              </HStack>
-            </Flex>
+                    <HStack
+                      gap={4}
+                      justifyContent={
+                        sidebarState.mode == "close" ? "center" : undefined
+                      }
+                      alignItems={"center"}
+                      cursor={"pointer"}
+                      margin={"auto"}
+                      width={"80%"}
+                    >
+                      <Box height={"30px"} width={"30px"} textAlign={"center"}>
+                        <FontAwesomeIcon
+                          color={"#EAC3AE"}
+                          icon={menu_sidebar.icon}
+                          fontSize={"28px"}
+                        />
+                      </Box>
+                      {sidebarState.mode == "open" && (
+                        <Text
+                          fontFamily={"Montserrat"}
+                          fontStyle={"normal"}
+                          fontWeight={"500"}
+                          fontSize={"14px"}
+                          textColor={"#FFFFFF"}
+                        >
+                          {menu_sidebar.title.toUpperCase()}
+                        </Text>
+                      )}
+                    </HStack>
+                  </Flex>
+                  {menu_sidebar.precedesDivider && (
+                    <Divider width={"80%"} alignSelf={"center"} />
+                  )}
+                </>
+              );
+            })}
           </VStack>
         </VStack>
       </VStack>
