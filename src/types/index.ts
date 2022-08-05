@@ -40,7 +40,7 @@ export type Sale = {
   saleCode: string;
   items: Item[];
   client: Client;
-  status: StatusSale;
+  saleStatus: SaleStatus;
   fullValue: string | number;
   createdAt: string;
   paymentMethod: PaymentMethod;
@@ -54,21 +54,21 @@ export interface SaleDocument extends Sale {
   _id?: string;
 }
 
-export type StatusSale =
+export type SaleStatus =
   | "done"
   | "draft"
   | "awaiting-payment"
   | "canceled"
   | "repaid";
 
-export type TranslatedStatusSale =
+export type TranslatedSaleStatus =
   | "Concluído"
   | "Rascunho"
   | "Aguardando"
   | "Cancelado"
   | "Reembolsado";
 
-export const statusSale: Record<StatusSale, TranslatedStatusSale> = {
+export const saleStatus: Record<SaleStatus, TranslatedSaleStatus> = {
   done: "Concluído",
   draft: "Rascunho",
   "awaiting-payment": "Aguardando",
@@ -76,7 +76,7 @@ export const statusSale: Record<StatusSale, TranslatedStatusSale> = {
   repaid: "Reembolsado",
 };
 
-export const bagdeColor: Record<StatusSale, string> = {
+export const bagdeColor: Record<SaleStatus, string> = {
   done: "green",
   canceled: "red",
   "awaiting-payment": "blue",

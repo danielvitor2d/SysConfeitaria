@@ -2,12 +2,12 @@ import { Faker, faker } from "@faker-js/faker";
 import {
   Client,
   paymentMethod,
-  statusSale,
   Item,
   PaymentMethod,
   Product,
   Sale,
-  StatusSale,
+  SaleStatus,
+  saleStatus,
   colorScheme,
 } from "../../types";
 
@@ -20,7 +20,6 @@ const range = (len: any) => {
 };
 
 const newSale = (): Sale => {
-  console.log(Object.values(paymentMethod));
   return {
     saleCode: faker.random.numeric(6),
     createdAt: faker.date.past(2).toLocaleDateString("pt-BR"),
@@ -32,7 +31,7 @@ const newSale = (): Sale => {
     } as Client,
     items: [] as Item[],
     paymentMethod: faker.helpers.objectKey(paymentMethod) as PaymentMethod,
-    status: faker.helpers.objectKey(statusSale) as StatusSale,
+    saleStatus: faker.helpers.objectKey(saleStatus) as SaleStatus,
   };
 };
 

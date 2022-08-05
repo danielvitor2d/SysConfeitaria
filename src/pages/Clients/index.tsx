@@ -11,23 +11,13 @@ import {
   DrawerOverlay,
   HStack,
   Input,
-  InputGroup,
-  InputLeftAddon,
-  Select,
   Text,
   useDisclosure,
   useMediaQuery,
   VStack,
 } from "@chakra-ui/react";
 import { faker } from "@faker-js/faker";
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Column } from "react-table";
@@ -36,8 +26,6 @@ import { ClientRow } from "../../types";
 import Table from "./components/Table";
 
 import makeData from "./makeData";
-
-const serverData = makeData(25);
 
 export default function Clients() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");

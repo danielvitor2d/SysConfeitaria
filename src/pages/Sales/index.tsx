@@ -10,13 +10,16 @@ import {
   Tag,
   Avatar,
   TagLabel,
+  useToast,
 } from "@chakra-ui/react";
+import { faSquareMinus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { Column } from "react-table";
+import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
-import { paymentMethod, statusSale, SaleRow, bagdeColor } from "../../types";
+import { paymentMethod, saleStatus, SaleRow, bagdeColor } from "../../types";
 import Table from "./components/Table";
 import makeData from "./makeData";
 
@@ -25,9 +28,11 @@ export default function Sales() {
 
   const navigate = useNavigate();
 
+  const toast = useToast()
+
   const { signed } = useContext(AuthContext);
 
-  const [data, setData] = useState<SaleRow[]>(() => makeData(50));
+  const [data, setData] = useState<SaleRow[]>(() => makeData(55));
   const [loading, setLoading] = useState(false);
 
   const fetchIdRef = useRef(0);
@@ -99,9 +104,9 @@ export default function Sales() {
           Header: "Status".toUpperCase(),
           Footer: "Status".toUpperCase(),
           Cell: ({ value }) => (
-            <Badge colorScheme={bagdeColor[value]}>{statusSale[value]}</Badge>
+            <Badge colorScheme={bagdeColor[value]}>{saleStatus[value]}</Badge>
           ),
-          accessor: "status",
+          accessor: "saleStatus",
           disableResizing: false,
           isNumeric: true,
           width: 250,
@@ -110,10 +115,19 @@ export default function Sales() {
           Header: "Ações".toUpperCase(),
           Footer: "Ações".toUpperCase(),
           accessor: "actions",
-          Cell: () => (
+          Cell: (cellProps: CellProps<SaleRow, string | undefined>) => (
             <HStack>
-              <EditIcon />
-              <DeleteIcon color={"red"} />
+              <EditIcon
+                boxSize={"6"}
+                cursor={"pointer"}
+                onClick={() => handleUpdateRow(cellProps.row.original.saleCode)}
+              />
+              <DeleteIcon
+                color={"red"}
+                boxSize={"6"}
+                cursor={"pointer"}
+                onClick={() => handleRemoveRow(cellProps.row.original.saleCode)}
+              />
             </HStack>
           ),
           disableResizing: true,
@@ -141,9 +155,21 @@ export default function Sales() {
   //   });
   // }
 
-  async function handleRemoveRow() {}
+  async function handleRemoveRow(saleCode: string) {
+    toast({
+      title: 'Removendo',
+      description: `Removendo linha ${saleCode}`,
+      status: 'info'
+    })
+  }
 
-  async function handleUpdateRow() {}
+  async function handleUpdateRow(saleCode: string) {
+    toast({
+      title: 'Editando',
+      description: `Editando linha ${saleCode}`,
+      status: 'info'
+    })
+  }
 
   const clearFields = () => {
     setValue("productCode", "");

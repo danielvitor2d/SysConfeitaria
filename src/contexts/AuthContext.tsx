@@ -93,7 +93,6 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     const userCollectionReference = collection(db, "user");
 
     getDocs(userCollectionReference).then((userSnapshot) => {
-      console.log("userSnapshot: ", userSnapshot);
       setAlreadyRegistered(userSnapshot.size > 0);
     });
   }, []);

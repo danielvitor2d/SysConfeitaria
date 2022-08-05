@@ -5,7 +5,6 @@ import AuthenticationRoutes from "./AuthenticationRoutes";
 
 import AuthContext from "../contexts/AuthContext";
 import FirstAccessRoutes from "./FirstAccessRoutes";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function Routes() {
   const [route, setRoute] = useState<JSX.Element>(AuthenticationRoutes);

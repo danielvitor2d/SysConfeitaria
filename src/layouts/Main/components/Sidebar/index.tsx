@@ -4,6 +4,7 @@ import {
   Divider,
   Flex,
   HStack,
+  IconButton,
   Image,
   Kbd,
   Text,
@@ -15,14 +16,14 @@ import {
 import { useContext, useEffect, useState } from "react";
 
 import ChapeuChef from "../../../../assets/chapeu-de-chef-96.png";
-import Left from "../../../../assets/left-96.png";
-import Right from "../../../../assets/right-96.png";
 import { ReactComponent as LogoHome } from "../../../../assets/logo_home.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRightFromBracket,
   faCake,
   faCartArrowDown,
+  faChevronLeft,
+  faChevronRight,
   faGear,
   faPlus,
   faUsers,
@@ -48,6 +49,31 @@ type SidebarType = {
 export default function Sidebar() {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    document.addEventListener("keydown", detectKeyDown, true);
+    return () => document.removeEventListener("keydown", detectKeyDown);
+  });
+
+  const detectKeyDown = (ev: KeyboardEvent) => {
+    console.log("Clicked key: " + ev.key);
+    console.log("Clicked key: " + ev.ctrlKey);
+    if (ev.key === "!" && ev.shiftKey) {
+      navigate("/sales")
+    }
+    if (ev.key === "@" && ev.shiftKey) {
+      navigate("/clients")
+    }
+    if (ev.key === "#" && ev.shiftKey) {
+      navigate("/products")
+    }
+    if (ev.key === "$" && ev.shiftKey) {
+      navigate("/settings")
+    }
+    if (ev.key === "%" && ev.shiftKey) {
+      logout()
+    }
+  };
+
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
 
   const [sidebarState, setSidebarState] = useState<SidebarStateProp>(() => {
@@ -62,21 +88,21 @@ export default function Sidebar() {
       title: "Vendas",
       route: "/sales",
       icon: faCartArrowDown,
-      shortcut: ["ctrl", "1"],
+      shortcut: ["shift", "1"],
     },
     {
       key: "clients",
       title: "Clientes",
       route: "/clients",
       icon: faUsers,
-      shortcut: ["ctrl", "2"],
+      shortcut: ["shift", "2"],
     },
     {
       key: "products",
       title: "Produtos",
       route: "/products",
       icon: faCake,
-      shortcut: ["ctrl", "3"],
+      shortcut: ["shift", "3"],
     },
     {
       key: "settings",
@@ -84,7 +110,7 @@ export default function Sidebar() {
       route: "/settings",
       icon: faGear,
       precedesDivider: true,
-      shortcut: ["ctrl", "4"],
+      shortcut: ["shift", "4"],
     },
     {
       key: "logout",
@@ -92,7 +118,7 @@ export default function Sidebar() {
       route: "",
       icon: faArrowRightFromBracket,
       onClick: logout,
-      shortcut: ["ctrl", "5"],
+      shortcut: ["shift", "5"],
     },
   ];
 
@@ -133,18 +159,33 @@ export default function Sidebar() {
               </Text>
             </HStack>
           )}
-          <Image
-            src={sidebarState.mode == "close" ? Right : Left}
-            alt="Seta"
+          <IconButton
+            aria-label={"Abrir/Fechar sidebar"}
+            backgroundColor={"transparent"}
             cursor={"pointer"}
-            height={"30px"}
-            width={"30px"}
+            _hover={{
+              backgroundColor: "rgba(217, 217, 217, 0.19)",
+            }}
             onClick={() => {
               setSidebarState({
                 mode: sidebarState.mode == "close" ? "open" : "close",
               });
             }}
-          />
+          >
+            {sidebarState.mode === "close" ? (
+              <FontAwesomeIcon
+                color={"#FFFFFF"}
+                icon={faChevronRight}
+                fontSize={"28px"}
+              />
+            ) : (
+              <FontAwesomeIcon
+                color={"#FFFFFF"}
+                icon={faChevronLeft}
+                fontSize={"28px"}
+              />
+            )}
+          </IconButton>
         </HStack>
         <VStack gap={5} width={"100%"}>
           {sidebarState.mode == "open" && (
@@ -209,7 +250,7 @@ export default function Sidebar() {
                     bg={"#2D3748"}
                     textColor={"#2D3748"}
                     label={
-                      <HStack py={"2px"} px={'2px'}>
+                      <HStack py={"2px"} px={"2px"}>
                         <Kbd>{menu_sidebar?.shortcut?.[0]}</Kbd>{" "}
                         <Text textColor={"#FFFFFF"}>+</Text>{" "}
                         <Kbd>{menu_sidebar?.shortcut?.[1]}</Kbd>

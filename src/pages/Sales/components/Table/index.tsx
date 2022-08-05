@@ -9,6 +9,12 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
   SimpleGrid,
   Skeleton,
   Table as ChakraUITable,
@@ -24,15 +30,17 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import {
+  faAngleDown,
   faCircleXmark,
   faPlus,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Column,
-  useAsyncDebounce,
+  IdType,
+  Row,
   useBlockLayout,
   useGlobalFilter,
   usePagination,
@@ -41,7 +49,14 @@ import {
   useTable,
 } from "react-table";
 import Paginate from "../Paginate";
-import { SaleRow } from "../../../../types";
+import {
+  paymentMethod,
+  PaymentMethod,
+  SaleRow,
+  saleStatus,
+  SaleStatus,
+} from "../../../../types";
+import { matchSorter } from "match-sorter";
 
 interface SalesTableProps {
   columns: Column<SaleRow>[];
@@ -78,6 +93,51 @@ export default function Table({
     },
   };
 
+  const [filter, setFilter] = useState<string>("");
+  const [filters, setFilters] = useState<string[]>([
+    "saleCode",
+    "client",
+    "saleStatus",
+  ]);
+
+  const globalFilterFunction = useCallback(
+    (rows: Row<SaleRow>[], _ids: IdType<SaleRow>[], query: string) => {
+      if (filters.length === 0) return rows;
+      console.log("oldRows: ", rows);
+      // const newRows = matchSorter<Row<SaleRow>>(rows, query, {
+      //   keys: filters.map((columnName) => `values.${columnName}`),
+      // });
+      const newRows = rows.filter((row) => {
+        return filters.some((filter) => {
+          if (filter === "client") {
+            return (
+              matchSorter([row.values[filter].clientName], query).length === 1
+            );
+          }
+          if (filter === "saleStatus") {
+            console.log("saleStatus[row.values[filter] as SaleStatus]: ", saleStatus[row.values[filter] as SaleStatus])
+            return (
+              matchSorter([saleStatus[row.values[filter] as SaleStatus]], query)
+                .length === 1
+            );
+          }
+          if (filter === "paymentMethod") {
+            return (
+              matchSorter(
+                [paymentMethod[row.values[filter] as PaymentMethod]],
+                query
+              ).length === 1
+            );
+          }
+          return matchSorter([row.values[filter]], query).length === 1;
+        });
+      });
+      console.log("newRows: ", newRows);
+      return newRows;
+    },
+    [filters]
+  );
+
   const defaultColumn = React.useMemo(
     () => ({
       minWidth: 80,
@@ -103,7 +163,7 @@ export default function Table({
     previousPage,
     setPageSize,
     setGlobalFilter,
-    state: { pageIndex, pageSize, globalFilter },
+    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
@@ -114,6 +174,7 @@ export default function Table({
       autoResetExpanded: false,
       autoResetSortBy: false,
       defaultColumn,
+      globalFilter: globalFilterFunction,
     },
     useBlockLayout,
     useResizeColumns,
@@ -122,11 +183,13 @@ export default function Table({
     usePagination
   );
 
-  const [filter, setFilter] = useState(globalFilter);
+  useEffect(() => {
+    setGlobalFilter(filter);
+  }, [filter, setGlobalFilter]);
 
-  const onChange = useAsyncDebounce((value) => {
-    setGlobalFilter(value || undefined);
-  }, 200);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter(event.target.value);
+  };
 
   return (
     <VStack gap={1}>
@@ -167,38 +230,78 @@ export default function Table({
             </HStack>
           </Button>
         </GridItem>
-        <GridItem colSpan={[1, 1, 2, 2, 2]} colStart={[1, 1, 1, 5, 5]}>
-          <InputGroup>
-            <Input
-              borderColor={"#63342B"}
-              focusBorderColor={"#482017"}
-              _hover={{
-                borderColor: "#482017",
-              }}
-              placeholder={"Ex. Pedaço de bolo"}
-              backgroundColor={"#E8E8E8"}
-              value={filter || ""}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                onChange(event.target.value);
-                setFilter(event.target.value);
-              }}
-            />
-            <InputRightElement
-              children={
-                <FontAwesomeIcon
-                  icon={filter?.length > 0 ? faCircleXmark : faSearch}
-                  cursor={filter?.length > 0 ? "pointer" : undefined}
-                  onClick={() => {
-                    if (filter?.length > 0) {
-                      setGlobalFilter("");
-                      setFilter("");
-                    }
-                  }}
-                  color={"#63342B"}
-                />
-              }
-            />
-          </InputGroup>
+        <GridItem colSpan={[1, 1, 2, 3, 3]} colStart={[1, 1, 1, 4, 4]}>
+          <HStack>
+            <InputGroup>
+              <Input
+                borderColor={"#63342B"}
+                focusBorderColor={"#482017"}
+                _hover={{
+                  borderColor: "#482017",
+                }}
+                placeholder={"Ex. Fulano de tal"}
+                backgroundColor={"#E8E8E8"}
+                value={filter}
+                onChange={handleInputChange}
+              />
+              <InputRightElement
+                children={
+                  <FontAwesomeIcon
+                    icon={filter?.length > 0 ? faCircleXmark : faSearch}
+                    cursor={filter?.length > 0 ? "pointer" : undefined}
+                    onClick={() => {
+                      if (filter?.length > 0) {
+                        setGlobalFilter("");
+                        setFilter("");
+                      }
+                    }}
+                    color={"#63342B"}
+                  />
+                }
+              />
+            </InputGroup>
+            <Menu closeOnSelect={false}>
+              <MenuButton width={"25%"}>
+                <Button
+                  width={"full"}
+                  type={"submit"}
+                  backgroundColor={"#63342B"}
+                  _hover={{ backgroundColor: "#502A22" }}
+                  _active={{ backgroundColor: "#482017" }}
+                  rightIcon={
+                    <FontAwesomeIcon icon={faAngleDown} color={"white"} />
+                  }
+                >
+                  <Text
+                    color={"white"}
+                    fontSize={"15px"}
+                    fontWeight={"500"}
+                    fontFamily={"Montserrat"}
+                  >
+                    Filtrar por
+                  </Text>
+                </Button>
+              </MenuButton>
+              <MenuList minWidth="240px">
+                <MenuDivider />
+                <MenuOptionGroup
+                  title="Filtros"
+                  type="checkbox"
+                  defaultValue={["saleCode", "client", "saleStatus"]}
+                  onChange={(value) => setFilters([...value])}
+                >
+                  <MenuItemOption value="saleCode">Código</MenuItemOption>
+                  <MenuItemOption value="createdAt">Data</MenuItemOption>
+                  <MenuItemOption value="client">Cliente</MenuItemOption>
+                  <MenuItemOption value="fullValue">Total</MenuItemOption>
+                  <MenuItemOption value="paymentMethod">
+                    Pagamento
+                  </MenuItemOption>
+                  <MenuItemOption value="saleStatus">Status</MenuItemOption>
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
+          </HStack>
         </GridItem>
       </SimpleGrid>
       <TableContainer
