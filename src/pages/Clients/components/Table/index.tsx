@@ -28,41 +28,32 @@ import {
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Column,
   useAsyncDebounce,
   useBlockLayout,
-  useFilters,
   useGlobalFilter,
   usePagination,
   useResizeColumns,
   useSortBy,
   useTable,
 } from "react-table";
-import { Client } from "../..";
+import { ClientRow } from "../../../../types";
 import Paginate from "../Paginate";
 
 interface ClientTableProps {
-  columns: Column<Client>[];
-  data: Client[];
-  fetchData: ({
-    pageSize,
-    pageIndex,
-  }: {
-    pageSize: number;
-    pageIndex: number;
-  }) => void;
+  columns: Column<ClientRow>[];
+  data: ClientRow[];
   loading: boolean;
-  onOpenDrawerAddClient: () => void
+  onOpenDrawerAddClient: () => void;
 }
 
 export default function Table({
   columns,
   data,
-  fetchData,
   loading,
-  onOpenDrawerAddClient
+  onOpenDrawerAddClient,
 }: ClientTableProps) {
   const cssResizer = {
     _hover: {
@@ -78,8 +69,8 @@ export default function Table({
       right: "0",
       top: "0",
       transform: "translateX(50%)",
-      "z-index": "1",
-      "touch-action": "none",
+      zIndex: "1",
+      touchAction: "none",
       "&.isResizing": {
         background: "#482017",
       },
@@ -127,14 +118,14 @@ export default function Table({
     useResizeColumns,
     useGlobalFilter,
     useSortBy,
-    usePagination,
+    usePagination
   );
 
   const [filter, setFilter] = useState(globalFilter);
 
-  const onChange = useAsyncDebounce(value => {
-    setGlobalFilter(value || undefined)
-  }, 200)
+  const onChange = useAsyncDebounce((value) => {
+    setGlobalFilter(value || undefined);
+  }, 200);
 
   return (
     <VStack gap={1}>
@@ -185,10 +176,10 @@ export default function Table({
               }}
               placeholder={"Ex. Fulano de Tal"}
               backgroundColor={"#E8E8E8"}
-              value={filter || ''}
+              value={filter || ""}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                onChange(event.target.value)
-                setFilter(event.target.value)
+                onChange(event.target.value);
+                setFilter(event.target.value);
               }}
             />
             <InputRightElement
@@ -199,7 +190,7 @@ export default function Table({
                   onClick={() => {
                     if (filter?.length > 0) {
                       setGlobalFilter("");
-                      setFilter("")
+                      setFilter("");
                     }
                   }}
                   color={"#63342B"}

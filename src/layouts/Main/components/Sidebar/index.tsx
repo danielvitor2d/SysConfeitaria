@@ -5,7 +5,9 @@ import {
   Flex,
   HStack,
   Image,
+  Kbd,
   Text,
+  Tooltip,
   useMediaQuery,
   VStack,
 } from "@chakra-ui/react";
@@ -34,11 +36,13 @@ interface SidebarStateProp {
 }
 
 type SidebarType = {
+  key: string;
   route: string;
   title: string;
   icon: IconDefinition;
   onClick?: () => void;
   precedesDivider?: boolean;
+  shortcut?: string[];
 };
 
 export default function Sidebar() {
@@ -54,31 +58,41 @@ export default function Sidebar() {
 
   const MENUS_SIDEBAR: Array<SidebarType> = [
     {
+      key: "sales",
       title: "Vendas",
       route: "/sales",
       icon: faCartArrowDown,
+      shortcut: ["ctrl", "1"],
     },
     {
+      key: "clients",
       title: "Clientes",
       route: "/clients",
       icon: faUsers,
+      shortcut: ["ctrl", "2"],
     },
     {
+      key: "products",
       title: "Produtos",
       route: "/products",
       icon: faCake,
+      shortcut: ["ctrl", "3"],
     },
     {
+      key: "settings",
       title: "Configurações",
       route: "/settings",
       icon: faGear,
       precedesDivider: true,
+      shortcut: ["ctrl", "4"],
     },
     {
+      key: "logout",
       title: "Sair",
       route: "",
       icon: faArrowRightFromBracket,
       onClick: logout,
+      shortcut: ["ctrl", "5"],
     },
   ];
 
@@ -186,61 +200,79 @@ export default function Sidebar() {
             width={"100%"}
             alignItems={sidebarState.mode == "open" ? "flex-start" : "center"}
           >
-            {MENUS_SIDEBAR.map((menu_sidebar) => {
+            {MENUS_SIDEBAR.map((menu_sidebar, index) => {
               return (
-                <>
-                  <Flex
-                    width={"100%"}
-                    cursor={"pointer"}
-                    _hover={{
-                      backgroundColor: "rgba(217, 217, 217, 0.19)",
-                    }}
-                    paddingY={"10px"}
-                    alignItems={"center"}
-                    onClick={
-                      menu_sidebar.onClick !== undefined
-                        ? () => {
-                          menu_sidebar.onClick?.()
-                        }
-                        : () => {
-                            navigate(menu_sidebar.route);
-                          }
+                <VStack key={index} width={"100%"}>
+                  <Tooltip
+                    borderRadius={"10px"}
+                    placement="bottom"
+                    bg={"#2D3748"}
+                    textColor={"#2D3748"}
+                    label={
+                      <HStack py={"2px"} px={'2px'}>
+                        <Kbd>{menu_sidebar?.shortcut?.[0]}</Kbd>{" "}
+                        <Text textColor={"#FFFFFF"}>+</Text>{" "}
+                        <Kbd>{menu_sidebar?.shortcut?.[1]}</Kbd>
+                      </HStack>
                     }
                   >
-                    <HStack
-                      gap={4}
-                      justifyContent={
-                        sidebarState.mode == "close" ? "center" : undefined
-                      }
-                      alignItems={"center"}
+                    <Flex
+                      width={"100%"}
                       cursor={"pointer"}
-                      margin={"auto"}
-                      width={"80%"}
+                      _hover={{
+                        backgroundColor: "rgba(217, 217, 217, 0.19)",
+                      }}
+                      paddingY={"10px"}
+                      alignItems={"center"}
+                      onClick={
+                        menu_sidebar.onClick !== undefined
+                          ? () => {
+                              menu_sidebar.onClick?.();
+                            }
+                          : () => {
+                              navigate(menu_sidebar.route);
+                            }
+                      }
                     >
-                      <Box height={"30px"} width={"30px"} textAlign={"center"}>
-                        <FontAwesomeIcon
-                          color={"#EAC3AE"}
-                          icon={menu_sidebar.icon}
-                          fontSize={"28px"}
-                        />
-                      </Box>
-                      {sidebarState.mode == "open" && (
-                        <Text
-                          fontFamily={"Montserrat"}
-                          fontStyle={"normal"}
-                          fontWeight={"500"}
-                          fontSize={"14px"}
-                          textColor={"#FFFFFF"}
+                      <HStack
+                        gap={4}
+                        justifyContent={
+                          sidebarState.mode == "close" ? "center" : undefined
+                        }
+                        alignItems={"center"}
+                        cursor={"pointer"}
+                        margin={"auto"}
+                        width={"80%"}
+                      >
+                        <Box
+                          height={"30px"}
+                          width={"30px"}
+                          textAlign={"center"}
                         >
-                          {menu_sidebar.title.toUpperCase()}
-                        </Text>
-                      )}
-                    </HStack>
-                  </Flex>
+                          <FontAwesomeIcon
+                            color={"#EAC3AE"}
+                            icon={menu_sidebar.icon}
+                            fontSize={"28px"}
+                          />
+                        </Box>
+                        {sidebarState.mode == "open" && (
+                          <Text
+                            fontFamily={"Montserrat"}
+                            fontStyle={"normal"}
+                            fontWeight={"500"}
+                            fontSize={"14px"}
+                            textColor={"#FFFFFF"}
+                          >
+                            {menu_sidebar.title.toUpperCase()}
+                          </Text>
+                        )}
+                      </HStack>
+                    </Flex>
+                  </Tooltip>
                   {menu_sidebar.precedesDivider && (
-                    <Divider width={"80%"} alignSelf={"center"} />
+                    <Divider width={"80%"} margin={"auto"} />
                   )}
-                </>
+                </VStack>
               );
             })}
           </VStack>

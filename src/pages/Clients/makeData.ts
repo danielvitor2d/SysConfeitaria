@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Client } from ".";
+import { Client } from "../../types";
 
 const range = (len: any) => {
   const arr = [];
@@ -9,7 +9,7 @@ const range = (len: any) => {
   return arr;
 };
 
-const newPerson = (): Client => {
+const newClient = (): Client => {
   const clientFirstName = faker.name.firstName();
   const clientlastName = faker.name.lastName();
   return {
@@ -26,7 +26,7 @@ export default function makeData(...lens: any[]) {
     const len = lens[depth];
     return range(len).map((d) => {
       return {
-        ...newPerson(),
+        ...newClient(),
         subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
       };
     });

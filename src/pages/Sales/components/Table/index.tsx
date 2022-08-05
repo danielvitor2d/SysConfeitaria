@@ -1,4 +1,4 @@
-// import 'regenerator-runtime/runtime';
+import "regenerator-runtime/runtime";
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -41,21 +41,21 @@ import {
   useTable,
 } from "react-table";
 import Paginate from "../Paginate";
-import { ProductRow } from "../../../../types";
+import { SaleRow } from "../../../../types";
 
-interface ProductTableProps {
-  columns: Column<ProductRow>[];
-  data: ProductRow[];
+interface SalesTableProps {
+  columns: Column<SaleRow>[];
+  data: SaleRow[];
   loading: boolean;
-  onOpenDrawerAddProduct: () => void;
+  onOpenDrawerAddSale: () => void;
 }
 
 export default function Table({
   columns,
   data,
   loading,
-  onOpenDrawerAddProduct,
-}: ProductTableProps) {
+  onOpenDrawerAddSale,
+}: SalesTableProps) {
   const cssResizer = {
     _hover: {
       ".resizer": {
@@ -70,8 +70,8 @@ export default function Table({
       right: "0",
       top: "0",
       transform: "translateX(50%)",
-      "z-index": "1",
-      "touch-action": "none",
+      zIndex: "1",
+      touchAction: "none",
       "&.isResizing": {
         background: "#482017",
       },
@@ -145,7 +145,7 @@ export default function Table({
             borderWidth={"1px"}
             borderColor={"#63342B"}
             width={"100%"}
-            onClick={onOpenDrawerAddProduct}
+            onClick={onOpenDrawerAddSale}
           >
             <HStack alignItems={"center"}>
               <Text
@@ -155,7 +155,7 @@ export default function Table({
                 marginTop={"2px"}
                 textAlign={"center"}
               >
-                {"Novo produto".toUpperCase()}
+                {"Nova venda".toUpperCase()}
               </Text>
               <Box height={"25px"} width={"25px"} textAlign={"center"}>
                 <FontAwesomeIcon

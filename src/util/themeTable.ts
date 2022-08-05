@@ -1,8 +1,29 @@
-import { extendTheme } from "@chakra-ui/react";
+import { cssVar, extendTheme } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
+
+const $bg = cssVar("tooltip-bg");
+const $arrowBg = cssVar("popper-arrow-bg");
+
+const bg = mode("gray.700", "gray.300");
 
 export const customTheme = extendTheme({
   components: {
+    Tooltip: {
+      baseStyle: {
+        // [$bg.variable]: `#2D3748`,
+        // px: "8px",
+        // py: "2px",
+        // bg: [$bg.reference],
+        // [$arrowBg.variable]: [$bg.reference],
+        // color: mode("whiteAlpha.900", "gray.900"),
+        // borderRadius: "sm",
+        // fontWeight: "medium",
+        // fontSize: "sm",
+        // boxShadow: "md",
+        // maxW: "320px",
+        // zIndex: "tooltip",
+      },
+    },
     Table: {
       variants: {
         mytable: {

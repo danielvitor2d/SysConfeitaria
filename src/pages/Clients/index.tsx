@@ -1,5 +1,24 @@
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { Box, Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, HStack, Input, InputGroup, InputLeftAddon, Select, Text, useDisclosure, useMediaQuery, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftAddon,
+  Select,
+  Text,
+  useDisclosure,
+  useMediaQuery,
+  VStack,
+} from "@chakra-ui/react";
 import { faker } from "@faker-js/faker";
 import {
   useCallback,
@@ -13,19 +32,12 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
+import { ClientRow } from "../../types";
 import Table from "./components/Table";
 
 import makeData from "./makeData";
 
 const serverData = makeData(25);
-
-export type Client = {
-  clientCode: string;
-  clientName: string;
-  clientEmail: string | null;
-  contact: string;
-  actions?: string;
-};
 
 export default function Clients() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
@@ -34,12 +46,12 @@ export default function Clients() {
 
   const { signed } = useContext(AuthContext);
 
-  const [data, setData] = useState<Client[]>(() => makeData(25));
+  const [data, setData] = useState<ClientRow[]>(() => makeData(25));
   const [loading, setLoading] = useState(false);
   const fetchIdRef = useRef(0);
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { register, handleSubmit, setValue } = useForm()
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { register, handleSubmit, setValue } = useForm();
 
   const columns = useMemo(
     () =>
@@ -89,24 +101,24 @@ export default function Clients() {
           disableGlobalFilter: true,
           width: 100,
         },
-      ] as Array<Column<Client>>,
+      ] as Array<Column<ClientRow>>,
     [isLargerThan1440]
   );
 
   async function handleCreateClient(dataForm: any) {
     setData(() => {
-      const dataInput: Client  = {
+      const dataInput: ClientRow = {
         clientCode: dataForm.clientCode,
         clientName: dataForm.clientName,
         contact: dataForm.clientContact,
-        clientEmail: dataForm.clientEmail
-      }
+        clientEmail: dataForm.clientEmail,
+      };
 
-      onClose()
-      clearFields()
+      onClose();
+      clearFields();
 
-      return [ ...data, dataInput ]
-    })
+      return [...data, dataInput];
+    });
   }
 
   async function handleRemoveRow() {}
@@ -114,30 +126,30 @@ export default function Clients() {
   async function handleUpdateRow() {}
 
   const clearFields = () => {
-    setValue('clientName', '')
-    setValue('clientContact', '')
-    setValue('contact', '')
-    setValue('clientEmail', '')
-  }
+    setValue("clientName", "");
+    setValue("clientContact", "");
+    setValue("contact", "");
+    setValue("clientEmail", "");
+  };
 
-  const fetchData = useCallback(
-    ({ pageSize, pageIndex }: { pageSize: number; pageIndex: number }) => {
-      const fetchId = ++fetchIdRef.current;
+  // const fetchData = useCallback(
+  //   ({ pageSize, pageIndex }: { pageSize: number; pageIndex: number }) => {
+  //     const fetchId = ++fetchIdRef.current;
 
-      setLoading(true);
+  //     setLoading(true);
 
-      setTimeout(() => {
-        if (fetchId === fetchIdRef.current) {
-          const startRow = pageSize * pageIndex;
-          const endRow = startRow + pageSize;
-          setData(serverData.slice(startRow, endRow));
+  //     setTimeout(() => {
+  //       if (fetchId === fetchIdRef.current) {
+  //         const startRow = pageSize * pageIndex;
+  //         const endRow = startRow + pageSize;
+  //         setData(serverData.slice(startRow, endRow));
 
-          setLoading(false);
-        }
-      }, 1000);
-    },
-    []
-  );
+  //         setLoading(false);
+  //       }
+  //     }, 1000);
+  //   },
+  //   []
+  // );
 
   useEffect(() => {
     if (!signed) {
@@ -147,12 +159,8 @@ export default function Clients() {
 
   return (
     <>
-      <Drawer
-        isOpen={isOpen}
-        placement='right'
-        onClose={onClose}
-      >
-        <form onSubmit={handleSubmit(handleCreateClient)} >
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+        <form onSubmit={handleSubmit(handleCreateClient)}>
           <DrawerOverlay />
           <DrawerContent>
             <DrawerCloseButton />
@@ -160,38 +168,40 @@ export default function Clients() {
 
             <DrawerBody>
               <VStack gap={5}>
-                <VStack alignItems={'flex-start'}>
-                  <Text textAlign={'left'}>
-                    Código
-                  </Text>
-                  <Input {...register('clientCode')} value={faker.random.numeric(6)} isReadOnly={true} />
+                <VStack alignItems={"flex-start"}>
+                  <Text textAlign={"left"}>Código</Text>
+                  <Input
+                    {...register("clientCode")}
+                    value={faker.random.numeric(6)}
+                    isReadOnly={true}
+                  />
                 </VStack>
-                <VStack alignItems={'flex-start'}>
-                  <Text textAlign={'left'}>
-                    Nome do cliente
-                  </Text>
-                  <Input {...register('clientName')} placeholder="Ex. Fulano de Tal" />
+                <VStack alignItems={"flex-start"}>
+                  <Text textAlign={"left"}>Nome do cliente</Text>
+                  <Input
+                    {...register("clientName")}
+                    placeholder="Ex. Fulano de Tal"
+                  />
                 </VStack>
-                <VStack alignItems={'flex-start'}>
-                  <Text textAlign={'left'}>
-                    Celular
-                  </Text>
-                  <Input {...register('clientContact')} placeholder={`Ex. ${faker.phone.number('(8#) 9####-####')}`} />
+                <VStack alignItems={"flex-start"}>
+                  <Text textAlign={"left"}>Celular</Text>
+                  <Input
+                    {...register("clientContact")}
+                    placeholder={`Ex. ${faker.phone.number("(8#) 9####-####")}`}
+                  />
                 </VStack>
-                <VStack alignItems={'flex-start'}>
-                  <Text textAlign={'left'}>
-                    E-mail
-                  </Text>
-                  <Input {...register('clientEmail')} placeholder={"Ex. abcdef@gmail.com"} />
+                <VStack alignItems={"flex-start"}>
+                  <Text textAlign={"left"}>E-mail</Text>
+                  <Input
+                    {...register("clientEmail")}
+                    placeholder={"Ex. abcdef@gmail.com"}
+                  />
                 </VStack>
               </VStack>
             </DrawerBody>
 
             <DrawerFooter>
-              <Button 
-                mr={3}
-                onClick={onClose}
-              >
+              <Button mr={3} onClick={onClose}>
                 Cancel
               </Button>
               <Button
@@ -200,7 +210,7 @@ export default function Clients() {
                 backgroundColor={"#63342B"}
                 _hover={{ backgroundColor: "#502A22" }}
                 _active={{ backgroundColor: "#482017" }}
-                colorScheme='blue'
+                colorScheme="blue"
               >
                 Save
               </Button>
@@ -239,7 +249,6 @@ export default function Clients() {
           <Table
             columns={columns}
             data={data}
-            fetchData={fetchData}
             loading={loading}
             onOpenDrawerAddClient={onOpen}
           />

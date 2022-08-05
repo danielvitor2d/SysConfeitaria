@@ -1,5 +1,22 @@
-import { ArrowLeftIcon, ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { Flex, HStack, IconButton, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Text, Tooltip } from "@chakra-ui/react";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@chakra-ui/icons";
+import {
+  Flex,
+  HStack,
+  IconButton,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  Select,
+  Text,
+  Tooltip,
+} from "@chakra-ui/react";
 import React from "react";
 import { Row } from "react-table";
 import { Product } from "../..";
@@ -32,10 +49,10 @@ export default function Paginate({
   pageIndex,
 }: PaginateProps) {
   return (
-    <Flex flex={1} justifyContent={"space-between"} alignItems={'center'}>
+    <Flex flex={1} justifyContent={"space-between"} alignItems={"center"}>
       <Flex>
         <Tooltip label={"Primeira página"}>
-          <IconButton 
+          <IconButton
             aria-label="first-page"
             backgroundColor={"#63342B"}
             textColor={"#E8E8E8"}
@@ -44,7 +61,7 @@ export default function Paginate({
             borderRadius={"full"}
             cursor={"pointer"}
             _hover={{
-              backgroundColor: '#63342b7b'
+              backgroundColor: "#63342b7b",
             }}
             icon={<ArrowLeftIcon w={3} h={3} />}
             mr={2}
@@ -60,15 +77,15 @@ export default function Paginate({
             borderRadius={"full"}
             cursor={"pointer"}
             _hover={{
-              backgroundColor: '#63342b7b'
+              backgroundColor: "#63342b7b",
             }}
             icon={<ChevronLeftIcon w={6} h={6} />}
           />
         </Tooltip>
       </Flex>
-      <Flex alignItems={'center'}>
-        <Text 
-          flexShrink={'0'}
+      <Flex alignItems={"center"}>
+        <Text
+          flexShrink={"0"}
           fontFamily={"Inter"}
           textColor={"#3d3d3d"}
           fontStyle={"normal"}
@@ -77,10 +94,10 @@ export default function Paginate({
         >
           Página{" "}
         </Text>
-        <Text 
-          fontWeight={'bold'}
-          as={'span'}
-          flexShrink={'0'}
+        <Text
+          fontWeight={"bold"}
+          as={"span"}
+          flexShrink={"0"}
           fontFamily={"Inter"}
           textColor={"#3d3d3d"}
           fontStyle={"normal"}
@@ -90,20 +107,21 @@ export default function Paginate({
           {pageIndex + 1}
         </Text>
         <Text
-          flexShrink={'0'}
+          flexShrink={"0"}
           fontFamily={"Inter"}
           textColor={"#3d3d3d"}
           fontStyle={"normal"}
           fontSize={"16px"}
           mr={1}
         >
-          {" "}de{" "}
+          {" "}
+          de{" "}
         </Text>
-        <Text 
+        <Text
           mr={8}
-          fontWeight={'bold'}
-          as={'span'}
-          flexShrink={'0'}
+          fontWeight={"bold"}
+          as={"span"}
+          flexShrink={"0"}
           fontFamily={"Inter"}
           textColor={"#3d3d3d"}
           fontStyle={"normal"}
@@ -111,14 +129,14 @@ export default function Paginate({
         >
           {pageOptions.length}
         </Text>
-        <Text 
-          flexShrink={'0'}
+        <Text
+          flexShrink={"0"}
           fontFamily={"Inter"}
           textColor={"#3d3d3d"}
           fontStyle={"normal"}
           fontSize={"16px"}
         >
-          {'Ir para página'}
+          {"Ir para página"}
         </Text>
         <NumberInput
           ml={2}
@@ -127,12 +145,12 @@ export default function Paginate({
           min={1}
           max={pageOptions.length}
           onChange={(_, valueAsNumber: number) => {
-            const page = valueAsNumber ? valueAsNumber - 1 : 0
-            gotoPage(page)
+            const page = valueAsNumber ? valueAsNumber - 1 : 0;
+            gotoPage(page);
           }}
           value={pageIndex + 1}
           borderWidth={"2px"}
-          borderRadius={'8px'}
+          borderRadius={"8px"}
           _hover={{
             borderColor: "#7C7C8A",
           }}
@@ -168,7 +186,7 @@ export default function Paginate({
       </Flex>
       <Flex>
         <Tooltip label={"Próxima página"}>
-          <IconButton 
+          <IconButton
             aria-label="next-page"
             backgroundColor={"#63342B"}
             textColor={"#E8E8E8"}
@@ -177,7 +195,7 @@ export default function Paginate({
             borderRadius={"full"}
             cursor={"pointer"}
             _hover={{
-              backgroundColor: '#63342b7b'
+              backgroundColor: "#63342b7b",
             }}
             icon={<ChevronRightIcon w={6} h={6} />}
             mr={2}
@@ -193,7 +211,7 @@ export default function Paginate({
             borderRadius={"full"}
             cursor={"pointer"}
             _hover={{
-              backgroundColor: '#63342b7b'
+              backgroundColor: "#63342b7b",
             }}
             icon={<ArrowRightIcon w={3} h={3} />}
           />

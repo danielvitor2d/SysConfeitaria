@@ -53,6 +53,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       const db = getFirestore(app);
 
       const dataToSave = {
+        _id: user.uid,
         email: email,
         password: await hash(password, 10),
       };
@@ -92,6 +93,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     const userCollectionReference = collection(db, "user");
 
     getDocs(userCollectionReference).then((userSnapshot) => {
+      console.log("userSnapshot: ", userSnapshot);
       setAlreadyRegistered(userSnapshot.size > 0);
     });
   }, []);

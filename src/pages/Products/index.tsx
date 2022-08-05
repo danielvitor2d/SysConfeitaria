@@ -1,5 +1,25 @@
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { Box, Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, HStack, Input, InputGroup, InputLeftAddon, InputRightElement, Select, Text, useDisclosure, useMediaQuery, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftAddon,
+  InputRightElement,
+  Select,
+  Text,
+  useDisclosure,
+  useMediaQuery,
+  VStack,
+} from "@chakra-ui/react";
 import { faker } from "@faker-js/faker";
 import {
   useCallback,
@@ -13,18 +33,12 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
+import { ProductRow } from "../../types";
 import Table from "./components/Table";
 
 import makeData from "./makeData";
 
 const serverData = makeData(50);
-
-export type Product = {
-  productCode: string;
-  productName: string;
-  unitaryValue: string;
-  actions?: string;
-};
 
 export default function Products() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
@@ -33,13 +47,13 @@ export default function Products() {
 
   const { signed } = useContext(AuthContext);
 
-  const [data, setData] = useState<Product[]>(() => makeData(50));
+  const [data, setData] = useState<ProductRow[]>(() => makeData(50));
   const [loading, setLoading] = useState(false);
 
   const fetchIdRef = useRef(0);
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { register, handleSubmit, setValue } = useForm()
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { register, handleSubmit, setValue } = useForm();
 
   const columns = useMemo(
     () =>
@@ -54,13 +68,7 @@ export default function Products() {
         {
           Header: "Nome do Produto".toUpperCase(),
           Footer: "Nome do Produto".toUpperCase(),
-          Cell: ({ value }) => (
-            <Text 
-              whiteSpace={'normal'}
-            >
-              {value}
-            </Text>
-          ),
+          Cell: ({ value }) => <Text whiteSpace={"normal"}>{value}</Text>,
           accessor: "productName",
           disableResizing: false,
           width: isLargerThan1440 ? 900 : 500,
@@ -89,23 +97,23 @@ export default function Products() {
           disableGlobalFilter: true,
           width: 100,
         },
-      ] as Array<Column<Product>>,
+      ] as Array<Column<ProductRow>>,
     [isLargerThan1440]
   );
 
   async function handleCreateProduct(dataForm: any) {
     setData(() => {
-      const dataInput: Product  = {
+      const dataInput: ProductRow = {
         productCode: dataForm.productCode,
         productName: dataForm.productName,
         unitaryValue: dataForm.productValue + " " + dataForm.productUnid,
-      }
+      };
 
-      onClose()
-      clearFields()
+      onClose();
+      clearFields();
 
-      return [ ...data, dataInput ]
-    })
+      return [...data, dataInput];
+    });
   }
 
   async function handleRemoveRow() {}
@@ -113,30 +121,11 @@ export default function Products() {
   async function handleUpdateRow() {}
 
   const clearFields = () => {
-    setValue('productCode', '')
-    setValue('productName', '')
-    setValue('productValue', '')
-    setValue('productUnid', 'unid')
-  }
-
-  const fetchData = useCallback(
-    ({ pageSize, pageIndex }: { pageSize: number; pageIndex: number }) => {
-      const fetchId = ++fetchIdRef.current;
-
-      setLoading(true);
-
-      setTimeout(() => {
-        if (fetchId === fetchIdRef.current) {
-          const startRow = pageSize * pageIndex;
-          const endRow = startRow + pageSize;
-          setData(serverData.slice(startRow, endRow));
-
-          setLoading(false);
-        }
-      }, 1000);
-    },
-    []
-  );
+    setValue("productCode", "");
+    setValue("productName", "");
+    setValue("productValue", "");
+    setValue("productUnid", "unid");
+  };
 
   useEffect(() => {
     if (!signed) {
@@ -146,12 +135,8 @@ export default function Products() {
 
   return (
     <>
-      <Drawer
-        isOpen={isOpen}
-        placement='right'
-        onClose={onClose}
-      >
-        <form onSubmit={handleSubmit(handleCreateProduct)} >
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+        <form onSubmit={handleSubmit(handleCreateProduct)}>
           <DrawerOverlay />
           <DrawerContent>
             <DrawerCloseButton />
@@ -159,41 +144,50 @@ export default function Products() {
 
             <DrawerBody>
               <VStack gap={5}>
-                <VStack alignItems={'flex-start'}>
-                  <Text textAlign={'left'}>
-                    Código
-                  </Text>
-                  <Input {...register('productCode')} value={faker.random.numeric(6)} isReadOnly={true} />
+                <VStack alignItems={"flex-start"}>
+                  <Text textAlign={"left"}>Código</Text>
+                  <Input
+                    {...register("productCode")}
+                    value={faker.random.numeric(6)}
+                    isReadOnly={true}
+                  />
                 </VStack>
-                <VStack alignItems={'flex-start'}>
-                  <Text textAlign={'left'}>
-                    Nome do produto
-                  </Text>
-                  <Input {...register('productName')} placeholder="Ex. Bolo de chocolate" />
+                <VStack alignItems={"flex-start"}>
+                  <Text textAlign={"left"}>Nome do produto</Text>
+                  <Input
+                    {...register("productName")}
+                    placeholder="Ex. Bolo de chocolate"
+                  />
                 </VStack>
-                <VStack alignItems={'flex-start'}>
-                  <Text textAlign={'left'}>
-                    Valor unitário/Kg/L
-                  </Text>
+                <VStack alignItems={"flex-start"}>
+                  <Text textAlign={"left"}>Valor unitário/Kg/L</Text>
                   <InputGroup>
-                    <InputLeftAddon children={'R$'} />
-                    <Input {...register('productValue')} placeholder={"Ex. 2,50"} />
+                    <InputLeftAddon children={"R$"} />
+                    <Input
+                      {...register("productValue")}
+                      placeholder={"Ex. 2,50"}
+                    />
                   </InputGroup>
-                  <Select {...register('productUnid')} defaultValue={'unid'} >
-                    <option key={'unid'} value={'unid'}>Unidade</option>
-                    <option key={'Kg'} value={'g'}>Grama</option>
-                    <option key={'Kg'} value={'Kg'}>Kilograma</option>
-                    <option key={'L'} value={'L'}>Litro</option>
+                  <Select {...register("productUnid")} defaultValue={"unid"}>
+                    <option key={"unid"} value={"unid"}>
+                      Unidade
+                    </option>
+                    <option key={"Kg"} value={"g"}>
+                      Grama
+                    </option>
+                    <option key={"Kg"} value={"Kg"}>
+                      Kilograma
+                    </option>
+                    <option key={"L"} value={"L"}>
+                      Litro
+                    </option>
                   </Select>
                 </VStack>
               </VStack>
             </DrawerBody>
 
             <DrawerFooter>
-              <Button 
-                mr={3}
-                onClick={onClose}
-              >
+              <Button mr={3} onClick={onClose}>
                 Cancel
               </Button>
               <Button
@@ -202,7 +196,7 @@ export default function Products() {
                 backgroundColor={"#63342B"}
                 _hover={{ backgroundColor: "#502A22" }}
                 _active={{ backgroundColor: "#482017" }}
-                colorScheme='blue'
+                colorScheme="blue"
               >
                 Save
               </Button>
@@ -241,9 +235,7 @@ export default function Products() {
           <Table
             columns={columns}
             data={data}
-            fetchData={fetchData}
             loading={loading}
-            // pageCount={pageCount}
             onOpenDrawerAddProduct={onOpen}
           />
         </VStack>
