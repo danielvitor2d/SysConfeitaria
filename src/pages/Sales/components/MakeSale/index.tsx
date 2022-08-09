@@ -19,8 +19,11 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Divider,
+  Flex,
 } from "@chakra-ui/react";
-import Select from 'react-select'
+import Select, { StylesConfig } from 'react-select'
+import AsyncSelect from 'react-select/async'
 import makeAnimated from 'react-select/animated'
 
 import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
@@ -28,6 +31,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import {
   bagdeColor,
+  Client,
+  colorScheme,
   PaymentMethod,
   paymentMethod,
   SaleStatus,
@@ -45,15 +50,73 @@ interface MakeSaleProps {
 const animatedComponents = makeAnimated()
 
 export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
-  const [clients, setClients] = useState(() => makeData(15))
+  const [clients, setClients] = useState(() => {
+    const data = makeData(50)
+    console.log(data)
+    return data.map((client: Client) => {
+      Object.assign(client, {
+        value: client.clientCode,
+        label: client.clientName
+      })
+      // console.log(client)
+      return { ...client }
+    })
+  })
+
+  const filterClients = (inputValue: string) => {
+    return clients.filter((client: Client) => true
+      // client.clientName.toLowerCase().includes(inputValue.toLowerCase())
+    )
+  }
+
+  const promiseOptions = (inputValue: string) => {
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(filterClients(inputValue))
+      }, 500)
+    })
+  }
+
+  const clientStyles: StylesConfig = {
+    control: (styles) => ({ 
+      ...styles,
+      boxShadow: 'unset',
+      width: '250px',
+      backgroundColor: 'white',
+      ':focus': {
+        ...styles[':focus'],
+        borderColor: '#63342B',
+        // backgroundColor: 'blue'
+      },
+      ':hover': {
+        ...styles[':hover'],
+        borderColor: '#b9b9b9',
+        // backgroundColor: 'red'
+      },
+      ':active': {
+        ...styles[':active'],
+        borderColor: '#63342B',
+        // backgroundColor: 'blue'
+      },
+      ':focus-visible': {
+        ...styles[':focus-visible'],
+        borderColor: '#63342B',
+      },
+      ':focus-within': {
+        ...styles[':focus-within'],
+        borderColor: '#63342B',
+      },
+      cursor: 'pointer'
+    }),
+    option: (styles) => ({
+      ...styles,
+      cursor: 'pointer'
+    })
+  }
 
   const [newSalePaymentMethod, setNewSalePaymentMethod] =
     useState<PaymentMethod | null>(null);
   const [newSaleStatus, setNewSaleStatus] = useState<SaleStatus | null>(null);
-
-  useEffect(() => {
-    console.log(getDatetimeLocalFormatted(new Date(Date.now())));
-  }, []);
 
   return (
     <Modal isCentered isOpen={isOpen} onClose={onClose} size={"6xl"}>
@@ -68,7 +131,7 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
             <HStack gap={20}>
               <VStack alignItems={"flex-start"}>
                 <HStack>
-                  <Text width={"120px"}>Data</Text>
+                  <Text minWidth={"120px"} maxWidth={"120px"}>Data</Text>
                   <Input
                     defaultValue={getDatetimeLocalFormatted(
                       new Date(Date.now())
@@ -77,25 +140,73 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
                   />
                 </HStack>
                 <HStack>
-                  <Text width={"120px"}>Cliente</Text>
+                  <Text minWidth={"120px"} maxWidth={"120px"}>Cliente</Text>
                   <Select
-                    closeMenuOnSelect={true}
-                    components={animatedComponents}
+                    placeholder={
+                      <Text
+                        color={"black"}
+                        fontSize={"15px"}
+                        fontWeight={"500"}
+                        fontFamily={"Montserrat"}
+                      >
+                        Selecione
+                      </Text>
+                    }
+                    blurInputOnSelect={true}
+                    autoFocus={false}
+                    styles={clientStyles}
+                    // cacheOptions
+                    // defaultOptions
+                    // components={animatedComponents}
                     options={clients}
                   />
                 </HStack>
               </VStack>
               <VStack alignItems={"flex-start"}>
                 <HStack>
-                  <Text width={"120px"}>Pagamento</Text>
-                  <Menu closeOnSelect={false}>
-                    <MenuButton 
+                  <Text minWidth={"120px"} maxWidth={"120px"}>Pagamento</Text>
+                  <Menu closeOnSelect={true}>
+                    <MenuButton
                       as={Button}
                       type={"submit"}
+                      _hover={{
+                        borderColor: '#b9b9b9',
+                      }}
+                      _active={{
+                        borderColor: '#63342B',
+                        borderWidth: '2px',
+                        '.font-awesome-icon': {
+                          color: '#525252'
+                        },
+                      }}
                       backgroundColor={"white"}
+                      borderColor={'#CCCCCC'}
                       borderWidth={"2px"}
+                      borderRadius={'4px'}
+                      width={'220px'}
+                      textAlign={'start'}
+                      sx={{
+                        '.font-awesome-icon:hover': {
+                          color: '#929292'
+                        },
+                      }}
                       rightIcon={
-                        <FontAwesomeIcon icon={faAngleDown} color={"black"} />
+                        <Flex 
+                          gap={2}
+                          alignItems={'center'}
+                        >
+                          <Divider
+                            height={'20px'}
+                            marginRight={1}
+                            borderColor={'#CCCCCC'}
+                            orientation={'vertical'} 
+                          />
+                          <FontAwesomeIcon
+                            className="font-awesome-icon"
+                            icon={faAngleDown}
+                            color={"#CCCCCC"}
+                          />
+                        </Flex>
                       }
                     >
                       <Text
@@ -131,15 +242,49 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
                   </Menu>
                 </HStack>
                 <HStack>
-                  <Text width={"120px"}>Status</Text>
-                  <Menu closeOnSelect={false}>
+                  <Text minWidth={"120px"} maxWidth={"120px"}>Status</Text>
+                  <Menu closeOnSelect={true}>
                     <MenuButton
                       as={Button}
                       type={"submit"}
+                      _hover={{
+                        borderColor: '#b9b9b9',
+                      }}
+                      _active={{
+                        borderColor: '#63342B',
+                        borderWidth: '2px',
+                        '.font-awesome-icon': {
+                          color: '#525252'
+                        },
+                      }}
                       backgroundColor={"white"}
+                      borderColor={'#CCCCCC'}
                       borderWidth={"2px"}
+                      borderRadius={'4px'}
+                      width={'220px'}
+                      textAlign={'start'}
+                      sx={{
+                        '.font-awesome-icon:hover': {
+                          color: '#929292'
+                        },
+                      }}
                       rightIcon={
-                        <FontAwesomeIcon icon={faAngleDown} color={"black"} />
+                        <Flex 
+                          gap={2}
+                          alignItems={'center'}
+                        >
+                          <Divider
+                            height={'20px'}
+                            marginRight={1}
+                            borderColor={'#CCCCCC'}
+                            orientation={'vertical'} 
+                          />
+                          <FontAwesomeIcon
+                            className="font-awesome-icon"
+                            icon={faAngleDown}
+                            color={"#CCCCCC"}
+                          />
+                        </Flex>
                       }
                     >
                       <Text

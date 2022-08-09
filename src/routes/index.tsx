@@ -11,15 +11,15 @@ export default function Routes() {
   const { alreadyRegistered, signed } = useContext(AuthContext);
 
   useEffect(() => {
-    if (alreadyRegistered) {
-      if (signed) {
-        console.log("Rota autenticada");
-      } else {
-        console.log("Rota de autenticação");
-      }
-    } else {
-      console.log("Rota de cadastro");
-    }
+    // if (alreadyRegistered) {
+    //   if (signed) {
+    //     console.log("Rota autenticada");
+    //   } else {
+    //     console.log("Rota de autenticação");
+    //   }
+    // } else {
+    //   console.log("Rota de cadastro");
+    // }
 
     setRoute(
       alreadyRegistered ? (

@@ -104,9 +104,9 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   }, [auth.currentUser]);
 
   useEffect(() => {
-    console.log("signed: ", signed);
-    console.log("alreadyRegistered: ", alreadyRegistered);
-    console.log("logado no Authentication: ", auth.currentUser?.uid);
+    // console.log("signed: ", signed);
+    // console.log("alreadyRegistered: ", alreadyRegistered);
+    // console.log("logado no Authentication: ", auth.currentUser?.uid);
   }, [signed, alreadyRegistered, auth.currentUser]);
 
   return (

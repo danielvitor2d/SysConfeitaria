@@ -8,7 +8,7 @@ const bg = mode("gray.700", "gray.300");
 
 export const customTheme = extendTheme({
   components: {
-    Tooltip: {
+    Divider: {
       baseStyle: {
         // [$bg.variable]: `#2D3748`,
         // px: "8px",

@@ -71,7 +71,7 @@ export default function SignIn() {
 
   useEffect(() => {
     if (signed) {
-      console.log("Já tá logado");
+      // console.log("Já tá logado");
       navigate("/products");
     } else {
       navigate("/");

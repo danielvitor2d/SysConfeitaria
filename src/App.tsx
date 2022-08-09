@@ -3,7 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 
 import Routes from "./routes";
-import { customTheme } from "./util/themeTable";
+import { customTheme } from "./util/themeChakra";
 
 function App() {
   return (
