@@ -11,53 +11,25 @@ import {
   ModalFooter,
   Button,
   Text,
-  Table as ChakraUITable,
-  Select as ChakraUISelect,
-  Badge,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
-  Divider,
-  Flex,
-  Tooltip,
-  TableContainer,
-  Box,
-  chakra,
-  TableCaption,
-  Tbody,
-  Td,
-  Tfoot,
-  Th,
-  Thead,
-  Tr,
   useToast,
+  Flex,
 } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   ItemRow,
 } from "../../../../types";
 import { getDatetimeLocalFormatted } from "../../../../util/getDate";
-import makeData from "./makeData";
 import SelectPaymentMethod from "./components/SelectPaymentMethod";
 import SelectSaleStatus from "./components/SelectSaleStatus";
 import SelectClient from "./components/SelectClient";
 import {
   DeleteIcon,
   EditIcon,
-  TriangleDownIcon,
-  TriangleUpIcon,
 } from "@chakra-ui/icons";
 import {
   CellProps,
   Column,
-  useBlockLayout,
-  usePagination,
-  useSortBy,
-  useTable,
 } from "react-table";
-import Paginate from "./components/Table/Paginate";
 import Table from "./components/Table";
 
 interface MakeSaleProps {
@@ -165,7 +137,7 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
   );
 
   return (
-    <Modal isCentered isOpen={isOpen} onClose={onClose} size={"6xl"}>
+    <Modal isCentered isOpen={isOpen} onClose={onClose} size={"5xl"}>
       <ModalOverlay />
       <ModalContent bg={"#FFFFFF"}>
         <ModalHeader>
@@ -173,30 +145,73 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody bg={"#FFFFFF"}>
-          <VStack>
-            <HStack gap={20}>
-              <VStack alignItems={"flex-start"}>
-                <HStack>
-                  <Text minWidth={"120px"} maxWidth={"120px"}>
-                    Data
+          <VStack gap={5} width={'95%'} margin={'auto'}>
+            <VStack gap={2} width={'100%'}>
+              <Text 
+                alignSelf={'flex-start'}
+                fontSize={'25px'}
+                fontWeight={'bold'}
+                fontFamily={'Montserrat'}
+              >
+                {'Dados da venda'}
+              </Text>
+              <HStack gap={20}>
+                <VStack alignItems={"flex-start"}>
+                  <HStack>
+                    <Text 
+                      minWidth={"120px"} 
+                      maxWidth={"120px"} 
+                      fontWeight={'600'}
+                      fontFamily={'Montserrat'}
+                    >
+                      {'Data'}
+                    </Text>
+                    <Input
+                      defaultValue={getDatetimeLocalFormatted(
+                        new Date(Date.now())
+                      )}
+                      type={"datetime-local"}
+                    />
+                  </HStack>
+                  <SelectClient />
+                </VStack>
+                <VStack alignItems={"flex-start"}>
+                  <SelectPaymentMethod />
+                  <SelectSaleStatus />
+                </VStack>
+              </HStack>
+            </VStack>
+            <VStack gap={3} alignItems={'center'} width={'100%'}>
+              <HStack gap={4} width={'100%'} justifyContent={'space-between'}>
+                <Text 
+                  alignSelf={'flex-start'}
+                  fontSize={'25px'}
+                  fontWeight={'bold'}
+                  fontFamily={'Montserrat'}
+                >
+                  {'Itens'}
+                </Text>
+                <Button
+                  backgroundColor={"#63342B"}
+                  _hover={{ backgroundColor: "#502A22" }}
+                  _active={{ backgroundColor: "#482017" }}
+                  marginRight={3}
+                  alignSelf={'flex-end'}
+                >
+                  <Text
+                    color={"white"}
+                    fontSize={"15px"}
+                    fontWeight={"500"}
+                    fontFamily={"Montserrat"}
+                  >
+                    {'Novo item'}
                   </Text>
-                  <Input
-                    defaultValue={getDatetimeLocalFormatted(
-                      new Date(Date.now())
-                    )}
-                    type={"datetime-local"}
-                  />
-                </HStack>
-                <SelectClient />
-              </VStack>
-              <VStack alignItems={"flex-start"}>
-                <SelectPaymentMethod />
-                <SelectSaleStatus />
-              </VStack>
-            </HStack>
-            <Table
-              columns={columns}
-            />
+                </Button>
+              </HStack>
+              <Table
+                columns={columns}
+              />
+            </VStack>
           </VStack>
         </ModalBody>
         <ModalFooter>
@@ -209,20 +224,20 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
             <Text
               color={"white"}
               fontSize={"15px"}
-              fontWeight={"500"}
+              fontWeight={"600"}
               fontFamily={"Montserrat"}
             >
-              Salvar
+              {'Salvar'}
             </Text>
           </Button>
           <Button onClick={onClose}>
             <Text
               color={"black"}
               fontSize={"15px"}
-              fontWeight={"500"}
+              fontWeight={"600"}
               fontFamily={"Montserrat"}
             >
-              Cancelar
+              {'Cancelar'}
             </Text>
           </Button>
         </ModalFooter>

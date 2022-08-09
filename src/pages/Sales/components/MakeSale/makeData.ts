@@ -25,7 +25,7 @@ const newSale = (): Item => {
   return {
     itemCode: faker.random.numeric(6),
     product: {
-      productName: faker.name.findName(),
+      productName: faker.commerce.productName(),
     } as Product,
     quantity,
     unitaryValue,

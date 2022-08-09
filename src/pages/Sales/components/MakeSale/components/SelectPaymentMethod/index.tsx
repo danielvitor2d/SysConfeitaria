@@ -83,8 +83,14 @@ export default function SelectPaymentMethod() {
 
   return (
     <HStack>
-      <Text minWidth={"120px"} maxWidth={"120px"}>
-        Pagamento
+      <Text 
+        minWidth={"120px"} 
+        maxWidth={"120px"}
+        fontSize={'15px'}
+        fontWeight={'600'}
+        fontFamily={'Montserrat'}
+      >
+        {'Pagamento'}
       </Text>
       <Select
         placeholder={

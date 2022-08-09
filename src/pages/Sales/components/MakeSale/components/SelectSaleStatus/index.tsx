@@ -73,8 +73,14 @@ export default function SelectSaleStatus() {
 
   return (
     <HStack>
-      <Text minWidth={"120px"} maxWidth={"120px"}>
-        Status
+      <Text 
+        minWidth={"120px"} 
+        maxWidth={"120px"}
+        fontSize={'15px'}
+        fontWeight={'600'}
+        fontFamily={'Montserrat'}
+      >
+        {'Status'}
       </Text>
       <Select
         placeholder={
