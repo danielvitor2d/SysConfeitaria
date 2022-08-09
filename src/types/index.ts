@@ -25,6 +25,12 @@ export interface ClientRow extends Client {
   actions?: string;
 }
 
+export interface ClientOption extends Client {
+  value?: string;
+  label?: string;
+  key?: string;
+}
+
 export interface ClientDocument extends Client {
   _id?: string;
 }
@@ -96,7 +102,7 @@ export type PaymentMethod =
 
 export type TranslatedPaymentMethod =
   | "Dinheiro"
-  | "PIX"
+  | "Pix"
   | "Cartão de Crédito"
   | "Cartão de Débito"
   | "Boleto"
@@ -106,7 +112,7 @@ export type TranslatedPaymentMethod =
 
 export const paymentMethod: Record<PaymentMethod, TranslatedPaymentMethod> = {
   cash: "Dinheiro",
-  pix: "PIX",
+  pix: "Pix",
   "credit-card": "Cartão de Crédito",
   "debit-card": "Cartão de Débito",
   "bank-payment-slip": "Boleto",

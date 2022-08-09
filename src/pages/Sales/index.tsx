@@ -117,7 +117,9 @@ export default function Sales() {
           Header: "Pagamento".toUpperCase(),
           Footer: "Pagamento".toUpperCase(),
           Cell: ({ value }) => (
-            <Text whiteSpace={"normal"}>{paymentMethod[value]}</Text>
+            <Badge colorScheme={"gray"}>
+              <Text whiteSpace={"normal"}>{paymentMethod[value]}</Text>
+            </Badge>
           ),
           accessor: "paymentMethod",
           disableResizing: false,
