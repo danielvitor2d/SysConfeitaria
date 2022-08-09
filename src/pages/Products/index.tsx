@@ -12,8 +12,6 @@ import {
   HStack,
   Input,
   InputGroup,
-  InputLeftAddon,
-  InputRightElement,
   Select,
   Text,
   useDisclosure,
@@ -23,7 +21,6 @@ import {
 } from "@chakra-ui/react";
 import { faker } from "@faker-js/faker";
 import {
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -35,17 +32,15 @@ import { useNavigate } from "react-router-dom";
 import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
 import { ProductRow } from "../../types";
-import { toBRLWithSign } from "../../util/formatCurrency";
 import Table from "./components/Table";
 
 import makeData from "./makeData";
-
-const serverData = makeData(50);
+import InputNumberFormat from "../components/InputNumberFormat";
 
 export default function Products() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
 
-  const toast = useToast()
+  const toast = useToast();
 
   const navigate = useNavigate();
 
@@ -57,18 +52,13 @@ export default function Products() {
   const fetchIdRef = useRef(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { 
-    register, 
-    handleSubmit, 
-    setValue, 
-    getValues,
-  } = useForm<ProductRow>({
+  const { register, handleSubmit, setValue, getValues } = useForm<ProductRow>({
     defaultValues: {
       productCode: faker.random.numeric(6),
       productName: "",
       unitaryType: "unid",
-      unitaryValue: 0
-    }
+      unitaryValue: 0,
+    },
   });
 
   const columns = useMemo(
@@ -136,7 +126,7 @@ export default function Products() {
         productCode: dataForm.productCode,
         productName: dataForm.productName,
         unitaryValue: dataForm.unitaryValue,
-        unitaryType: dataForm.unitaryType
+        unitaryType: dataForm.unitaryType,
       };
 
       onClose();
@@ -177,7 +167,7 @@ export default function Products() {
 
   return (
     <>
-      <Drawer isOpen={isOpen} placement={"right"} size={'sm'} onClose={onClose}>
+      <Drawer isOpen={isOpen} placement={"right"} size={"sm"} onClose={onClose}>
         <form onSubmit={handleSubmit(handleCreateProduct)}>
           <DrawerOverlay />
           <DrawerContent>
@@ -186,34 +176,26 @@ export default function Products() {
             <DrawerBody>
               <VStack gap={5} width={"90%"}>
                 <VStack alignItems={"flex-start"} width={"90%"}>
-                  <Text textAlign={"left"}>
-                    {'Código'}
-                  </Text>
-                  <Input
-                    {...register("productCode")}
-                    isReadOnly={true}
-                  />
+                  <Text textAlign={"left"}>{"Código"}</Text>
+                  <Input {...register("productCode")} isReadOnly={true} />
                 </VStack>
                 <VStack alignItems={"flex-start"} width={"90%"}>
-                  <Text textAlign={"left"}>
-                    {'Nome do produto'}
-                  </Text>
+                  <Text textAlign={"left"}>{"Nome do produto"}</Text>
                   <Input
                     {...register("productName")}
                     placeholder="Ex. Bolo de chocolate"
                   />
                 </VStack>
                 <VStack alignItems={"flex-start"} width={"90%"}>
-                  <Text textAlign={"left"}>
-                    {'Valor unitário/Kg/L'}
-                  </Text>
+                  <Text textAlign={"left"}>{"Valor unitário/Kg/L"}</Text>
                   <InputGroup>
-                    <InputLeftAddon children={"R$"} />
-                    <Input
+                    {/* <InputLeftAddon children={"R$"} /> */}
+                    {/* <Input
                       {...register("unitaryValue")}
                       defaultValue={0}
                       placeholder={"Ex. 2,50"}
-                    />
+                    /> */}
+                    <InputNumberFormat />
                   </InputGroup>
                   <Select {...register("unitaryType")} defaultValue={"unid"}>
                     <option key={"unid"} value={"unid"}>

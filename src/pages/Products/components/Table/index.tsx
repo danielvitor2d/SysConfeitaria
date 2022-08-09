@@ -91,7 +91,7 @@ export default function Table({
   const [filter, setFilter] = useState<string>("");
   const [filters, setFilters] = useState<string[]>([
     "productCode",
-    "productName"
+    "productName",
   ]);
 
   const globalFilterFunction = useCallback(
@@ -224,7 +224,7 @@ export default function Table({
                   fontWeight={"500"}
                   fontFamily={"Montserrat"}
                 >
-                  {'Filtrar por'}
+                  {"Filtrar por"}
                 </Text>
               </MenuButton>
               <MenuList minWidth="240px">
@@ -235,7 +235,9 @@ export default function Table({
                   onChange={(value) => setFilters([...value])}
                 >
                   <MenuItemOption value="productCode">Código</MenuItemOption>
-                  <MenuItemOption value="productName">Nome do Produto</MenuItemOption>
+                  <MenuItemOption value="productName">
+                    Nome do Produto
+                  </MenuItemOption>
                 </MenuOptionGroup>
               </MenuList>
             </Menu>
@@ -326,16 +328,15 @@ export default function Table({
           </Thead>
           <Tbody {...getTableBodyProps()}>
             {page.map((row, i) => {
-                prepareRow(row);
-                return (
-                  <Tr {...row.getRowProps()}>
-                    {row.cells.map((cell) => (
-                      <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
-                    ))}
-                  </Tr>
-                );
-              })
-            }
+              prepareRow(row);
+              return (
+                <Tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                  ))}
+                </Tr>
+              );
+            })}
           </Tbody>
           <Tfoot>
             {footerGroups.map((footerGroup) => (

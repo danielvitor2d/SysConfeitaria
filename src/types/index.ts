@@ -47,11 +47,11 @@ export type Item = {
 
 export interface ItemRow extends Item {
   actions?: string;
-};
+}
 
 export interface ItemDocument extends Item {
   _id?: string;
-};
+}
 
 export type Sale = {
   saleCode: string;
