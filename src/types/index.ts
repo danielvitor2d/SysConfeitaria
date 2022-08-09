@@ -39,7 +39,16 @@ export type Item = {
   itemCode: string;
   product: Product;
   quantity: number;
-  value: number;
+  unitaryValue: number;
+  totalValue: number;
+};
+
+export interface ItemRow extends Item {
+  actions?: string;
+};
+
+export interface ItemDocument extends Item {
+  _id?: string;
 };
 
 export type Sale = {

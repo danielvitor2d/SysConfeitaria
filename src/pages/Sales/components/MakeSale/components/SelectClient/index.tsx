@@ -4,10 +4,7 @@ import Select, {
   components,
   OptionProps,
   StylesConfig,
-  MultiValueProps,
-  MultiValueGenericProps,
   ControlProps,
-  SingleValueProps,
 } from "react-select";
 import { ClientOption, ClientRow } from "../../../../../../types";
 import makeData from "../../../../../Clients/makeData";
@@ -96,34 +93,34 @@ export default function SelectClient() {
     }),
   };
 
-  return  (
+  return (
     <HStack>
-    <Text minWidth={"120px"} maxWidth={"120px"}>
-      Cliente
-    </Text>
-    <Select
-      placeholder={
-        <Text
-          color={"black"}
-          fontSize={"15px"}
-          fontWeight={"500"}
-          fontFamily={"Montserrat"}
-        >
-          Selecione
-        </Text>
-      }
-      blurInputOnSelect={true}
-      autoFocus={false}
-      styles={clientStyles}
-      isClearable={true}
-      // cacheOptions
-      // defaultOptions
-      components={{
-        Option: CustomOptionClient,
-        Control: CustomControlClient,
-      }}
-      options={clients}
-    />
-  </HStack>
-  )
+      <Text minWidth={"120px"} maxWidth={"120px"}>
+        Cliente
+      </Text>
+      <Select
+        placeholder={
+          <Text
+            color={"black"}
+            fontSize={"15px"}
+            fontWeight={"500"}
+            fontFamily={"Montserrat"}
+          >
+            Selecione
+          </Text>
+        }
+        blurInputOnSelect={true}
+        autoFocus={false}
+        styles={clientStyles}
+        isClearable={true}
+        // cacheOptions
+        // defaultOptions
+        components={{
+          Option: CustomOptionClient,
+          Control: CustomControlClient,
+        }}
+        options={clients}
+      />
+    </HStack>
+  );
 }

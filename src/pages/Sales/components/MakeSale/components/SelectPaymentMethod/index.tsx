@@ -15,7 +15,7 @@ import makeAnimated from "react-select/animated";
 import { TooltipPrimitive } from "@atlaskit/tooltip";
 
 export default function SelectPaymentMethod() {
-  const animatedComponents = makeAnimated()
+  const animatedComponents = makeAnimated();
 
   const paymentMethodStyles: StylesConfig<any> = {
     control: (styles) => ({
@@ -62,15 +62,13 @@ export default function SelectPaymentMethod() {
     menu: (styles) => ({
       ...styles,
       minWidth: "200px",
-    })
+    }),
   };
 
   const CustomOptionPaymentMethod = (props: OptionProps<any, true>) => {
     return (
       <components.Option {...props} key={props.data.key}>
-        <Badge colorScheme={"gray"}>
-          {props.data.label}
-        </Badge>
+        <Badge colorScheme={"gray"}>{props.data.label}</Badge>
       </components.Option>
     );
   };
@@ -82,7 +80,7 @@ export default function SelectPaymentMethod() {
       </components.NoOptionsMessage>
     );
   };
-  
+
   return (
     <HStack>
       <Text minWidth={"120px"} maxWidth={"120px"}>

@@ -73,44 +73,44 @@ export default function SelectSaleStatus() {
 
   return (
     <HStack>
-    <Text minWidth={"120px"} maxWidth={"120px"}>
-      Status
-    </Text>
-    <Select
-      placeholder={
-        <Text
-          color={"black"}
-          fontSize={"15px"}
-          fontWeight={"500"}
-          fontFamily={"Montserrat"}
-        >
-          Selecione
-        </Text>
-      }
-      components={{
-        Option: CustomOptionSaleStatus,
-        SingleValue: CustomSingleValueStatus,
-      }}
-      blurInputOnSelect={true}
-      autoFocus={false}
-      styles={saleStatusStyles}
-      isClearable={true}
-      defaultValue={{
-        value: "Rascunho",
-        label: "Rascunho",
-        key: "draft",
-      }}
-      // defaultOptions
-      // components={animatedComponents}
-      options={Object.entries(saleStatus).map((status) => {
-        return {
-          value: status[1],
-          label: status[1],
-          key: status[0],
-        };
-      })}
-    />
-    {/* <Menu closeOnSelect={true}>
+      <Text minWidth={"120px"} maxWidth={"120px"}>
+        Status
+      </Text>
+      <Select
+        placeholder={
+          <Text
+            color={"black"}
+            fontSize={"15px"}
+            fontWeight={"500"}
+            fontFamily={"Montserrat"}
+          >
+            Selecione
+          </Text>
+        }
+        components={{
+          Option: CustomOptionSaleStatus,
+          SingleValue: CustomSingleValueStatus,
+        }}
+        blurInputOnSelect={true}
+        autoFocus={false}
+        styles={saleStatusStyles}
+        isClearable={true}
+        defaultValue={{
+          value: "Rascunho",
+          label: "Rascunho",
+          key: "draft",
+        }}
+        // defaultOptions
+        // components={animatedComponents}
+        options={Object.entries(saleStatus).map((status) => {
+          return {
+            value: status[1],
+            label: status[1],
+            key: status[0],
+          };
+        })}
+      />
+      {/* <Menu closeOnSelect={true}>
       <MenuButton
         as={Button}
         type={"submit"}
@@ -187,6 +187,6 @@ export default function SelectSaleStatus() {
         </MenuOptionGroup>
       </MenuList>
     </Menu> */}
-  </HStack>
-  )
+    </HStack>
+  );
 }
