@@ -55,22 +55,22 @@ export default function Sidebar() {
   });
 
   const detectKeyDown = (ev: KeyboardEvent) => {
-    console.log("Clicked key: " + ev.key);
-    console.log("Clicked key: " + ev.ctrlKey);
+    // console.log("Clicked key: " + ev.key);
+    // console.log("Clicked key: " + ev.ctrlKey);
     if (ev.key === "!" && ev.shiftKey) {
-      navigate("/sales")
+      navigate("/sales");
     }
     if (ev.key === "@" && ev.shiftKey) {
-      navigate("/clients")
+      navigate("/clients");
     }
     if (ev.key === "#" && ev.shiftKey) {
-      navigate("/products")
+      navigate("/products");
     }
     if (ev.key === "$" && ev.shiftKey) {
-      navigate("/settings")
+      navigate("/settings");
     }
     if (ev.key === "%" && ev.shiftKey) {
-      logout()
+      logout();
     }
   };
 
@@ -213,6 +213,12 @@ export default function Sidebar() {
           <VStack width={"80%"}>
             <Button
               backgroundColor={"#EAC3AE"}
+              _hover={{
+                backgroundColor: "#eac3aeb2",
+              }}
+              _active={{
+                backgroundColor: "#eac3ae83",
+              }}
               borderRadius={sidebarState.mode == "open" ? "15px" : "full"}
               width={"70%"}
             >

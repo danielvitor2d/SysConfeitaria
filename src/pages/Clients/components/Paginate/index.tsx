@@ -19,10 +19,10 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { Row } from "react-table";
-import { Client } from "../..";
+import { ClientRow } from "../../../../types";
 
 type PaginateProps = {
-  page: Row<Client>[];
+  page: Row<ClientRow>[];
   canPreviousPage: boolean;
   canNextPage: boolean;
   pageOptions: number[];

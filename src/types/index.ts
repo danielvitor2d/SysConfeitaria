@@ -116,7 +116,7 @@ export const paymentMethod: Record<PaymentMethod, TranslatedPaymentMethod> = {
 };
 
 export const colorScheme: string[] = [
-  "whiteAlpha",
+  // "whiteAlpha",
   "blackAlpha",
   "gray",
   "red",

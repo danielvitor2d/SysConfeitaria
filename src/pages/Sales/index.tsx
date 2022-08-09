@@ -11,15 +11,24 @@ import {
   Avatar,
   TagLabel,
   useToast,
+  Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Input,
+  Table as ChakraUITable,
 } from "@chakra-ui/react";
-import { faSquareMinus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
 import { paymentMethod, saleStatus, SaleRow, bagdeColor } from "../../types";
+import MakeSale from "./components/MakeSale";
 import Table from "./components/Table";
 import makeData from "./makeData";
 
@@ -28,17 +37,32 @@ export default function Sales() {
 
   const navigate = useNavigate();
 
-  const toast = useToast()
+  const toast = useToast();
 
   const { signed } = useContext(AuthContext);
 
   const [data, setData] = useState<SaleRow[]>(() => makeData(55));
-  const [loading, setLoading] = useState(false);
 
   const fetchIdRef = useRef(0);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenMakeSale,
+    onOpen: onOpenMakeSale,
+    onClose: onCloseMakeSale,
+  } = useDisclosure();
+
   const { register, handleSubmit, setValue } = useForm();
+
+  const OverlayOne = () => (
+    <ModalOverlay
+      bg="none"
+      backdropFilter="auto"
+      backdropInvert="80%"
+      backdropBlur="2px"
+    />
+  );
+
+  const [overlay, setOverlay] = useState<JSX.Element>(<OverlayOne />);
 
   const columns = useMemo(
     () =>
@@ -157,18 +181,18 @@ export default function Sales() {
 
   async function handleRemoveRow(saleCode: string) {
     toast({
-      title: 'Removendo',
+      title: "Removendo",
       description: `Removendo linha ${saleCode}`,
-      status: 'info'
-    })
+      status: "info",
+    });
   }
 
   async function handleUpdateRow(saleCode: string) {
     toast({
-      title: 'Editando',
+      title: "Editando",
       description: `Editando linha ${saleCode}`,
-      status: 'info'
-    })
+      status: "info",
+    });
   }
 
   const clearFields = () => {
@@ -186,6 +210,11 @@ export default function Sales() {
 
   return (
     <>
+      <MakeSale
+        isOpen={isOpenMakeSale}
+        onClose={onCloseMakeSale}
+        onOpen={onOpenMakeSale}
+      />
       <Box
         width={"100%"}
         paddingX={"1rem"}
@@ -205,10 +234,7 @@ export default function Sales() {
           <Table
             columns={columns}
             data={data}
-            // fetchData={fetchData}
-            loading={loading}
-            // pageCount={pageCount}
-            onOpenDrawerAddSale={onOpen}
+            onOpenDrawerAddSale={onOpenMakeSale}
           />
         </VStack>
       </Box>

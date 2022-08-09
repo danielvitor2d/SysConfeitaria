@@ -1,6 +1,7 @@
 import "regenerator-runtime/runtime";
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import {
+  Badge,
   Box,
   Button,
   chakra,
@@ -16,7 +17,6 @@ import {
   MenuList,
   MenuOptionGroup,
   SimpleGrid,
-  Skeleton,
   Table as ChakraUITable,
   TableCaption,
   TableContainer,
@@ -51,24 +51,23 @@ import {
 import Paginate from "../Paginate";
 import {
   paymentMethod,
-  PaymentMethod,
   SaleRow,
   saleStatus,
+  PaymentMethod,
   SaleStatus,
+  bagdeColor,
 } from "../../../../types";
 import { matchSorter } from "match-sorter";
 
 interface SalesTableProps {
   columns: Column<SaleRow>[];
   data: SaleRow[];
-  loading: boolean;
   onOpenDrawerAddSale: () => void;
 }
 
 export default function Table({
   columns,
   data,
-  loading,
   onOpenDrawerAddSale,
 }: SalesTableProps) {
   const cssResizer = {
@@ -96,46 +95,38 @@ export default function Table({
   const [filter, setFilter] = useState<string>("");
   const [filters, setFilters] = useState<string[]>([
     "saleCode",
+    "createdAt",
     "client",
-    "saleStatus",
   ]);
+  const [paymentMethodsFilter, setPaymentMethodsFilter] = useState<
+    PaymentMethod[]
+  >([]);
+  const [saleStatusFilter, setSaleStatusFilter] = useState<SaleStatus[]>([]);
 
   const globalFilterFunction = useCallback(
     (rows: Row<SaleRow>[], _ids: IdType<SaleRow>[], query: string) => {
       if (filters.length === 0) return rows;
-      console.log("oldRows: ", rows);
-      // const newRows = matchSorter<Row<SaleRow>>(rows, query, {
-      //   keys: filters.map((columnName) => `values.${columnName}`),
-      // });
       const newRows = rows.filter((row) => {
-        return filters.some((filter) => {
-          if (filter === "client") {
-            return (
-              matchSorter([row.values[filter].clientName], query).length === 1
-            );
-          }
-          if (filter === "saleStatus") {
-            console.log("saleStatus[row.values[filter] as SaleStatus]: ", saleStatus[row.values[filter] as SaleStatus])
-            return (
-              matchSorter([saleStatus[row.values[filter] as SaleStatus]], query)
-                .length === 1
-            );
-          }
-          if (filter === "paymentMethod") {
-            return (
-              matchSorter(
-                [paymentMethod[row.values[filter] as PaymentMethod]],
-                query
-              ).length === 1
-            );
-          }
-          return matchSorter([row.values[filter]], query).length === 1;
-        });
+        return (
+          filters.some((filter) => {
+            if (filter === "client") {
+              return (
+                matchSorter([row.values[filter].clientName], query).length === 1
+              );
+            }
+            return matchSorter([row.values[filter]], query).length === 1;
+          }) &&
+          (paymentMethodsFilter.length === 0 ||
+            paymentMethodsFilter.includes(
+              row.values["paymentMethod"] as PaymentMethod
+            )) &&
+          (saleStatusFilter.length === 0 ||
+            saleStatusFilter.includes(row.values["saleStatus"] as SaleStatus))
+        );
       });
-      console.log("newRows: ", newRows);
       return newRows;
     },
-    [filters]
+    [filters, paymentMethodsFilter, saleStatusFilter]
   );
 
   const defaultColumn = React.useMemo(
@@ -199,15 +190,21 @@ export default function Table({
         justifyContent={"space-between"}
         gap={7}
         flex={1}
-        columns={[4, 4, 4, 6, 6]}
+        columns={[1, 1, 1, 2, 2]}
       >
-        <GridItem colSpan={[1, 1, 1, 2, 1]}>
+        <GridItem colSpan={[1, 1, 1, 1, 1]}>
           <Button
+            alignSelf={"flex-start"}
             backgroundColor={"#EAC3AE"}
+            _hover={{
+              backgroundColor: "#eac3aeb2",
+            }}
+            _active={{
+              backgroundColor: "#eac3ae83",
+            }}
             borderRadius={"6px"}
             borderWidth={"1px"}
             borderColor={"#63342B"}
-            width={"100%"}
             onClick={onOpenDrawerAddSale}
           >
             <HStack alignItems={"center"}>
@@ -230,9 +227,117 @@ export default function Table({
             </HStack>
           </Button>
         </GridItem>
-        <GridItem colSpan={[1, 1, 2, 3, 3]} colStart={[1, 1, 1, 4, 4]}>
+        <GridItem colSpan={[1, 1, 1, 1, 1]}>
           <HStack>
-            <InputGroup>
+            <Menu closeOnSelect={false}>
+              <MenuButton
+                as={Button}
+                type={"submit"}
+                backgroundColor={"#63342B"}
+                _hover={{ backgroundColor: "#502A22" }}
+                _active={{ backgroundColor: "#482017" }}
+                rightIcon={
+                  <FontAwesomeIcon icon={faAngleDown} color={"white"} />
+                }
+              >
+                <Text
+                  color={"white"}
+                  fontSize={"15px"}
+                  fontWeight={"500"}
+                  fontFamily={"Montserrat"}
+                >
+                  Pagamento
+                </Text>
+              </MenuButton>
+              <MenuList minWidth="240px">
+                <MenuOptionGroup
+                  title="Meios de pagamento"
+                  type="checkbox"
+                  onChange={(value) =>
+                    setPaymentMethodsFilter([...value] as PaymentMethod[])
+                  }
+                >
+                  {Object.entries(paymentMethod).map((value: string[]) => (
+                    <MenuItemOption key={value[0]} value={value[0]}>
+                      {value[1]}
+                    </MenuItemOption>
+                  ))}
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
+            <Menu closeOnSelect={false}>
+              <MenuButton
+                as={Button}
+                type={"submit"}
+                backgroundColor={"#63342B"}
+                _hover={{ backgroundColor: "#502A22" }}
+                _active={{ backgroundColor: "#482017" }}
+                rightIcon={
+                  <FontAwesomeIcon icon={faAngleDown} color={"white"} />
+                }
+              >
+                <Text
+                  color={"white"}
+                  fontSize={"15px"}
+                  fontWeight={"500"}
+                  fontFamily={"Montserrat"}
+                >
+                  Status
+                </Text>
+              </MenuButton>
+              <MenuList minWidth="240px">
+                <MenuOptionGroup
+                  title="Status da venda"
+                  type="checkbox"
+                  onChange={(value) =>
+                    setSaleStatusFilter([...value] as SaleStatus[])
+                  }
+                >
+                  {Object.entries(saleStatus).map((value: string[]) => (
+                    <MenuItemOption key={value[0]} value={value[0]}>
+                      <Badge colorScheme={bagdeColor[value[0] as SaleStatus]}>
+                        {value[1]}
+                      </Badge>
+                    </MenuItemOption>
+                  ))}
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
+            <Menu closeOnSelect={false}>
+              <MenuButton
+                as={Button}
+                type={"submit"}
+                backgroundColor={"#63342B"}
+                _hover={{ backgroundColor: "#502A22" }}
+                _active={{ backgroundColor: "#482017" }}
+                rightIcon={
+                  <FontAwesomeIcon icon={faAngleDown} color={"white"} />
+                }
+              >
+                <Text
+                  color={"white"}
+                  fontSize={"15px"}
+                  fontWeight={"500"}
+                  fontFamily={"Montserrat"}
+                >
+                  Filtrar por
+                </Text>
+              </MenuButton>
+              <MenuList minWidth="240px">
+                <MenuOptionGroup
+                  title="Filtros"
+                  type="checkbox"
+                  defaultValue={["saleCode", "createdAt", "client"]}
+                  onChange={(value) => setFilters([...value])}
+                >
+                  <MenuItemOption value="saleCode">Código</MenuItemOption>
+                  <MenuItemOption value="createdAt">Data</MenuItemOption>
+                  <MenuItemOption value="client">Cliente</MenuItemOption>
+                  <MenuItemOption value="fullValue">Total</MenuItemOption>
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
+            <InputGroup minWidth={"250px"} maxWidth={"250px"}>
               <Input
                 borderColor={"#63342B"}
                 focusBorderColor={"#482017"}
@@ -260,47 +365,6 @@ export default function Table({
                 }
               />
             </InputGroup>
-            <Menu closeOnSelect={false}>
-              <MenuButton width={"25%"}>
-                <Button
-                  width={"full"}
-                  type={"submit"}
-                  backgroundColor={"#63342B"}
-                  _hover={{ backgroundColor: "#502A22" }}
-                  _active={{ backgroundColor: "#482017" }}
-                  rightIcon={
-                    <FontAwesomeIcon icon={faAngleDown} color={"white"} />
-                  }
-                >
-                  <Text
-                    color={"white"}
-                    fontSize={"15px"}
-                    fontWeight={"500"}
-                    fontFamily={"Montserrat"}
-                  >
-                    Filtrar por
-                  </Text>
-                </Button>
-              </MenuButton>
-              <MenuList minWidth="240px">
-                <MenuDivider />
-                <MenuOptionGroup
-                  title="Filtros"
-                  type="checkbox"
-                  defaultValue={["saleCode", "client", "saleStatus"]}
-                  onChange={(value) => setFilters([...value])}
-                >
-                  <MenuItemOption value="saleCode">Código</MenuItemOption>
-                  <MenuItemOption value="createdAt">Data</MenuItemOption>
-                  <MenuItemOption value="client">Cliente</MenuItemOption>
-                  <MenuItemOption value="fullValue">Total</MenuItemOption>
-                  <MenuItemOption value="paymentMethod">
-                    Pagamento
-                  </MenuItemOption>
-                  <MenuItemOption value="saleStatus">Status</MenuItemOption>
-                </MenuOptionGroup>
-              </MenuList>
-            </Menu>
           </HStack>
         </GridItem>
       </SimpleGrid>
@@ -315,7 +379,6 @@ export default function Table({
         <ChakraUITable {...getTableProps()} variant={"mytable"}>
           <TableCaption>
             <Paginate
-              page={page}
               canPreviousPage={canPreviousPage}
               canNextPage={canNextPage}
               pageOptions={pageOptions}
@@ -360,30 +423,16 @@ export default function Table({
             ))}
           </Thead>
           <Tbody {...getTableBodyProps()}>
-            {loading ? (
-              <Tr>
-                {Array(pageSize)
-                  .fill("")
-                  .map((_, i) => (
-                    <Skeleton
-                      startColor={"#63342B"}
-                      endColor={i % 2 == 0 ? "#EAC3AE" : "white"}
-                      height={"52px"}
-                    />
+            {page.map((row, _i) => {
+              prepareRow(row);
+              return (
+                <Tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
                   ))}
-              </Tr>
-            ) : (
-              page.map((row, i) => {
-                prepareRow(row);
-                return (
-                  <Tr {...row.getRowProps()}>
-                    {row.cells.map((cell) => (
-                      <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
-                    ))}
-                  </Tr>
-                );
-              })
-            )}
+                </Tr>
+              );
+            })}
           </Tbody>
           <Tfoot>
             {footerGroups.map((footerGroup) => (
