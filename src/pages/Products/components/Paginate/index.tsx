@@ -6,7 +6,6 @@ import {
 } from "@chakra-ui/icons";
 import {
   Flex,
-  HStack,
   IconButton,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -18,11 +17,8 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import React from "react";
-import { Row } from "react-table";
-import { ProductRow } from "../../../../types";
 
 type PaginateProps = {
-  page: Row<ProductRow>[];
   canPreviousPage: boolean;
   canNextPage: boolean;
   pageOptions: number[];
@@ -36,7 +32,6 @@ type PaginateProps = {
 };
 
 export default function Paginate({
-  page,
   canPreviousPage,
   canNextPage,
   pageOptions,
@@ -55,14 +50,13 @@ export default function Paginate({
           <IconButton
             aria-label="first-page"
             backgroundColor={"#63342B"}
+            _hover={{ backgroundColor: "#502A22" }}
+            _active={{ backgroundColor: "#482017" }}
             textColor={"#E8E8E8"}
             isDisabled={!canPreviousPage}
             onClick={() => gotoPage(0)}
             borderRadius={"full"}
             cursor={"pointer"}
-            _hover={{
-              backgroundColor: "#63342b7b",
-            }}
             icon={<ArrowLeftIcon w={3} h={3} />}
             mr={2}
           />
@@ -71,14 +65,13 @@ export default function Paginate({
           <IconButton
             aria-label="previous-page"
             backgroundColor={"#63342B"}
+            _hover={{ backgroundColor: "#502A22" }}
+            _active={{ backgroundColor: "#482017" }}
             textColor={"#E8E8E8"}
             isDisabled={!canPreviousPage}
             onClick={previousPage}
             borderRadius={"full"}
             cursor={"pointer"}
-            _hover={{
-              backgroundColor: "#63342b7b",
-            }}
             icon={<ChevronLeftIcon w={6} h={6} />}
           />
         </Tooltip>
@@ -189,14 +182,13 @@ export default function Paginate({
           <IconButton
             aria-label="next-page"
             backgroundColor={"#63342B"}
+            _hover={{ backgroundColor: "#502A22" }}
+            _active={{ backgroundColor: "#482017" }}
             textColor={"#E8E8E8"}
             isDisabled={!canNextPage}
             onClick={nextPage}
             borderRadius={"full"}
             cursor={"pointer"}
-            _hover={{
-              backgroundColor: "#63342b7b",
-            }}
             icon={<ChevronRightIcon w={6} h={6} />}
             mr={2}
           />
@@ -205,14 +197,13 @@ export default function Paginate({
           <IconButton
             aria-label="last-page"
             backgroundColor={"#63342B"}
+            _hover={{ backgroundColor: "#502A22" }}
+            _active={{ backgroundColor: "#482017" }}
             textColor={"#E8E8E8"}
             isDisabled={!canNextPage}
             onClick={() => gotoPage(pageCount - 1)}
             borderRadius={"full"}
             cursor={"pointer"}
-            _hover={{
-              backgroundColor: "#63342b7b",
-            }}
             icon={<ArrowRightIcon w={3} h={3} />}
           />
         </Tooltip>

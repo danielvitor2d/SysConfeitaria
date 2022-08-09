@@ -15,21 +15,13 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
-import {
-  ItemRow,
-} from "../../../../types";
+import { ItemRow } from "../../../../types";
 import { getDatetimeLocalFormatted } from "../../../../util/getDate";
 import SelectPaymentMethod from "./components/SelectPaymentMethod";
 import SelectSaleStatus from "./components/SelectSaleStatus";
 import SelectClient from "./components/SelectClient";
-import {
-  DeleteIcon,
-  EditIcon,
-} from "@chakra-ui/icons";
-import {
-  CellProps,
-  Column,
-} from "react-table";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { CellProps, Column } from "react-table";
 import Table from "./components/Table";
 
 interface MakeSaleProps {
@@ -145,26 +137,26 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody bg={"#FFFFFF"}>
-          <VStack gap={5} width={'95%'} margin={'auto'}>
-            <VStack gap={2} width={'100%'}>
-              <Text 
-                alignSelf={'flex-start'}
-                fontSize={'25px'}
-                fontWeight={'bold'}
-                fontFamily={'Montserrat'}
+          <VStack gap={5} width={"95%"} margin={"auto"}>
+            <VStack gap={2} width={"100%"}>
+              <Text
+                alignSelf={"flex-start"}
+                fontSize={"25px"}
+                fontWeight={"bold"}
+                fontFamily={"Montserrat"}
               >
-                {'Dados da venda'}
+                {"Dados da venda"}
               </Text>
               <HStack gap={20}>
                 <VStack alignItems={"flex-start"}>
                   <HStack>
-                    <Text 
-                      minWidth={"120px"} 
-                      maxWidth={"120px"} 
-                      fontWeight={'600'}
-                      fontFamily={'Montserrat'}
+                    <Text
+                      minWidth={"120px"}
+                      maxWidth={"120px"}
+                      fontWeight={"600"}
+                      fontFamily={"Montserrat"}
                     >
-                      {'Data'}
+                      {"Data"}
                     </Text>
                     <Input
                       defaultValue={getDatetimeLocalFormatted(
@@ -181,36 +173,34 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
                 </VStack>
               </HStack>
             </VStack>
-            <VStack gap={3} alignItems={'center'} width={'100%'}>
-              <HStack gap={4} width={'100%'} justifyContent={'space-between'}>
-                <Text 
-                  alignSelf={'flex-start'}
-                  fontSize={'25px'}
-                  fontWeight={'bold'}
-                  fontFamily={'Montserrat'}
+            <VStack gap={3} alignItems={"center"} width={"100%"}>
+              <HStack gap={4} width={"100%"} justifyContent={"space-between"}>
+                <Text
+                  alignSelf={"flex-start"}
+                  fontSize={"25px"}
+                  fontWeight={"bold"}
+                  fontFamily={"Montserrat"}
                 >
-                  {'Itens'}
+                  {"Itens da venda"}
                 </Text>
                 <Button
                   backgroundColor={"#63342B"}
                   _hover={{ backgroundColor: "#502A22" }}
                   _active={{ backgroundColor: "#482017" }}
                   marginRight={3}
-                  alignSelf={'flex-end'}
+                  alignSelf={"flex-end"}
                 >
                   <Text
                     color={"white"}
                     fontSize={"15px"}
-                    fontWeight={"500"}
+                    fontWeight={"600"}
                     fontFamily={"Montserrat"}
                   >
-                    {'Novo item'}
+                    {"Novo item"}
                   </Text>
                 </Button>
               </HStack>
-              <Table
-                columns={columns}
-              />
+              <Table columns={columns} />
             </VStack>
           </VStack>
         </ModalBody>
@@ -227,7 +217,7 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
               fontWeight={"600"}
               fontFamily={"Montserrat"}
             >
-              {'Salvar'}
+              {"Salvar"}
             </Text>
           </Button>
           <Button onClick={onClose}>
@@ -237,7 +227,7 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
               fontWeight={"600"}
               fontFamily={"Montserrat"}
             >
-              {'Cancelar'}
+              {"Cancelar"}
             </Text>
           </Button>
         </ModalFooter>

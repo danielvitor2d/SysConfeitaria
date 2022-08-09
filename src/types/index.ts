@@ -1,7 +1,8 @@
 export type Product = {
   productCode: string;
   productName: string;
-  unitaryValue: string;
+  unitaryValue: number;
+  unitaryType: string;
 };
 
 export interface ProductRow extends Product {
@@ -16,6 +17,7 @@ export type Client = {
   clientCode: string;
   clientName: string;
   clientEmail: string | null;
+  clientDocument: string;
   contact: string;
   avatar?: string;
   color?: string;

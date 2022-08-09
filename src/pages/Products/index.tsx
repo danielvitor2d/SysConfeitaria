@@ -18,6 +18,7 @@ import {
   Text,
   useDisclosure,
   useMediaQuery,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { faker } from "@faker-js/faker";
@@ -31,9 +32,10 @@ import {
 } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { Column } from "react-table";
+import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
 import { ProductRow } from "../../types";
+import { toBRLWithSign } from "../../util/formatCurrency";
 import Table from "./components/Table";
 
 import makeData from "./makeData";
@@ -42,6 +44,8 @@ const serverData = makeData(50);
 
 export default function Products() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
+
+  const toast = useToast()
 
   const navigate = useNavigate();
 
@@ -53,7 +57,19 @@ export default function Products() {
   const fetchIdRef = useRef(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { register, handleSubmit, setValue } = useForm();
+  const { 
+    register, 
+    handleSubmit, 
+    setValue, 
+    getValues,
+  } = useForm<ProductRow>({
+    defaultValues: {
+      productCode: faker.random.numeric(6),
+      productName: "",
+      unitaryType: "unid",
+      unitaryValue: 0
+    }
+  });
 
   const columns = useMemo(
     () =>
@@ -85,10 +101,23 @@ export default function Products() {
           Header: "Ações".toUpperCase(),
           Footer: "Ações".toUpperCase(),
           accessor: "actions",
-          Cell: () => (
+          Cell: (cellProps: CellProps<ProductRow, string | undefined>) => (
             <HStack>
-              <EditIcon />
-              <DeleteIcon color={"red"} />
+              <EditIcon
+                boxSize={"6"}
+                cursor={"pointer"}
+                onClick={() =>
+                  handleUpdateRow(cellProps.row.original.productCode)
+                }
+              />
+              <DeleteIcon
+                color={"red"}
+                boxSize={"6"}
+                cursor={"pointer"}
+                onClick={() =>
+                  handleRemoveRow(cellProps.row.original.productCode)
+                }
+              />
             </HStack>
           ),
           disableResizing: true,
@@ -101,30 +130,43 @@ export default function Products() {
     [isLargerThan1440]
   );
 
-  async function handleCreateProduct(dataForm: any) {
-    setData(() => {
+  async function handleCreateProduct(dataForm: ProductRow) {
+    setData((prevDataInput: ProductRow[]) => {
       const dataInput: ProductRow = {
         productCode: dataForm.productCode,
         productName: dataForm.productName,
-        unitaryValue: dataForm.productValue + " " + dataForm.productUnid,
+        unitaryValue: dataForm.unitaryValue,
+        unitaryType: dataForm.unitaryType
       };
 
       onClose();
       clearFields();
 
-      return [...data, dataInput];
+      return [dataInput, ...prevDataInput];
     });
   }
 
-  async function handleRemoveRow() {}
+  async function handleRemoveRow(saleCode: string) {
+    toast({
+      title: "Removendo",
+      description: `Removendo linha ${saleCode}`,
+      status: "info",
+    });
+  }
 
-  async function handleUpdateRow() {}
+  async function handleUpdateRow(saleCode: string) {
+    toast({
+      title: "Editando",
+      description: `Editando linha ${saleCode}`,
+      status: "info",
+    });
+  }
 
   const clearFields = () => {
-    setValue("productCode", "");
+    setValue("productCode", faker.random.numeric(6));
     setValue("productName", "");
-    setValue("productValue", "");
-    setValue("productUnid", "unid");
+    setValue("unitaryValue", 0);
+    setValue("unitaryType", "unid");
   };
 
   useEffect(() => {
@@ -135,40 +177,45 @@ export default function Products() {
 
   return (
     <>
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+      <Drawer isOpen={isOpen} placement={"right"} size={'sm'} onClose={onClose}>
         <form onSubmit={handleSubmit(handleCreateProduct)}>
           <DrawerOverlay />
           <DrawerContent>
             <DrawerCloseButton />
             <DrawerHeader>Adicionar novo produto</DrawerHeader>
-
             <DrawerBody>
-              <VStack gap={5}>
-                <VStack alignItems={"flex-start"}>
-                  <Text textAlign={"left"}>Código</Text>
+              <VStack gap={5} width={"90%"}>
+                <VStack alignItems={"flex-start"} width={"90%"}>
+                  <Text textAlign={"left"}>
+                    {'Código'}
+                  </Text>
                   <Input
                     {...register("productCode")}
-                    value={faker.random.numeric(6)}
                     isReadOnly={true}
                   />
                 </VStack>
-                <VStack alignItems={"flex-start"}>
-                  <Text textAlign={"left"}>Nome do produto</Text>
+                <VStack alignItems={"flex-start"} width={"90%"}>
+                  <Text textAlign={"left"}>
+                    {'Nome do produto'}
+                  </Text>
                   <Input
                     {...register("productName")}
                     placeholder="Ex. Bolo de chocolate"
                   />
                 </VStack>
-                <VStack alignItems={"flex-start"}>
-                  <Text textAlign={"left"}>Valor unitário/Kg/L</Text>
+                <VStack alignItems={"flex-start"} width={"90%"}>
+                  <Text textAlign={"left"}>
+                    {'Valor unitário/Kg/L'}
+                  </Text>
                   <InputGroup>
                     <InputLeftAddon children={"R$"} />
                     <Input
-                      {...register("productValue")}
+                      {...register("unitaryValue")}
+                      defaultValue={0}
                       placeholder={"Ex. 2,50"}
                     />
                   </InputGroup>
-                  <Select {...register("productUnid")} defaultValue={"unid"}>
+                  <Select {...register("unitaryType")} defaultValue={"unid"}>
                     <option key={"unid"} value={"unid"}>
                       Unidade
                     </option>
@@ -235,7 +282,6 @@ export default function Products() {
           <Table
             columns={columns}
             data={data}
-            loading={loading}
             onOpenDrawerAddProduct={onOpen}
           />
         </VStack>

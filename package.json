@@ -21,6 +21,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "bcryptjs": "^2.4.3",
+    "cpf-cnpj-validator": "^1.0.3",
     "firebase": "^9.9.1",
     "framer-motion": "^6",
     "match-sorter": "^6.3.1",

@@ -12,7 +12,7 @@ const range = (len: any) => {
 const newProduct = (): Product => {
   return {
     productCode: faker.random.numeric(6),
-    productName: faker.commerce.productDescription(),
+    productName: faker.commerce.productName(),
     unitaryValue: faker.commerce.price(0, 10000, 2, "R$ "),
   };
 };

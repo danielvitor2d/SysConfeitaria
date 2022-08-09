@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { Client } from "../../types";
+import { cnpj, cpf } from "cpf-cnpj-validator";
+import { Client, colorScheme } from "../../types";
 
 const range = (len: any) => {
   const arr = [];
@@ -18,6 +19,12 @@ const newClient = (): Client => {
       clientFirstName + " " + faker.name.middleName() + " " + clientlastName,
     clientEmail: faker.internet.email(clientFirstName, clientlastName),
     contact: faker.phone.number("(8#) 9####-####"),
+    avatar: faker.image.avatar(),
+    color: faker.helpers.arrayElement(colorScheme) as string,
+    clientDocument: faker.helpers.arrayElement([
+      cnpj.format(cnpj.generate()),
+      cpf.format(cpf.generate()),
+    ]),
   };
 };
 

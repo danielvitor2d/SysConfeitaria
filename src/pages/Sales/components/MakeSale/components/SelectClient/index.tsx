@@ -95,14 +95,14 @@ export default function SelectClient() {
 
   return (
     <HStack>
-      <Text 
-        minWidth={"120px"} 
+      <Text
+        minWidth={"120px"}
         maxWidth={"120px"}
-        fontSize={'15px'}
-        fontWeight={'600'}
-        fontFamily={'Montserrat'}
+        fontSize={"15px"}
+        fontWeight={"600"}
+        fontFamily={"Montserrat"}
       >
-        {'Cliente'}
+        {"Cliente"}
       </Text>
       <Select
         placeholder={

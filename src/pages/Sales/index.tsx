@@ -53,17 +53,6 @@ export default function Sales() {
 
   const { register, handleSubmit, setValue } = useForm();
 
-  const OverlayOne = () => (
-    <ModalOverlay
-      bg="none"
-      backdropFilter="auto"
-      backdropInvert="80%"
-      backdropBlur="2px"
-    />
-  );
-
-  const [overlay, setOverlay] = useState<JSX.Element>(<OverlayOne />);
-
   const columns = useMemo(
     () =>
       [
@@ -166,21 +155,6 @@ export default function Sales() {
     [isLargerThan1440]
   );
 
-  // async function handleCreateProduct(dataForm: any) {
-  //   setData(() => {
-  //     const dataInput: SaleRow = {
-  //       // productCode: dataForm.productCode,
-  //       // productName: dataForm.productName,
-  //       // unitaryValue: dataForm.productValue + " " + dataForm.productUnid,
-  //     };
-
-  //     onClose();
-  //     clearFields();
-
-  //     return [...data, dataInput];
-  //   });
-  // }
-
   async function handleRemoveRow(saleCode: string) {
     toast({
       title: "Removendo",
@@ -196,13 +170,6 @@ export default function Sales() {
       status: "info",
     });
   }
-
-  const clearFields = () => {
-    setValue("productCode", "");
-    setValue("productName", "");
-    setValue("productValue", "");
-    setValue("productUnid", "unid");
-  };
 
   useEffect(() => {
     if (!signed) {

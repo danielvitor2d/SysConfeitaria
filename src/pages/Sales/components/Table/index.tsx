@@ -12,7 +12,6 @@ import {
   InputRightElement,
   Menu,
   MenuButton,
-  MenuDivider,
   MenuItemOption,
   MenuList,
   MenuOptionGroup,

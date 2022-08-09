@@ -1,7 +1,24 @@
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
-import { TableContainer, TableCaption, Thead, Tr, Th, chakra, Tbody, Td, Tfoot, Table as ChakraUITable } from "@chakra-ui/react";
+import {
+  TableContainer,
+  TableCaption,
+  Thead,
+  Tr,
+  Th,
+  chakra,
+  Tbody,
+  Td,
+  Tfoot,
+  Table as ChakraUITable,
+} from "@chakra-ui/react";
 import { useState } from "react";
-import { Column, useBlockLayout, usePagination, useSortBy, useTable } from "react-table";
+import {
+  Column,
+  useBlockLayout,
+  usePagination,
+  useSortBy,
+  useTable,
+} from "react-table";
 import { ItemRow } from "../../../../../../types";
 import makeData from "../../makeData";
 import Paginate from "./Paginate";
@@ -10,9 +27,7 @@ interface ItemTableProps {
   columns: Column<ItemRow>[];
 }
 
-export default function Table({
-  columns
-}: ItemTableProps) {
+export default function Table({ columns }: ItemTableProps) {
   const [data, setData] = useState<ItemRow[]>(() => makeData(7));
 
   const {
@@ -74,11 +89,7 @@ export default function Table({
           {headerGroups.map((headerGroup) => (
             <Tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
-                <Th
-                  {...column.getHeaderProps(
-                    column.getSortByToggleProps()
-                  )}
-                >
+                <Th {...column.getHeaderProps(column.getSortByToggleProps())}>
                   {column.render("Header")}
                   <chakra.span pl={"4"}>
                     {column.isSorted ? (
@@ -100,9 +111,7 @@ export default function Table({
             return (
               <Tr {...row.getRowProps()}>
                 {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>
-                    {cell.render("Cell")}
-                  </Td>
+                  <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
                 ))}
               </Tr>
             );
@@ -112,11 +121,7 @@ export default function Table({
           {footerGroups.map((footerGroup) => (
             <Tr {...footerGroup.getFooterGroupProps()}>
               {footerGroup.headers.map((column) => (
-                <Th
-                  {...column.getFooterProps(
-                    column.getSortByToggleProps()
-                  )}
-                >
+                <Th {...column.getFooterProps(column.getSortByToggleProps())}>
                   {column.render("Footer")}
                   <chakra.span pl={"4"}>
                     {column.isSorted ? (
@@ -134,5 +139,5 @@ export default function Table({
         </Tfoot>
       </ChakraUITable>
     </TableContainer>
-  )
+  );
 }

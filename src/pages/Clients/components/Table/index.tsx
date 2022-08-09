@@ -1,5 +1,6 @@
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import {
+  Badge,
   Box,
   Button,
   chakra,
@@ -8,8 +9,12 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Menu,
+  MenuButton,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
   SimpleGrid,
-  Skeleton,
   Table as ChakraUITable,
   TableCaption,
   TableContainer,
@@ -23,15 +28,18 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import {
+  faAngleDown,
   faCircleXmark,
   faPlus,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import { matchSorter } from "match-sorter";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Column,
-  useAsyncDebounce,
+  IdType,
+  Row,
   useBlockLayout,
   useGlobalFilter,
   usePagination,
@@ -39,20 +47,25 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import { ClientRow } from "../../../../types";
+import {
+  bagdeColor,
+  ClientRow,
+  PaymentMethod,
+  paymentMethod,
+  SaleStatus,
+  saleStatus,
+} from "../../../../types";
 import Paginate from "../Paginate";
 
 interface ClientTableProps {
   columns: Column<ClientRow>[];
   data: ClientRow[];
-  loading: boolean;
   onOpenDrawerAddClient: () => void;
 }
 
 export default function Table({
   columns,
   data,
-  loading,
   onOpenDrawerAddClient,
 }: ClientTableProps) {
   const cssResizer = {
@@ -76,6 +89,26 @@ export default function Table({
       },
     },
   };
+
+  const [filter, setFilter] = useState<string>("");
+  const [filters, setFilters] = useState<string[]>([
+    "clientCode",
+    "clientName",
+    "client",
+  ]);
+
+  const globalFilterFunction = useCallback(
+    (rows: Row<ClientRow>[], _ids: IdType<ClientRow>[], query: string) => {
+      if (filters.length === 0) return rows;
+      const newRows = rows.filter((row) => {
+        return filters.some((filter) => {
+          return matchSorter([row.values[filter]], query).length === 1;
+        });
+      });
+      return newRows;
+    },
+    [filters]
+  );
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -112,6 +145,7 @@ export default function Table({
       autoResetFilters: false,
       autoResetExpanded: false,
       autoResetSortBy: false,
+      globalFilter: globalFilterFunction,
       defaultColumn,
     },
     useBlockLayout,
@@ -121,35 +155,43 @@ export default function Table({
     usePagination
   );
 
-  const [filter, setFilter] = useState(globalFilter);
+  useEffect(() => {
+    setGlobalFilter(filter);
+  }, [filter, setGlobalFilter]);
 
-  const onChange = useAsyncDebounce((value) => {
-    setGlobalFilter(value || undefined);
-  }, 200);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter(event.target.value);
+  };
 
   return (
-    <VStack gap={1}>
+    <VStack gap={1} width={"auto"}>
       <SimpleGrid
         width={"100%"}
         alignItems={"flex-start"}
         justifyContent={"space-between"}
         gap={7}
         flex={1}
-        columns={[4, 4, 4, 6, 6]}
+        columns={[1, 1, 1, 2, 2]}
       >
-        <GridItem colSpan={[1, 1, 1, 2, 1]}>
+        <GridItem colSpan={[1, 1, 1, 1, 1]}>
           <Button
+            alignSelf={"flex-start"}
             backgroundColor={"#EAC3AE"}
+            _hover={{
+              backgroundColor: "#eac3aeb2",
+            }}
+            _active={{
+              backgroundColor: "#eac3ae83",
+            }}
             borderRadius={"6px"}
             borderWidth={"1px"}
             borderColor={"#63342B"}
-            width={"100%"}
             onClick={onOpenDrawerAddClient}
           >
             <HStack alignItems={"center"}>
               <Text
                 fontFamily={"Montserrat"}
-                fontWeight={"500"}
+                fontWeight={"600"}
                 textColor={"#63342B"}
                 marginTop={"2px"}
                 textAlign={"center"}
@@ -166,38 +208,73 @@ export default function Table({
             </HStack>
           </Button>
         </GridItem>
-        <GridItem colSpan={[1, 1, 2, 2, 2]} colStart={[1, 1, 1, 5, 5]}>
-          <InputGroup>
-            <Input
-              borderColor={"#63342B"}
-              focusBorderColor={"#482017"}
-              _hover={{
-                borderColor: "#482017",
-              }}
-              placeholder={"Ex. Fulano de Tal"}
-              backgroundColor={"#E8E8E8"}
-              value={filter || ""}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                onChange(event.target.value);
-                setFilter(event.target.value);
-              }}
-            />
-            <InputRightElement
-              children={
-                <FontAwesomeIcon
-                  icon={filter?.length > 0 ? faCircleXmark : faSearch}
-                  cursor={filter?.length > 0 ? "pointer" : undefined}
-                  onClick={() => {
-                    if (filter?.length > 0) {
-                      setGlobalFilter("");
-                      setFilter("");
-                    }
-                  }}
-                  color={"#63342B"}
-                />
-              }
-            />
-          </InputGroup>
+        <GridItem colSpan={[1, 1, 1, 1, 1]}>
+          <HStack justifyContent={"flex-end"}>
+            <Menu closeOnSelect={false}>
+              <MenuButton
+                as={Button}
+                type={"submit"}
+                backgroundColor={"#63342B"}
+                _hover={{ backgroundColor: "#502A22" }}
+                _active={{ backgroundColor: "#482017" }}
+                rightIcon={
+                  <FontAwesomeIcon icon={faAngleDown} color={"white"} />
+                }
+              >
+                <Text
+                  color={"white"}
+                  fontSize={"15px"}
+                  fontWeight={"600"}
+                  fontFamily={"Montserrat"}
+                >
+                  {"Filtrar por"}
+                </Text>
+              </MenuButton>
+              <MenuList minWidth="240px">
+                <MenuOptionGroup
+                  title="Filtros"
+                  type="checkbox"
+                  defaultValue={["clientCode", "clientName", "clientEmail"]}
+                  onChange={(value) => setFilters([...value])}
+                >
+                  <MenuItemOption value="clientCode">Código</MenuItemOption>
+                  <MenuItemOption value="clientName">Nome</MenuItemOption>
+                  <MenuItemOption value="clientEmail">E-mail</MenuItemOption>
+                  <MenuItemOption value="clientDocument">
+                    CPF/CNPJ
+                  </MenuItemOption>
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
+            <InputGroup minWidth={"250px"} maxWidth={"250px"}>
+              <Input
+                borderColor={"#63342B"}
+                focusBorderColor={"#482017"}
+                _hover={{
+                  borderColor: "#482017",
+                }}
+                placeholder={"Ex. Fulano de tal"}
+                backgroundColor={"#E8E8E8"}
+                value={filter}
+                onChange={handleInputChange}
+              />
+              <InputRightElement
+                children={
+                  <FontAwesomeIcon
+                    icon={filter?.length > 0 ? faCircleXmark : faSearch}
+                    cursor={filter?.length > 0 ? "pointer" : undefined}
+                    onClick={() => {
+                      if (filter?.length > 0) {
+                        setGlobalFilter("");
+                        setFilter("");
+                      }
+                    }}
+                    color={"#63342B"}
+                  />
+                }
+              />
+            </InputGroup>
+          </HStack>
         </GridItem>
       </SimpleGrid>
       <TableContainer
@@ -211,7 +288,6 @@ export default function Table({
         <ChakraUITable {...getTableProps()} variant={"mytable"}>
           <TableCaption>
             <Paginate
-              page={page}
               canPreviousPage={canPreviousPage}
               canNextPage={canNextPage}
               pageOptions={pageOptions}
@@ -256,30 +332,16 @@ export default function Table({
             ))}
           </Thead>
           <Tbody {...getTableBodyProps()}>
-            {loading ? (
-              <Tr>
-                {Array(pageSize)
-                  .fill("")
-                  .map((_, i) => (
-                    <Skeleton
-                      startColor={"#63342B"}
-                      endColor={i % 2 == 0 ? "#EAC3AE" : "white"}
-                      height={"52px"}
-                    />
+            {page.map((row, _i) => {
+              prepareRow(row);
+              return (
+                <Tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
                   ))}
-              </Tr>
-            ) : (
-              page.map((row, i) => {
-                prepareRow(row);
-                return (
-                  <Tr {...row.getRowProps()}>
-                    {row.cells.map((cell) => (
-                      <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
-                    ))}
-                  </Tr>
-                );
-              })
-            )}
+                </Tr>
+              );
+            })}
           </Tbody>
           <Tfoot>
             {footerGroups.map((footerGroup) => (

@@ -1,28 +1,22 @@
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
+  Avatar,
   Box,
-  Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
   HStack,
-  Input,
+  Tag,
+  TagLabel,
   Text,
   useDisclosure,
   useMediaQuery,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
-import { faker } from "@faker-js/faker";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Column } from "react-table";
+import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
 import { ClientRow } from "../../types";
+import SaveClient from "./components/SaveClient";
 import Table from "./components/Table";
 
 import makeData from "./makeData";
@@ -30,16 +24,15 @@ import makeData from "./makeData";
 export default function Clients() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
 
+  const toast = useToast();
+
   const navigate = useNavigate();
 
   const { signed } = useContext(AuthContext);
 
   const [data, setData] = useState<ClientRow[]>(() => makeData(25));
-  const [loading, setLoading] = useState(false);
-  const fetchIdRef = useRef(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { register, handleSubmit, setValue } = useForm();
 
   const columns = useMemo(
     () =>
@@ -54,9 +47,35 @@ export default function Clients() {
         {
           Header: "Cliente".toUpperCase(),
           Footer: "Cliente".toUpperCase(),
+          Cell: ({ value, row }) => (
+            <Tag
+              size={"lg"}
+              colorScheme={row.original.color}
+              borderRadius={"full"}
+            >
+              <Avatar
+                src={row.original.avatar}
+                size="xs"
+                name={row.original.clientName}
+                ml={-1}
+                mr={2}
+              />
+              <TagLabel>
+                <Text whiteSpace={"normal"}>{value}</Text>
+              </TagLabel>
+            </Tag>
+          ),
           accessor: "clientName",
           disableResizing: false,
-          width: isLargerThan1440 ? 600 : 400,
+          isNumeric: true,
+          width: isLargerThan1440 ? 360 : 300,
+        },
+        {
+          Header: "CPF/CNPJ".toUpperCase(),
+          Footer: "CPF/CNPJ".toUpperCase(),
+          accessor: "clientDocument",
+          disableResizing: false,
+          width: 220,
         },
         {
           Header: "E-mail".toUpperCase(),
@@ -71,16 +90,29 @@ export default function Clients() {
           accessor: "contact",
           disableResizing: false,
           isNumeric: true,
-          width: 250,
+          width: 220,
         },
         {
           Header: "Ações".toUpperCase(),
           Footer: "Ações".toUpperCase(),
           accessor: "actions",
-          Cell: () => (
+          Cell: (cellProps: CellProps<ClientRow, string | undefined>) => (
             <HStack>
-              <EditIcon />
-              <DeleteIcon color={"red"} />
+              <EditIcon
+                boxSize={"6"}
+                cursor={"pointer"}
+                onClick={() =>
+                  handleUpdateRow(cellProps.row.original.clientCode)
+                }
+              />
+              <DeleteIcon
+                color={"red"}
+                boxSize={"6"}
+                cursor={"pointer"}
+                onClick={() =>
+                  handleRemoveRow(cellProps.row.original.clientCode)
+                }
+              />
             </HStack>
           ),
           disableResizing: true,
@@ -93,51 +125,21 @@ export default function Clients() {
     [isLargerThan1440]
   );
 
-  async function handleCreateClient(dataForm: any) {
-    setData(() => {
-      const dataInput: ClientRow = {
-        clientCode: dataForm.clientCode,
-        clientName: dataForm.clientName,
-        contact: dataForm.clientContact,
-        clientEmail: dataForm.clientEmail,
-      };
-
-      onClose();
-      clearFields();
-
-      return [...data, dataInput];
+  async function handleRemoveRow(saleCode: string) {
+    toast({
+      title: "Removendo",
+      description: `Removendo linha ${saleCode}`,
+      status: "info",
     });
   }
 
-  async function handleRemoveRow() {}
-
-  async function handleUpdateRow() {}
-
-  const clearFields = () => {
-    setValue("clientName", "");
-    setValue("clientContact", "");
-    setValue("contact", "");
-    setValue("clientEmail", "");
-  };
-
-  // const fetchData = useCallback(
-  //   ({ pageSize, pageIndex }: { pageSize: number; pageIndex: number }) => {
-  //     const fetchId = ++fetchIdRef.current;
-
-  //     setLoading(true);
-
-  //     setTimeout(() => {
-  //       if (fetchId === fetchIdRef.current) {
-  //         const startRow = pageSize * pageIndex;
-  //         const endRow = startRow + pageSize;
-  //         setData(serverData.slice(startRow, endRow));
-
-  //         setLoading(false);
-  //       }
-  //     }, 1000);
-  //   },
-  //   []
-  // );
+  async function handleUpdateRow(saleCode: string) {
+    toast({
+      title: "Editando",
+      description: `Editando linha ${saleCode}`,
+      status: "info",
+    });
+  }
 
   useEffect(() => {
     if (!signed) {
@@ -147,65 +149,12 @@ export default function Clients() {
 
   return (
     <>
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
-        <form onSubmit={handleSubmit(handleCreateClient)}>
-          <DrawerOverlay />
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader>Adicionar novo cliente</DrawerHeader>
-
-            <DrawerBody>
-              <VStack gap={5}>
-                <VStack alignItems={"flex-start"}>
-                  <Text textAlign={"left"}>Código</Text>
-                  <Input
-                    {...register("clientCode")}
-                    value={faker.random.numeric(6)}
-                    isReadOnly={true}
-                  />
-                </VStack>
-                <VStack alignItems={"flex-start"}>
-                  <Text textAlign={"left"}>Nome do cliente</Text>
-                  <Input
-                    {...register("clientName")}
-                    placeholder="Ex. Fulano de Tal"
-                  />
-                </VStack>
-                <VStack alignItems={"flex-start"}>
-                  <Text textAlign={"left"}>Celular</Text>
-                  <Input
-                    {...register("clientContact")}
-                    placeholder={`Ex. ${faker.phone.number("(8#) 9####-####")}`}
-                  />
-                </VStack>
-                <VStack alignItems={"flex-start"}>
-                  <Text textAlign={"left"}>E-mail</Text>
-                  <Input
-                    {...register("clientEmail")}
-                    placeholder={"Ex. abcdef@gmail.com"}
-                  />
-                </VStack>
-              </VStack>
-            </DrawerBody>
-
-            <DrawerFooter>
-              <Button mr={3} onClick={onClose}>
-                Cancel
-              </Button>
-              <Button
-                width={"full"}
-                type={"submit"}
-                backgroundColor={"#63342B"}
-                _hover={{ backgroundColor: "#502A22" }}
-                _active={{ backgroundColor: "#482017" }}
-                colorScheme="blue"
-              >
-                Save
-              </Button>
-            </DrawerFooter>
-          </DrawerContent>
-        </form>
-      </Drawer>
+      <SaveClient
+        isOpen={isOpen}
+        onOpen={onOpen}
+        onClose={onClose}
+        setData={setData}
+      />
       <Box
         width={"100%"}
         paddingX={"1rem"}
@@ -234,12 +183,7 @@ export default function Clients() {
               {"Aqui você pode gerenciar seus clientes com facilidade"}
             </Text>
           </VStack>
-          <Table
-            columns={columns}
-            data={data}
-            loading={loading}
-            onOpenDrawerAddClient={onOpen}
-          />
+          <Table columns={columns} data={data} onOpenDrawerAddClient={onOpen} />
         </VStack>
       </Box>
     </>
