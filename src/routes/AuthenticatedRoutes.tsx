@@ -13,6 +13,7 @@ export default function AuthenticatedRoutes() {
       <Route path="/products" element={<MainLayout page={<Products />} />} />
       <Route path="/clients" element={<MainLayout page={<Clients />} />} />
       <Route path="/sales" element={<MainLayout page={<Sales />} />} />
+      <Route path="/" element={<MainLayout page={<Sales />} />} />
       <Route path="*" element={<MinimalLayout page={<NotFound />} />} />
     </Routes>
   );
