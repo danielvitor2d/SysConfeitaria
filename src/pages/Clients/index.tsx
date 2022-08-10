@@ -2,6 +2,7 @@ import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Avatar,
   Box,
+  Flex,
   HStack,
   Tag,
   TagLabel,
@@ -11,15 +12,16 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
-import { ClientRow } from "../../types";
-import SaveClient from "./components/SaveClient";
+import ClientsContext from "../../contexts/ClientsContext";
+import { Client, ClientRow } from "../../types";
+import { formatCellphone } from "../../util/formatCellphone";
+import { formatCode } from "../../util/formatCode";
+import SaveOrUpdateClient from "./components/SaveOrUpdateClient";
 import Table from "./components/Table";
-
-import makeData from "./makeData";
 
 export default function Clients() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
@@ -30,9 +32,19 @@ export default function Clients() {
 
   const { signed } = useContext(AuthContext);
 
-  const [data, setData] = useState<ClientRow[]>(() => makeData(25));
+  const [data, setData] = useState<ClientRow[]>([]);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { clients, addClient, updateClient, removeClient } =
+    useContext(ClientsContext);
+
+  const [client, setClient] = useState<Client>({} as Client);
+  const [mode, setMode] = useState<"create" | "update">("create");
+
+  const {
+    isOpen: isOpenAddOrUpdateClient,
+    onOpen: onOpenAddOrUpdateClient,
+    onClose: onCloseAddOrUpdateClient,
+  } = useDisclosure();
 
   const columns = useMemo(
     () =>
@@ -40,6 +52,17 @@ export default function Clients() {
         {
           Header: "Código".toUpperCase(),
           Footer: "Código".toUpperCase(),
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
+          ),
           accessor: "clientCode",
           disableResizing: false,
           width: 100,
@@ -61,18 +84,35 @@ export default function Clients() {
                 mr={2}
               />
               <TagLabel>
-                <Text whiteSpace={"normal"}>{value}</Text>
+                <Text
+                  fontWeight={"600"}
+                  fontFamily={"Montserrat"}
+                  whiteSpace={"normal"}
+                >
+                  {value}
+                </Text>
               </TagLabel>
             </Tag>
           ),
           accessor: "clientName",
           disableResizing: false,
           isNumeric: true,
-          width: isLargerThan1440 ? 360 : 300,
+          width: isLargerThan1440 ? 460 : 380,
         },
         {
           Header: "CPF/CNPJ".toUpperCase(),
           Footer: "CPF/CNPJ".toUpperCase(),
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
+          ),
           accessor: "clientDocument",
           disableResizing: false,
           width: 220,
@@ -80,13 +120,35 @@ export default function Clients() {
         {
           Header: "E-mail".toUpperCase(),
           Footer: "E-mail".toUpperCase(),
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
+          ),
           accessor: "clientEmail",
           disableResizing: false,
-          width: 320,
+          width: 280,
         },
         {
           Header: "Celular".toUpperCase(),
           Footer: "Celular".toUpperCase(),
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {formatCellphone(value)}
+              </Text>
+            </Flex>
+          ),
           accessor: "contact",
           disableResizing: false,
           isNumeric: true,
@@ -97,23 +159,29 @@ export default function Clients() {
           Footer: "Ações".toUpperCase(),
           accessor: "actions",
           Cell: (cellProps: CellProps<ClientRow, string | undefined>) => (
-            <HStack>
-              <EditIcon
-                boxSize={"6"}
-                cursor={"pointer"}
-                onClick={() =>
-                  handleUpdateRow(cellProps.row.original.clientCode)
-                }
-              />
-              <DeleteIcon
-                color={"red"}
-                boxSize={"6"}
-                cursor={"pointer"}
-                onClick={() =>
-                  handleRemoveRow(cellProps.row.original.clientCode)
-                }
-              />
-            </HStack>
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              <HStack>
+                <EditIcon
+                  boxSize={"6"}
+                  cursor={"pointer"}
+                  onClick={async () =>
+                    await handleUpdateClient(cellProps.row.original)
+                  }
+                />
+                <DeleteIcon
+                  color={"red"}
+                  boxSize={"6"}
+                  cursor={"pointer"}
+                  onClick={async () =>
+                    await handleRemoveClient(cellProps.row.original.clientCode)
+                  }
+                />
+              </HStack>
+            </Flex>
           ),
           disableResizing: true,
           disableSortBy: true,
@@ -125,20 +193,45 @@ export default function Clients() {
     [isLargerThan1440]
   );
 
-  async function handleRemoveRow(saleCode: string) {
-    toast({
-      title: "Removendo",
-      description: `Removendo linha ${saleCode}`,
-      status: "info",
-    });
+  async function handleAddOrUpdateClient(client: Client): Promise<boolean> {
+    if (mode === "create") return await addClient(client);
+    return await updateClient(client);
   }
 
-  async function handleUpdateRow(saleCode: string) {
-    toast({
-      title: "Editando",
-      description: `Editando linha ${saleCode}`,
-      status: "info",
+  async function handleRemoveClient(clientCode: string): Promise<void> {
+    const toastId = toast({
+      title: "Removendo cliente",
+      description: "Removendo dados",
+      isClosable: true,
+      status: "loading",
+      variant: "left-accent",
+      position: "bottom-right",
     });
+    const result = await removeClient(clientCode);
+    toast.close(toastId);
+    if (result) {
+      toast({
+        title: "Cliente removido",
+        description: "Dados removidos",
+        isClosable: true,
+        status: "success",
+        variant: "left-accent",
+        position: "bottom-right",
+      });
+    } else {
+      toast({
+        description: "Erro ao remover cliente",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+      });
+    }
+  }
+
+  async function handleUpdateClient(client: ClientRow): Promise<void> {
+    setMode("update");
+    setClient({ ...(client as Client) });
+    onOpenAddOrUpdateClient();
   }
 
   useEffect(() => {
@@ -147,14 +240,24 @@ export default function Clients() {
     }
   }, [signed]);
 
+  useEffect(() => {
+    if (clients) setData([...clients]);
+    console.log("Clients atualizou: ");
+    console.log(clients);
+  }, [clients]);
+
   return (
     <>
-      <SaveClient
-        isOpen={isOpen}
-        onOpen={onOpen}
-        onClose={onClose}
-        setData={setData}
-      />
+      {isOpenAddOrUpdateClient && (
+        <SaveOrUpdateClient
+          handleAddOrUpdateClient={handleAddOrUpdateClient}
+          isOpen={isOpenAddOrUpdateClient}
+          onOpen={onOpenAddOrUpdateClient}
+          onClose={onCloseAddOrUpdateClient}
+          mode={mode}
+          client={client}
+        />
+      )}
       <Box
         width={"100%"}
         paddingX={"1rem"}
@@ -183,7 +286,22 @@ export default function Clients() {
               {"Aqui você pode gerenciar seus clientes com facilidade"}
             </Text>
           </VStack>
-          <Table columns={columns} data={data} onOpenDrawerAddClient={onOpen} />
+          <Table
+            columns={columns}
+            data={data}
+            onOpenDrawerAddClient={() => {
+              // console.log("setMode('create')")
+              setMode("create");
+              setClient({
+                clientCode: formatCode(clients.length + 1),
+                clientName: "",
+                clientDocument: "",
+                clientEmail: "",
+                contact: "",
+              });
+              onOpenAddOrUpdateClient();
+            }}
+          />
         </VStack>
       </Box>
     </>

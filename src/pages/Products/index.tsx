@@ -20,13 +20,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { faker } from "@faker-js/faker";
-import {
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column } from "react-table";
@@ -35,6 +29,7 @@ import { ProductRow } from "../../types";
 import Table from "./components/Table";
 
 import makeData from "./makeData";
+import { toBRLWithSign } from "../../util/formatCurrency";
 import InputNumberFormat from "../components/InputNumberFormat";
 
 export default function Products() {
@@ -50,6 +45,12 @@ export default function Products() {
   const [loading, setLoading] = useState(false);
 
   const fetchIdRef = useRef(0);
+
+  const [unitaryValue, setUnitaryValue] = useState<number>(0);
+
+  useEffect(() => {
+    console.log("unitaryValue: " + unitaryValue);
+  }, [unitaryValue]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { register, handleSubmit, setValue, getValues } = useForm<ProductRow>({
@@ -77,12 +78,22 @@ export default function Products() {
           Cell: ({ value }) => <Text whiteSpace={"normal"}>{value}</Text>,
           accessor: "productName",
           disableResizing: false,
-          width: isLargerThan1440 ? 900 : 500,
+          width: isLargerThan1440 ? 600 : 350,
+        },
+        {
+          Header: "Tipo unitário".toUpperCase(),
+          Footer: "Tipo unitário".toUpperCase(),
+          accessor: "unitaryType",
+          Cell: ({ value }) => <Text>{value}</Text>,
+          disableResizing: false,
+          isNumeric: true,
+          width: 250,
         },
         {
           Header: "Valor Unitário/Kg/L".toUpperCase(),
           Footer: "Valor Unitário/Kg/L".toUpperCase(),
           accessor: "unitaryValue",
+          Cell: ({ value }) => <Text>{toBRLWithSign(value)}</Text>,
           disableResizing: false,
           isNumeric: true,
           width: 250,
@@ -125,7 +136,7 @@ export default function Products() {
       const dataInput: ProductRow = {
         productCode: dataForm.productCode,
         productName: dataForm.productName,
-        unitaryValue: dataForm.unitaryValue,
+        unitaryValue: unitaryValue,
         unitaryType: dataForm.unitaryType,
       };
 
@@ -195,7 +206,10 @@ export default function Products() {
                       defaultValue={0}
                       placeholder={"Ex. 2,50"}
                     /> */}
-                    <InputNumberFormat />
+                    <InputNumberFormat
+                      value={unitaryValue}
+                      setValue={setUnitaryValue}
+                    />
                   </InputGroup>
                   <Select {...register("unitaryType")} defaultValue={"unid"}>
                     <option key={"unid"} value={"unid"}>
@@ -205,7 +219,7 @@ export default function Products() {
                       Grama
                     </option>
                     <option key={"Kg"} value={"Kg"}>
-                      Kilograma
+                      Quilograma
                     </option>
                     <option key={"L"} value={"L"}>
                       Litro
@@ -214,7 +228,6 @@ export default function Products() {
                 </VStack>
               </VStack>
             </DrawerBody>
-
             <DrawerFooter>
               <Button mr={3} onClick={onClose}>
                 Cancel

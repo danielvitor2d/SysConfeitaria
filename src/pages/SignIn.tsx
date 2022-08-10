@@ -45,7 +45,16 @@ export default function SignIn() {
   const { signed, login } = useContext(AuthContext);
 
   async function handleSignIn(data: FormData) {
+    const toastId = toast({
+      title: "Verificação",
+      description: "Checando dados",
+      isClosable: true,
+      status: "loading",
+      variant: "left-accent",
+      position: "bottom-right",
+    });
     const logged = await login(data.email, data.password);
+    toast.close(toastId);
 
     if (logged) {
       toast({
@@ -71,7 +80,6 @@ export default function SignIn() {
 
   useEffect(() => {
     if (signed) {
-      // console.log("Já tá logado");
       navigate("/products");
     } else {
       navigate("/");

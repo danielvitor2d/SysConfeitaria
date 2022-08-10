@@ -135,7 +135,7 @@ export default function Table({
     previousPage,
     setPageSize,
     setGlobalFilter,
-    state: { pageIndex, pageSize, globalFilter },
+    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
@@ -187,25 +187,23 @@ export default function Table({
             borderWidth={"1px"}
             borderColor={"#63342B"}
             onClick={onOpenDrawerAddClient}
+            rightIcon={
+              <FontAwesomeIcon
+                color={"#63342B"}
+                icon={faPlus}
+                fontSize={"25px"}
+              />
+            }
           >
-            <HStack alignItems={"center"}>
-              <Text
-                fontFamily={"Montserrat"}
-                fontWeight={"600"}
-                textColor={"#63342B"}
-                marginTop={"2px"}
-                textAlign={"center"}
-              >
-                {"Novo cliente".toUpperCase()}
-              </Text>
-              <Box height={"25px"} width={"25px"} textAlign={"center"}>
-                <FontAwesomeIcon
-                  color={"#63342B"}
-                  icon={faPlus}
-                  fontSize={"25px"}
-                />
-              </Box>
-            </HStack>
+            <Text
+              fontFamily={"Montserrat"}
+              fontWeight={"600"}
+              textColor={"#63342B"}
+              marginTop={"2px"}
+              textAlign={"center"}
+            >
+              {"Novo cliente".toUpperCase()}
+            </Text>
           </Button>
         </GridItem>
         <GridItem colSpan={[1, 1, 1, 1, 1]}>
@@ -337,7 +335,12 @@ export default function Table({
               return (
                 <Tr {...row.getRowProps()}>
                   {row.cells.map((cell) => (
-                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                    <Td
+                      {...cell.getCellProps()}
+                      verticalAlign={"middle !important"}
+                    >
+                      {cell.render("Cell")}
+                    </Td>
                   ))}
                 </Tr>
               );
