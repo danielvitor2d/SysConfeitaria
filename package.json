@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy": "tsc && vite build && firebase deploy"
+    "deploy": "tsc && vite build"
   },
   "dependencies": {
     "@atlaskit/tooltip": "^17.5.14",

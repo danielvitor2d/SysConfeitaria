@@ -81,19 +81,11 @@ export default function SignIn() {
   }
 
   useEffect(() => {
-    if (signed) {
-      navigate("/products");
-    } else {
-      navigate("/");
-    }
+    navigate("/");
   }, [signed]);
 
   useEffect(() => {
-    if (!registered) {
-      navigate("/first-access");
-    } else {
-      navigate("/");
-    }
+    navigate("/");
   }, [registered]);
 
   return (
