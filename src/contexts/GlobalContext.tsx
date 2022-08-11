@@ -109,7 +109,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         setClientCode(data.clientCode || 1);
         setProductCode(data.productCode || 1);
         setSaleCode(data.saleCode || 1);
-        setRegistered(data.registered || false);
+        if (data.registered) setRegistered(data.registered);
       }
     } catch (error) {
       console.log(error);

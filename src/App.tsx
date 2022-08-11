@@ -1,5 +1,4 @@
 import { ChakraProvider } from "@chakra-ui/react";
-import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ClientProvider } from "./contexts/ClientsContext";
 import { GlobalProvider } from "./contexts/GlobalContext";
@@ -15,9 +14,7 @@ function App() {
         <AuthProvider>
           <ClientProvider>
             <ProductProvider>
-              <BrowserRouter>
-                <Routes />
-              </BrowserRouter>
+              <Routes />
             </ProductProvider>
           </ClientProvider>
         </AuthProvider>

@@ -80,9 +80,7 @@ export default function FirstAccess() {
   }
 
   useEffect(() => {
-    if (signed) {
-      navigate("/");
-    }
+    navigate("/");
   }, [signed]);
 
   return (

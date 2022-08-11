@@ -13,12 +13,13 @@ import {
   useToast,
   HStack,
 } from "@chakra-ui/react";
+import { faker } from "@faker-js/faker";
 import { cnpj, cpf } from "cpf-cnpj-validator";
 import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import ClientContext from "../../../../contexts/ClientsContext";
 import GlobalContext from "../../../../contexts/GlobalContext";
-import { Client, ClientRow } from "../../../../types";
+import { Client, ClientRow, colorScheme } from "../../../../types";
 import { formatCode } from "../../../../util/formatCode";
 import { cpfCnpjMask } from "../../../../util/formatCpfCnpj";
 import CellphoneNumberFormat from "../../../components/CellphoneInputFormat";
@@ -87,6 +88,7 @@ export default function SaveOrUpdateClient({
       contact: dataForm.contact,
       clientEmail: dataForm.clientEmail,
       clientDocument: document,
+      color: faker.helpers.arrayElement(colorScheme) as string
     };
 
     const result = await handleAddOrUpdateClient(dataInput);
