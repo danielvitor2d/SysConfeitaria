@@ -67,6 +67,7 @@ export default function SignIn() {
         variant: "left-accent",
         position: "bottom-right",
       });
+      navigate("/sales")
     } else {
       toast({
         title: "Erro ao tentar fazer login",
@@ -80,13 +81,12 @@ export default function SignIn() {
     }
   }
 
-  useEffect(() => {
-    navigate("/");
-  }, [signed]);
-
-  useEffect(() => {
-    navigate("/");
-  }, [registered]);
+  // useEffect(() => {
+  //   if (signed) {
+  //     // navigate("/");
+  //     window.location.reload()
+  //   }
+  // }, [signed]);
 
   return (
     <Box

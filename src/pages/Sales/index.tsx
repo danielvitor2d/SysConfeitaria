@@ -171,11 +171,12 @@ export default function Sales() {
     });
   }
 
-  useEffect(() => {
-    if (!signed) {
-      navigate("/");
-    }
-  }, [signed]);
+  // useEffect(() => {
+  //   if (!signed) {
+  //     // navigate("/login");
+  //     window.location.reload()
+  //   }
+  // }, [signed]);
 
   return (
     <>

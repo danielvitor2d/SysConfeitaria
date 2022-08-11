@@ -37,7 +37,7 @@ import Table from "./components/Table";
 
 import makeData from "./makeData";
 import { toBRLWithSign } from "../../util/formatCurrency";
-import InputNumberFormat from "../components/InputNumberFormat";
+import InputNumberFormat from "../../components/InputNumberFormat";
 import GlobalContext from "../../contexts/GlobalContext";
 import ProductContext from "../../contexts/ProductsContext";
 import SaveOrUpdateProduct from "./components/SaveOrUpdateProduct";
@@ -140,14 +140,14 @@ export default function Products() {
           accessor: "unitaryType",
           Cell: ({ value }) => (
             <Flex
-            height={"100%"}
-            alignItems={"center"}
-            justifyContent={"start"}
-          >
-            <Text fontWeight={"600"} fontFamily={"Montserrat"}>
-              {value}
-            </Text>
-          </Flex>
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
           ),
           disableResizing: false,
           isNumeric: true,
@@ -241,7 +241,7 @@ export default function Products() {
 
   useEffect(() => {
     if (!signed) {
-      navigate("/");
+      navigate("/login");
     }
   }, [signed]);
 

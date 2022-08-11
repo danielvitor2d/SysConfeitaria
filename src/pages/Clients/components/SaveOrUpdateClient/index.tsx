@@ -22,7 +22,7 @@ import GlobalContext from "../../../../contexts/GlobalContext";
 import { Client, ClientRow, colorScheme } from "../../../../types";
 import { formatCode } from "../../../../util/formatCode";
 import { cpfCnpjMask } from "../../../../util/formatCpfCnpj";
-import CellphoneNumberFormat from "../../../components/CellphoneInputFormat";
+import CellphoneNumberFormat from "../../../../components/CellphoneInputFormat";
 
 interface SaveOrUpdateClientProps {
   isOpen: boolean;
@@ -88,7 +88,7 @@ export default function SaveOrUpdateClient({
       contact: dataForm.contact,
       clientEmail: dataForm.clientEmail,
       clientDocument: document,
-      color: faker.helpers.arrayElement(colorScheme) as string
+      color: faker.helpers.arrayElement(colorScheme) as string,
     };
 
     const result = await handleAddOrUpdateClient(dataInput);

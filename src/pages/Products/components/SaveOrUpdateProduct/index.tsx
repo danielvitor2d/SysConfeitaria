@@ -21,7 +21,7 @@ import GlobalContext from "../../../../contexts/GlobalContext";
 import ProductContext from "../../../../contexts/ProductsContext";
 import { Product, ProductRow } from "../../../../types";
 import { formatCode } from "../../../../util/formatCode";
-import InputNumberFormat from "../../../components/InputNumberFormat";
+import InputNumberFormat from "../../../../components/InputNumberFormat";
 
 interface SaveOrUpdateProductProps {
   isOpen: boolean;

@@ -6,7 +6,7 @@ import NumberFormat, {
 import currencyFormatter, {
   fromBRLWithSign,
   toBRLWithSign,
-} from "../../../util/formatCurrency";
+} from "../../util/formatCurrency";
 
 interface InputNumberFormatProps {
   value: number;

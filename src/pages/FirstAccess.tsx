@@ -18,6 +18,7 @@ import { ReactComponent as Logo } from "../assets/first_access.svg";
 import AuthContext from "../contexts/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import GlobalContext from "../contexts/GlobalContext";
 
 interface FormData {
   email: string;
@@ -42,6 +43,7 @@ export default function FirstAccess() {
 
   const toast = useToast();
 
+  const { registered } = useContext(GlobalContext);
   const { signed, signUp } = useContext(AuthContext);
 
   async function handleRegister(data: FormData) {
@@ -57,9 +59,9 @@ export default function FirstAccess() {
       return;
     }
 
-    const registered = await signUp(data.email, data.password);
+    const registeredWithSuccess = await signUp(data.email, data.password);
 
-    if (registered) {
+    if (registeredWithSuccess) {
       toast({
         title: "Dados salvos",
         description: "Dados cadastrados com sucesso",
@@ -80,8 +82,10 @@ export default function FirstAccess() {
   }
 
   useEffect(() => {
-    navigate("/");
-  }, [signed]);
+    if (registered) {
+      navigate("/login");
+    }
+  }, [signed, registered]);
 
   return (
     <Box

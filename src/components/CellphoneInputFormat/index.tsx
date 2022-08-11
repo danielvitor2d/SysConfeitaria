@@ -10,8 +10,8 @@ import NumberFormat, {
   NumberFormatValues,
   SourceInfo,
 } from "react-number-format";
-import { ClientRow } from "../../../types";
-import { formatCellphone } from "../../../util/formatCellphone";
+import { ClientRow } from "../../types";
+import { formatCellphone } from "../../util/formatCellphone";
 
 interface CellphoneNumberFormatProps {
   name: string;

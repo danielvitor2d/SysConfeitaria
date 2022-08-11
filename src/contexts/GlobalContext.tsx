@@ -109,7 +109,10 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         setClientCode(data.clientCode || 1);
         setProductCode(data.productCode || 1);
         setSaleCode(data.saleCode || 1);
-        if (data.registered) setRegistered(data.registered);
+        if (data.registered) {
+          console.log("data.registered: " + data.registered)
+          setRegistered(data.registered);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -126,6 +129,10 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    console.log("registered: " + registered);
+  }, [registered]);
 
   return (
     <GlobalContext.Provider

@@ -117,7 +117,10 @@ export default function Sidebar() {
       title: "Sair",
       route: "",
       icon: faArrowRightFromBracket,
-      onClick: signOut,
+      onClick: () => {
+        signOut()
+        navigate("/login")
+      },
       shortcut: ["shift", "5"],
     },
   ];

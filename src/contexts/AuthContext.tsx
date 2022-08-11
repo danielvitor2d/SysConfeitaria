@@ -84,6 +84,10 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     });
   }, []);
 
+  useEffect(() => {
+    console.log("signed: " + signed);
+  }, [signed]);
+
   return (
     <AuthContext.Provider value={{ signed, signIn, signUp, signOut }}>
       {children}

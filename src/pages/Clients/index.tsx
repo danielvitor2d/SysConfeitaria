@@ -260,7 +260,7 @@ export default function Clients() {
 
   useEffect(() => {
     if (!signed) {
-      navigate("/");
+      navigate("/login");
     }
   }, [signed]);
 
