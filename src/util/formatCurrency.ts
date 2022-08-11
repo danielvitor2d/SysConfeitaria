@@ -8,13 +8,11 @@ export const toBRLWithoutSign = (value: number): string => {
   });
 };
 export const fromBRLWithSign = (value: string): number => {
-  if (value.length === 0) return 0
-  let numberValue = value.split("R$ ")[1]
-  numberValue = numberValue
-    .replace(".", "")
-    .replace(",", ".")
-  return Number(numberValue)
-}
+  if (value.length === 0) return 0;
+  let numberValue = value.split("R$ ")[1];
+  numberValue = numberValue.replace(".", "").replace(",", ".");
+  return Number(numberValue);
+};
 export default function currencyFormatter(value: string | number) {
   if (!Number(value)) return "R$ 0,00";
 

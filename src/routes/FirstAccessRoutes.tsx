@@ -7,12 +7,12 @@ import NotFound from "../pages/NotFound";
 export default function FirstAccessRoutes() {
   return (
     <Routes>
-      <Route element={<MinimalLayout page={<FirstAccess />} />} path="/" />
+      <Route path="/" element={<MinimalLayout page={<FirstAccess />} />} />
       <Route
-        element={<MinimalLayout page={<FirstAccess />} />}
         path="/first-access"
+        element={<MinimalLayout page={<FirstAccess />} />}
       />
-      <Route element={<MinimalLayout page={<NotFound />} />} path="*" />
+      <Route path="*" element={<MinimalLayout page={<NotFound />} />} />
     </Routes>
   );
 }

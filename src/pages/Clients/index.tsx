@@ -1,7 +1,14 @@
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Avatar,
   Box,
+  Button,
   Flex,
   HStack,
   Tag,
@@ -12,11 +19,13 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
 import ClientsContext from "../../contexts/ClientsContext";
+import GlobalContext from "../../contexts/GlobalContext";
 import { Client, ClientRow } from "../../types";
 import { formatCellphone } from "../../util/formatCellphone";
 import { formatCode } from "../../util/formatCode";
@@ -30,6 +39,7 @@ export default function Clients() {
 
   const navigate = useNavigate();
 
+  const { clientCode } = useContext(GlobalContext);
   const { signed } = useContext(AuthContext);
 
   const [data, setData] = useState<ClientRow[]>([]);
@@ -45,6 +55,14 @@ export default function Clients() {
     onOpen: onOpenAddOrUpdateClient,
     onClose: onCloseAddOrUpdateClient,
   } = useDisclosure();
+
+  const {
+    isOpen: isOpenRemoveClient,
+    onOpen: onOpenRemoveClient,
+    onClose: onCloseRemoveClient,
+  } = useDisclosure();
+
+  const cancelRefRemoveClient = React.useRef(null);
 
   const columns = useMemo(
     () =>
@@ -176,9 +194,12 @@ export default function Clients() {
                   color={"red"}
                   boxSize={"6"}
                   cursor={"pointer"}
-                  onClick={async () =>
-                    await handleRemoveClient(cellProps.row.original.clientCode)
-                  }
+                  onClick={async () => {
+                    onOpenRemoveClient();
+                    setClient({
+                      clientCode: cellProps.row.original.clientCode,
+                    } as Client);
+                  }}
                 />
               </HStack>
             </Flex>
@@ -220,10 +241,13 @@ export default function Clients() {
       });
     } else {
       toast({
-        description: "Erro ao remover cliente",
-        status: "warning",
+        title: "Erro ao remover cliente",
+        description:
+          "Verifique sua conexão à internet ou tente novamente mais tarde",
         isClosable: true,
-        duration: 4000,
+        status: "warning",
+        variant: "left-accent",
+        position: "bottom-right",
       });
     }
   }
@@ -242,8 +266,6 @@ export default function Clients() {
 
   useEffect(() => {
     if (clients) setData([...clients]);
-    console.log("Clients atualizou: ");
-    console.log(clients);
   }, [clients]);
 
   return (
@@ -258,6 +280,41 @@ export default function Clients() {
           client={client}
         />
       )}
+      <AlertDialog
+        isOpen={isOpenRemoveClient}
+        leastDestructiveRef={cancelRefRemoveClient}
+        onClose={onCloseRemoveClient}
+        closeOnEsc={true}
+        closeOnOverlayClick={true}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              {"Remover cliente"}
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              {"Você tem certeza disso? Essa ação não pode ser desfeita."}
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRefRemoveClient} onClick={onCloseRemoveClient}>
+                {"Cancelar"}
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => {
+                  handleRemoveClient(client.clientCode);
+                  onCloseRemoveClient();
+                }}
+                ml={3}
+              >
+                {"Remover"}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       <Box
         width={"100%"}
         paddingX={"1rem"}
@@ -290,10 +347,9 @@ export default function Clients() {
             columns={columns}
             data={data}
             onOpenDrawerAddClient={() => {
-              // console.log("setMode('create')")
               setMode("create");
               setClient({
-                clientCode: formatCode(clients.length + 1),
+                clientCode: formatCode(clientCode),
                 clientName: "",
                 clientDocument: "",
                 clientEmail: "",

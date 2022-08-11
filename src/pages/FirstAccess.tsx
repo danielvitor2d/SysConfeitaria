@@ -42,7 +42,7 @@ export default function FirstAccess() {
 
   const toast = useToast();
 
-  const { signed, register: registerUser } = useContext(AuthContext);
+  const { signed, signUp } = useContext(AuthContext);
 
   async function handleRegister(data: FormData) {
     if (data.password !== data.confirm_password) {
@@ -57,7 +57,7 @@ export default function FirstAccess() {
       return;
     }
 
-    const registered = await registerUser(data.email, data.password);
+    const registered = await signUp(data.email, data.password);
 
     if (registered) {
       toast({

@@ -52,7 +52,7 @@ export default function Sidebar() {
   useEffect(() => {
     document.addEventListener("keydown", detectKeyDown, true);
     return () => document.removeEventListener("keydown", detectKeyDown);
-  });
+  }, []);
 
   const detectKeyDown = (ev: KeyboardEvent) => {
     // console.log("Clicked key: " + ev.key);
@@ -70,7 +70,7 @@ export default function Sidebar() {
       navigate("/settings");
     }
     if (ev.key === "%" && ev.shiftKey) {
-      logout();
+      signOut();
     }
   };
 
@@ -80,7 +80,7 @@ export default function Sidebar() {
     return { mode: isLargerThan1440 ? "open" : "close" };
   });
 
-  const { logout } = useContext(AuthContext);
+  const { signOut } = useContext(AuthContext);
 
   const MENUS_SIDEBAR: Array<SidebarType> = [
     {
@@ -117,7 +117,7 @@ export default function Sidebar() {
       title: "Sair",
       route: "",
       icon: faArrowRightFromBracket,
-      onClick: logout,
+      onClick: signOut,
       shortcut: ["shift", "5"],
     },
   ];

@@ -3,6 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ClientProvider } from "./contexts/ClientsContext";
 import { GlobalProvider } from "./contexts/GlobalContext";
+import { ProductProvider } from "./contexts/ProductsContext";
 
 import Routes from "./routes";
 import { customTheme } from "./util/themeChakra";
@@ -13,9 +14,11 @@ function App() {
       <GlobalProvider>
         <AuthProvider>
           <ClientProvider>
-            <BrowserRouter>
-              <Routes />
-            </BrowserRouter>
+            <ProductProvider>
+              <BrowserRouter>
+                <Routes />
+              </BrowserRouter>
+            </ProductProvider>
           </ClientProvider>
         </AuthProvider>
       </GlobalProvider>

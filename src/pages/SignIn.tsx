@@ -19,6 +19,7 @@ import AuthContext from "../contexts/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-regular-svg-icons";
 import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import GlobalContext from "../contexts/GlobalContext";
 
 interface FormData {
   email: string;
@@ -42,7 +43,8 @@ export default function SignIn() {
 
   const toast = useToast();
 
-  const { signed, login } = useContext(AuthContext);
+  const { registered } = useContext(GlobalContext);
+  const { signed, signIn } = useContext(AuthContext);
 
   async function handleSignIn(data: FormData) {
     const toastId = toast({
@@ -53,7 +55,7 @@ export default function SignIn() {
       variant: "left-accent",
       position: "bottom-right",
     });
-    const logged = await login(data.email, data.password);
+    const logged = await signIn(data.email, data.password);
     toast.close(toastId);
 
     if (logged) {
@@ -85,6 +87,14 @@ export default function SignIn() {
       navigate("/");
     }
   }, [signed]);
+
+  useEffect(() => {
+    if (!registered) {
+      navigate("/first-access");
+    } else {
+      navigate("/");
+    }
+  }, [registered]);
 
   return (
     <Box

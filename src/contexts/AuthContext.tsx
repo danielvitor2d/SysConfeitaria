@@ -3,21 +3,27 @@ import {
   addDoc,
   collection,
   doc,
+  DocumentData,
   getDocs,
   getFirestore,
+  Query,
   query,
+  QuerySnapshot,
   setDoc,
   where,
 } from "firebase/firestore/lite";
 import {
   createUserWithEmailAndPassword,
   getAuth,
+  onAuthStateChanged,
+  sendEmailVerification,
   signInWithEmailAndPassword,
+  User,
 } from "firebase/auth";
-import { FC, ReactNode, useEffect } from "react";
+import { FC, ReactNode, useContext, useEffect } from "react";
 import { useState, createContext } from "react";
 
-import app from "../settings/setupFirebase";
+import GlobalContext from "./GlobalContext";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -25,43 +31,25 @@ interface AuthProviderProps {
 
 interface AuthContextData {
   signed: boolean;
-  alreadyRegistered: boolean;
-  login(email: string, password: string): Promise<boolean>;
-  register(email: string, password: string): Promise<boolean>;
-  logout(): void;
+  signIn: (email: string, password: string) => Promise<boolean>;
+  signUp: (email: string, password: string) => Promise<boolean>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
+  const { register } = useContext(GlobalContext);
+
   const auth = getAuth();
 
-  const [signed, setSigned] = useState<boolean>(() => {
-    return auth.currentUser !== null;
-  });
-  const [alreadyRegistered, setAlreadyRegistered] = useState<boolean>(false);
+  const [signed, setSigned] = useState(false);
 
-  async function register(email: string, password: string): Promise<boolean> {
+  async function signUp(email: string, password: string): Promise<boolean> {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-
-      const db = getFirestore(app);
-
-      const dataToSave = {
-        _id: user.uid,
-        email: email,
-        password: await hash(password, 10),
-      };
-
-      await setDoc(doc(db, "user", user.uid), dataToSave);
-
-      // setSigned(true)
-      setAlreadyRegistered(true);
+      await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(auth.currentUser as User);
+      await register();
 
       return true;
     } catch (error) {
@@ -70,10 +58,9 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  async function login(email: string, password: string): Promise<boolean> {
+  async function signIn(email: string, password: string): Promise<boolean> {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-
       setSigned(true);
       return true;
     } catch (error) {
@@ -82,37 +69,23 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  async function logout() {
+  async function signOut() {
     await auth.signOut();
     setSigned(false);
   }
 
   useEffect(() => {
-    const db = getFirestore(app);
-
-    const userCollectionReference = collection(db, "user");
-
-    getDocs(userCollectionReference).then((userSnapshot) => {
-      setAlreadyRegistered(userSnapshot.size > 0);
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setSigned(true);
+      } else {
+        setSigned(false);
+      }
     });
   }, []);
 
-  useEffect(() => {
-    if (auth.currentUser !== null) {
-      setSigned(true);
-    }
-  }, [auth.currentUser]);
-
-  useEffect(() => {
-    // console.log("signed: ", signed);
-    // console.log("alreadyRegistered: ", alreadyRegistered);
-    // console.log("logado no Authentication: ", auth.currentUser?.uid);
-  }, [signed, alreadyRegistered, auth.currentUser]);
-
   return (
-    <AuthContext.Provider
-      value={{ signed, alreadyRegistered, login, register, logout }}
-    >
+    <AuthContext.Provider value={{ signed, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

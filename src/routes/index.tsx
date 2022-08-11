@@ -5,24 +5,16 @@ import AuthenticationRoutes from "./AuthenticationRoutes";
 
 import AuthContext from "../contexts/AuthContext";
 import FirstAccessRoutes from "./FirstAccessRoutes";
+import GlobalContext from "../contexts/GlobalContext";
 
 export default function Routes() {
   const [route, setRoute] = useState<JSX.Element>(AuthenticationRoutes);
-  const { alreadyRegistered, signed } = useContext(AuthContext);
+  const { registered } = useContext(GlobalContext);
+  const { signed } = useContext(AuthContext);
 
   useEffect(() => {
-    // if (alreadyRegistered) {
-    //   if (signed) {
-    //     console.log("Rota autenticada");
-    //   } else {
-    //     console.log("Rota de autenticação");
-    //   }
-    // } else {
-    //   console.log("Rota de cadastro");
-    // }
-
     setRoute(
-      alreadyRegistered ? (
+      registered ? (
         signed ? (
           <AuthenticatedRoutes />
         ) : (
@@ -32,7 +24,7 @@ export default function Routes() {
         <FirstAccessRoutes />
       )
     );
-  }, [alreadyRegistered, signed]);
+  }, [registered, signed]);
 
   return route;
 }

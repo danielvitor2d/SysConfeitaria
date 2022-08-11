@@ -14,7 +14,7 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import { cnpj, cpf } from "cpf-cnpj-validator";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import ClientContext from "../../../../contexts/ClientsContext";
 import GlobalContext from "../../../../contexts/GlobalContext";
@@ -41,8 +41,10 @@ export default function SaveOrUpdateClient({
 }: SaveOrUpdateClientProps) {
   const toast = useToast();
 
-  const { nextClientCode } = useContext(GlobalContext);
+  const { clientCode } = useContext(GlobalContext);
   const { clients } = useContext(ClientContext);
+
+  const [document, setDocument] = useState("");
 
   const {
     register,
@@ -54,7 +56,7 @@ export default function SaveOrUpdateClient({
     formState: { errors },
   } = useForm<ClientRow>({
     defaultValues: {
-      clientCode: client?.clientCode || String(nextClientCode),
+      clientCode: client?.clientCode || formatCode(clientCode),
       clientName: client?.clientName || "",
       clientDocument: client?.clientDocument || "",
       clientEmail: client?.clientEmail || "",
@@ -62,8 +64,6 @@ export default function SaveOrUpdateClient({
     },
     criteriaMode: "firstError",
   });
-
-  const [document, setDocument] = useState("");
 
   async function handleCreateOrUpdateClient(dataForm: ClientRow) {
     const documentNumberCpf = cpf.strip(document);
@@ -118,7 +118,7 @@ export default function SaveOrUpdateClient({
   }
 
   const clearFields = () => {
-    setValue("clientCode", String(nextClientCode));
+    setValue("clientCode", formatCode(clientCode));
     setValue("clientName", "");
     setValue("clientEmail", "");
     setValue("clientDocument", "");
@@ -126,8 +126,6 @@ export default function SaveOrUpdateClient({
   };
 
   useEffect(() => {
-    console.log("Clients atualizou: ");
-    console.log(clients);
     if (client && mode === "update") {
       setValue("clientCode", client.clientCode);
       setValue("clientName", client.clientName);

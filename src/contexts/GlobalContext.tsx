@@ -1,4 +1,4 @@
-import { 
+import {
   collection,
   deleteDoc,
   doc,
@@ -9,8 +9,9 @@ import {
   query,
   QuerySnapshot,
   setDoc,
-  onSnapshot
-} from 'firebase/firestore'
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import { FC, ReactNode, useEffect } from "react";
 import { useState, createContext } from "react";
 
@@ -21,54 +22,123 @@ interface GlobalProviderProps {
 }
 
 interface GlobalContextData {
-  nextClientCode: number
-  nextProductCode: number
-  nextSaleCode: number
-  setNextClientCode: React.Dispatch<React.SetStateAction<number>>
-  setNextProductCode: React.Dispatch<React.SetStateAction<number>>
-  setNextSaleCode: React.Dispatch<React.SetStateAction<number>>
+  getNextClientCode: () => Promise<number>;
+  getNextProductCode: () => Promise<number>;
+  getNextSaleCode: () => Promise<number>;
+  clientCode: number;
+  productCode: number;
+  saleCode: number;
+  register: () => Promise<void>;
+  registered: boolean;
 }
 
 const GlobalContext = createContext<GlobalContextData>({} as GlobalContextData);
 
 export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
-  const [nextClientCode, setNextClientCode] = useState(1)
-  const [nextProductCode, setNextProductCode] = useState(1)
-  const [nextSaleCode, setNextSaleCode] = useState(1)
+  const [clientCode, setClientCode] = useState(1);
+  const [productCode, setProductCode] = useState(1);
+  const [saleCode, setSaleCode] = useState(1);
+  const [registered, setRegistered] = useState(false);
 
-  const db = getFirestore(app)
+  const db = getFirestore(app);
+
+  async function getNextClientCode() {
+    const currentClientCode = clientCode;
+    try {
+      await updateDoc(doc(db, "global", "0"), {
+        clientCode: currentClientCode + 1,
+      });
+      setClientCode(currentClientCode + 1);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      return currentClientCode;
+    }
+  }
+
+  async function getNextProductCode() {
+    const currentProductCode = productCode;
+    try {
+      await updateDoc(doc(db, "global", "0"), {
+        productCode: currentProductCode + 1,
+      });
+      setProductCode(currentProductCode + 1);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      return currentProductCode;
+    }
+  }
+
+  async function getNextSaleCode() {
+    const currentSaleCode = saleCode;
+    try {
+      await updateDoc(doc(db, "global", "0"), {
+        saleCode: currentSaleCode + 1,
+      });
+      setSaleCode(currentSaleCode + 1);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      return currentSaleCode;
+    }
+  }
+
+  async function register() {
+    try {
+      await updateDoc(doc(db, "global", "0"), {
+        registered: true,
+      });
+      setRegistered(true);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   async function fetchData(): Promise<void> {
     try {
-      const queryDocumentData: Query<DocumentData> = query<DocumentData>(collection(db, "global"));
-      const value: QuerySnapshot<DocumentData> = await getDocs<DocumentData>(queryDocumentData)
+      const queryDocumentData: Query<DocumentData> = query<DocumentData>(
+        collection(db, "global")
+      );
+      const value: QuerySnapshot<DocumentData> = await getDocs<DocumentData>(
+        queryDocumentData
+      );
 
       if (value.docs.length !== 0) {
-        const data = value.docs[0].data() as GlobalContextData
-        setNextClientCode(data.nextClientCode)
-        setNextProductCode(data.nextProductCode)
-        setNextSaleCode(data.nextSaleCode)
+        const data = value.docs[0].data();
+        setClientCode(data.clientCode || 1);
+        setProductCode(data.productCode || 1);
+        setSaleCode(data.saleCode || 1);
+        setRegistered(data.registered || false);
       }
-
-    } catch(error) {
-      console.log(error)
+    } catch (error) {
+      console.log(error);
     }
   }
 
   useEffect(() => {
-    fetchData()
+    fetchData();
 
     const q = query(collection(db, "global"));
     const unsubscribe = onSnapshot(q, () => {
-      fetchData()
+      fetchData();
     });
 
-    return () => unsubscribe()
+    return () => unsubscribe();
   }, []);
 
   return (
     <GlobalContext.Provider
-      value={{ nextClientCode, nextProductCode, nextSaleCode, setNextClientCode, setNextProductCode, setNextSaleCode }}
+      value={{
+        getNextClientCode,
+        getNextProductCode,
+        getNextSaleCode,
+        register,
+        registered,
+        clientCode,
+        productCode,
+        saleCode,
+      }}
     >
       {children}
     </GlobalContext.Provider>

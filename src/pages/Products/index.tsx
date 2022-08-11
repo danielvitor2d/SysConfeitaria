@@ -1,5 +1,11 @@
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Box,
   Button,
   Drawer,
@@ -9,6 +15,7 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
+  Flex,
   HStack,
   Input,
   InputGroup,
@@ -25,12 +32,17 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
-import { ProductRow } from "../../types";
+import { Product, ProductRow } from "../../types";
 import Table from "./components/Table";
 
 import makeData from "./makeData";
 import { toBRLWithSign } from "../../util/formatCurrency";
 import InputNumberFormat from "../components/InputNumberFormat";
+import GlobalContext from "../../contexts/GlobalContext";
+import ProductContext from "../../contexts/ProductsContext";
+import SaveOrUpdateProduct from "./components/SaveOrUpdateProduct";
+import React from "react";
+import { formatCode } from "../../util/formatCode";
 
 export default function Products() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
@@ -39,28 +51,30 @@ export default function Products() {
 
   const navigate = useNavigate();
 
+  const { productCode } = useContext(GlobalContext);
   const { signed } = useContext(AuthContext);
 
-  const [data, setData] = useState<ProductRow[]>(() => makeData(50));
-  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<ProductRow[]>([]);
 
-  const fetchIdRef = useRef(0);
+  const { products, addProduct, updateProduct, removeProduct } =
+    useContext(ProductContext);
 
-  const [unitaryValue, setUnitaryValue] = useState<number>(0);
+  const [product, setProduct] = useState<Product>({} as Product);
+  const [mode, setMode] = useState<"create" | "update">("create");
 
-  useEffect(() => {
-    console.log("unitaryValue: " + unitaryValue);
-  }, [unitaryValue]);
+  const {
+    isOpen: isOpenAddOrUpdateProduct,
+    onOpen: onOpenAddOrUpdateProduct,
+    onClose: onCloseAddOrUpdateProduct,
+  } = useDisclosure();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { register, handleSubmit, setValue, getValues } = useForm<ProductRow>({
-    defaultValues: {
-      productCode: faker.random.numeric(6),
-      productName: "",
-      unitaryType: "unid",
-      unitaryValue: 0,
-    },
-  });
+  const {
+    isOpen: isOpenRemoveProduct,
+    onOpen: onOpenRemoveProduct,
+    onClose: onCloseRemoveProduct,
+  } = useDisclosure();
+
+  const cancelRefRemoveProduct = React.useRef(null);
 
   const columns = useMemo(
     () =>
@@ -68,6 +82,17 @@ export default function Products() {
         {
           Header: "Código".toUpperCase(),
           Footer: "Código".toUpperCase(),
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
+          ),
           accessor: "productCode",
           disableResizing: false,
           width: 100,
@@ -75,25 +100,55 @@ export default function Products() {
         {
           Header: "Nome do Produto".toUpperCase(),
           Footer: "Nome do Produto".toUpperCase(),
-          Cell: ({ value }) => <Text whiteSpace={"normal"}>{value}</Text>,
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
+          ),
           accessor: "productName",
           disableResizing: false,
           width: isLargerThan1440 ? 600 : 350,
         },
         {
-          Header: "Tipo unitário".toUpperCase(),
-          Footer: "Tipo unitário".toUpperCase(),
-          accessor: "unitaryType",
-          Cell: ({ value }) => <Text>{value}</Text>,
+          Header: "Valor Unitário/Kg/L".toUpperCase(),
+          Footer: "Valor Unitário/Kg/L".toUpperCase(),
+          accessor: "unitaryValue",
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {toBRLWithSign(value)}
+              </Text>
+            </Flex>
+          ),
           disableResizing: false,
           isNumeric: true,
           width: 250,
         },
         {
-          Header: "Valor Unitário/Kg/L".toUpperCase(),
-          Footer: "Valor Unitário/Kg/L".toUpperCase(),
-          accessor: "unitaryValue",
-          Cell: ({ value }) => <Text>{toBRLWithSign(value)}</Text>,
+          Header: "Tipo unitário".toUpperCase(),
+          Footer: "Tipo unitário".toUpperCase(),
+          accessor: "unitaryType",
+          Cell: ({ value }) => (
+            <Flex
+            height={"100%"}
+            alignItems={"center"}
+            justifyContent={"start"}
+          >
+            <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+              {value}
+            </Text>
+          </Flex>
+          ),
           disableResizing: false,
           isNumeric: true,
           width: 250,
@@ -103,23 +158,32 @@ export default function Products() {
           Footer: "Ações".toUpperCase(),
           accessor: "actions",
           Cell: (cellProps: CellProps<ProductRow, string | undefined>) => (
-            <HStack>
-              <EditIcon
-                boxSize={"6"}
-                cursor={"pointer"}
-                onClick={() =>
-                  handleUpdateRow(cellProps.row.original.productCode)
-                }
-              />
-              <DeleteIcon
-                color={"red"}
-                boxSize={"6"}
-                cursor={"pointer"}
-                onClick={() =>
-                  handleRemoveRow(cellProps.row.original.productCode)
-                }
-              />
-            </HStack>
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              <HStack>
+                <EditIcon
+                  boxSize={"6"}
+                  cursor={"pointer"}
+                  onClick={async () =>
+                    await handleUpdateProduct(cellProps.row.original)
+                  }
+                />
+                <DeleteIcon
+                  color={"red"}
+                  boxSize={"6"}
+                  cursor={"pointer"}
+                  onClick={async () => {
+                    onOpenRemoveProduct();
+                    setProduct({
+                      productCode: cellProps.row.original.productCode,
+                    } as Product);
+                  }}
+                />
+              </HStack>
+            </Flex>
           ),
           disableResizing: true,
           disableSortBy: true,
@@ -131,44 +195,49 @@ export default function Products() {
     [isLargerThan1440]
   );
 
-  async function handleCreateProduct(dataForm: ProductRow) {
-    setData((prevDataInput: ProductRow[]) => {
-      const dataInput: ProductRow = {
-        productCode: dataForm.productCode,
-        productName: dataForm.productName,
-        unitaryValue: unitaryValue,
-        unitaryType: dataForm.unitaryType,
-      };
-
-      onClose();
-      clearFields();
-
-      return [dataInput, ...prevDataInput];
-    });
+  async function handleAddOrUpdateProduct(product: Product): Promise<boolean> {
+    if (mode === "create") return await addProduct(product);
+    return await updateProduct(product);
   }
 
-  async function handleRemoveRow(saleCode: string) {
-    toast({
-      title: "Removendo",
-      description: `Removendo linha ${saleCode}`,
-      status: "info",
+  async function handleRemoveProduct(productCode: string): Promise<void> {
+    const toastId = toast({
+      title: "Removendo produto",
+      description: "Removendo dados",
+      isClosable: true,
+      status: "loading",
+      variant: "left-accent",
+      position: "bottom-right",
     });
+    const result = await removeProduct(productCode);
+    toast.close(toastId);
+    if (result) {
+      toast({
+        title: "Produto removido",
+        description: "Dados removidos",
+        isClosable: true,
+        status: "success",
+        variant: "left-accent",
+        position: "bottom-right",
+      });
+    } else {
+      toast({
+        title: "Erro ao remover produto",
+        description:
+          "Verifique sua conexão à internet ou tente novamente mais tarde",
+        isClosable: true,
+        status: "warning",
+        variant: "left-accent",
+        position: "bottom-right",
+      });
+    }
   }
 
-  async function handleUpdateRow(saleCode: string) {
-    toast({
-      title: "Editando",
-      description: `Editando linha ${saleCode}`,
-      status: "info",
-    });
+  async function handleUpdateProduct(product: ProductRow): Promise<void> {
+    setMode("update");
+    setProduct({ ...(product as Product) });
+    onOpenAddOrUpdateProduct();
   }
-
-  const clearFields = () => {
-    setValue("productCode", faker.random.numeric(6));
-    setValue("productName", "");
-    setValue("unitaryValue", 0);
-    setValue("unitaryType", "unid");
-  };
 
   useEffect(() => {
     if (!signed) {
@@ -176,76 +245,60 @@ export default function Products() {
     }
   }, [signed]);
 
+  useEffect(() => {
+    if (products) setData([...products]);
+  }, [products]);
+
   return (
     <>
-      <Drawer isOpen={isOpen} placement={"right"} size={"sm"} onClose={onClose}>
-        <form onSubmit={handleSubmit(handleCreateProduct)}>
-          <DrawerOverlay />
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader>Adicionar novo produto</DrawerHeader>
-            <DrawerBody>
-              <VStack gap={5} width={"90%"}>
-                <VStack alignItems={"flex-start"} width={"90%"}>
-                  <Text textAlign={"left"}>{"Código"}</Text>
-                  <Input {...register("productCode")} isReadOnly={true} />
-                </VStack>
-                <VStack alignItems={"flex-start"} width={"90%"}>
-                  <Text textAlign={"left"}>{"Nome do produto"}</Text>
-                  <Input
-                    {...register("productName")}
-                    placeholder="Ex. Bolo de chocolate"
-                  />
-                </VStack>
-                <VStack alignItems={"flex-start"} width={"90%"}>
-                  <Text textAlign={"left"}>{"Valor unitário/Kg/L"}</Text>
-                  <InputGroup>
-                    {/* <InputLeftAddon children={"R$"} /> */}
-                    {/* <Input
-                      {...register("unitaryValue")}
-                      defaultValue={0}
-                      placeholder={"Ex. 2,50"}
-                    /> */}
-                    <InputNumberFormat
-                      value={unitaryValue}
-                      setValue={setUnitaryValue}
-                    />
-                  </InputGroup>
-                  <Select {...register("unitaryType")} defaultValue={"unid"}>
-                    <option key={"unid"} value={"unid"}>
-                      Unidade
-                    </option>
-                    <option key={"Kg"} value={"g"}>
-                      Grama
-                    </option>
-                    <option key={"Kg"} value={"Kg"}>
-                      Quilograma
-                    </option>
-                    <option key={"L"} value={"L"}>
-                      Litro
-                    </option>
-                  </Select>
-                </VStack>
-              </VStack>
-            </DrawerBody>
-            <DrawerFooter>
-              <Button mr={3} onClick={onClose}>
-                Cancel
+      {isOpenAddOrUpdateProduct && (
+        <SaveOrUpdateProduct
+          handleAddOrUpdateProduct={handleAddOrUpdateProduct}
+          isOpen={isOpenAddOrUpdateProduct}
+          onOpen={onOpenAddOrUpdateProduct}
+          onClose={onCloseAddOrUpdateProduct}
+          mode={mode}
+          product={product}
+        />
+      )}
+      <AlertDialog
+        isOpen={isOpenRemoveProduct}
+        leastDestructiveRef={cancelRefRemoveProduct}
+        onClose={onCloseRemoveProduct}
+        closeOnEsc={true}
+        closeOnOverlayClick={true}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              {"Remover produto"}
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              {"Você tem certeza disso? Essa ação não pode ser desfeita."}
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button
+                ref={cancelRefRemoveProduct}
+                onClick={onCloseRemoveProduct}
+              >
+                {"Cancelar"}
               </Button>
               <Button
-                width={"full"}
-                type={"submit"}
-                backgroundColor={"#63342B"}
-                _hover={{ backgroundColor: "#502A22" }}
-                _active={{ backgroundColor: "#482017" }}
-                colorScheme="blue"
+                colorScheme="red"
+                onClick={() => {
+                  handleRemoveProduct(product.productCode);
+                  onCloseRemoveProduct();
+                }}
+                ml={3}
               >
-                Save
+                {"Remover"}
               </Button>
-            </DrawerFooter>
-          </DrawerContent>
-        </form>
-      </Drawer>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       <Box
         width={"100%"}
         paddingX={"1rem"}
@@ -277,7 +330,16 @@ export default function Products() {
           <Table
             columns={columns}
             data={data}
-            onOpenDrawerAddProduct={onOpen}
+            onOpenDrawerAddProduct={() => {
+              setMode("create");
+              setProduct({
+                productCode: formatCode(productCode),
+                productName: "",
+                unitaryValue: 0,
+                unitaryType: "unid",
+              });
+              onOpenAddOrUpdateProduct();
+            }}
           />
         </VStack>
       </Box>
