@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist",
+    "public": "./dist",
     "site": "sys-confeitaria",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
@@ -16,6 +16,7 @@
         "source": "/",
         "destination": "/index.html"
       }
-    ]
+    ],
+    "trailingSlash": false
   }
 }
