@@ -188,7 +188,7 @@ export default function Table({
             <HStack alignItems={"center"}>
               <Text
                 fontFamily={"Montserrat"}
-                fontWeight={"500"}
+                fontWeight={"600"}
                 textColor={"#63342B"}
                 marginTop={"2px"}
                 textAlign={"center"}
@@ -221,7 +221,7 @@ export default function Table({
                 <Text
                   color={"white"}
                   fontSize={"15px"}
-                  fontWeight={"500"}
+                  fontWeight={"600"}
                   fontFamily={"Montserrat"}
                 >
                   {"Filtrar por"}
@@ -236,7 +236,7 @@ export default function Table({
                 >
                   <MenuItemOption value="productCode">Código</MenuItemOption>
                   <MenuItemOption value="productName">
-                    Nome do Produto
+                    {'Nome do Produto'}
                   </MenuItemOption>
                 </MenuOptionGroup>
               </MenuList>

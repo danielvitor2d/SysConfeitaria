@@ -118,8 +118,8 @@ export default function Sidebar() {
       route: "",
       icon: faArrowRightFromBracket,
       onClick: () => {
-        signOut()
-        navigate("/login")
+        signOut();
+        navigate("/login");
       },
       shortcut: ["shift", "5"],
     },

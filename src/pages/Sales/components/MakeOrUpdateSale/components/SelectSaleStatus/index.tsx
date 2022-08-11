@@ -1,42 +1,60 @@
 import { Badge, HStack, Text } from "@chakra-ui/react";
-import { paymentMethod } from "../../../../../../types";
 import Select, {
   components,
   OptionProps,
   StylesConfig,
-  MultiValueProps,
-  MultiValueGenericProps,
-  ControlProps,
   SingleValueProps,
-  MultiValueRemoveProps,
   NoticeProps,
 } from "react-select";
-import makeAnimated from "react-select/animated";
-import { TooltipPrimitive } from "@atlaskit/tooltip";
+import { bagdeColor, SaleStatus, saleStatus } from "../../../../../../types";
 
-export default function SelectPaymentMethod() {
-  const animatedComponents = makeAnimated();
+export default function SelectSaleStatus() {
+  const Option = (props: OptionProps<any, boolean>) => {
+    return (
+      <components.Option {...props} key={props.data.key}>
+        <Badge colorScheme={bagdeColor[props.data.key as SaleStatus]}>
+          {props.data.label}
+        </Badge>
+      </components.Option>
+    );
+  };
 
-  const paymentMethodStyles: StylesConfig<any> = {
+  const SingleValue = ({
+    children,
+    ...props
+  }: SingleValueProps<any, boolean>) => (
+    <components.SingleValue {...props}>
+      <Badge colorScheme={bagdeColor[props.data.key as SaleStatus]}>
+        {children}
+      </Badge>
+    </components.SingleValue>
+  );
+
+  const NoOptionsMessage = (props: NoticeProps<any, boolean>) => {
+    return (
+      <components.NoOptionsMessage {...props}>
+        {"Sem opções"}
+      </components.NoOptionsMessage>
+    );
+  };
+
+  const saleStatusStyles: StylesConfig<any> = {
     control: (styles) => ({
       ...styles,
       boxShadow: "unset",
-      maxWidth: "280px",
-      backgroundColor: "white",
+      width: "270px",
+      backgroundColor: "#E8E8E8",
       ":focus": {
         ...styles[":focus"],
         borderColor: "#63342B",
-        // backgroundColor: 'blue'
       },
       ":hover": {
         ...styles[":hover"],
         borderColor: "#b9b9b9",
-        // backgroundColor: 'red'
       },
       ":active": {
         ...styles[":active"],
         borderColor: "#63342B",
-        // backgroundColor: 'blue'
       },
       ":focus-visible": {
         ...styles[":focus-visible"],
@@ -51,34 +69,12 @@ export default function SelectPaymentMethod() {
     option: (styles) => ({
       ...styles,
       cursor: "pointer",
-      // border: `1px dotted red`,
-      // height: '100%',
-    }),
-    multiValue: (base) => ({
-      ...base,
-      // justifyContent: 'space-between',
-      // width: 'auto'
     }),
     menu: (styles) => ({
       ...styles,
+      backgroundColor: '#E8E8E8',
       minWidth: "200px",
     }),
-  };
-
-  const CustomOptionPaymentMethod = (props: OptionProps<any, true>) => {
-    return (
-      <components.Option {...props} key={props.data.key}>
-        <Badge colorScheme={"gray"}>{props.data.label}</Badge>
-      </components.Option>
-    );
-  };
-
-  const NoOptionsMessage = (props: NoticeProps) => {
-    return (
-      <components.NoOptionsMessage {...props}>
-        {"Sem opções"}
-      </components.NoOptionsMessage>
-    );
   };
 
   return (
@@ -90,7 +86,7 @@ export default function SelectPaymentMethod() {
         fontWeight={"600"}
         fontFamily={"Montserrat"}
       >
-        {"Pagamento"}
+        {"Status"}
       </Text>
       <Select
         placeholder={
@@ -104,20 +100,24 @@ export default function SelectPaymentMethod() {
           </Text>
         }
         components={{
-          ...animatedComponents,
-          Option: CustomOptionPaymentMethod,
-          NoOptionsMessage,
+          Option,
+          SingleValue,
+          NoOptionsMessage
         }}
         blurInputOnSelect={true}
         autoFocus={false}
-        styles={paymentMethodStyles}
+        styles={saleStatusStyles}
         isClearable={true}
-        isMulti={true}
-        options={Object.entries(paymentMethod).map((payment) => {
+        defaultValue={{
+          value: "Rascunho",
+          label: "Rascunho",
+          key: "draft",
+        }}
+        options={Object.entries(saleStatus).map((status) => {
           return {
-            value: payment[1],
-            label: payment[1],
-            key: payment[0],
+            value: status[1],
+            label: status[1],
+            key: status[0],
           };
         })}
       />

@@ -23,7 +23,7 @@ const newSale = (): Sale => {
   return {
     saleCode: faker.random.numeric(6),
     createdAt: faker.date.past(2).toLocaleDateString("pt-BR"),
-    fullValue: faker.commerce.price(0, 10000, 2, "R$ ").toString(),
+    fullValue: Number(faker.commerce.price(0, 10000, 2)),
     client: {
       clientName: faker.name.findName(),
       avatar: faker.image.avatar(),

@@ -34,7 +34,7 @@ export const customTheme = extendTheme({
         },
         mytable2: {
           table: {
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "#f1f1f1",
           },
           tbody: {
             marginLeft: "10px",

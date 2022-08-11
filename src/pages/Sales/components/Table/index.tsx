@@ -209,7 +209,7 @@ export default function Table({
             <HStack alignItems={"center"}>
               <Text
                 fontFamily={"Montserrat"}
-                fontWeight={"500"}
+                fontWeight={"600"}
                 textColor={"#63342B"}
                 marginTop={"2px"}
                 textAlign={"center"}

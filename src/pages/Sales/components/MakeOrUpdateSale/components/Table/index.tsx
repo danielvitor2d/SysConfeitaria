@@ -68,7 +68,7 @@ export default function Table({ columns }: ItemTableProps) {
       borderWidth={"1px"}
       borderColor={"#7C7C8A"}
       padding={"12px"}
-      backgroundColor={"#FFFFFF"}
+      backgroundColor={"#f1f1f1"}
     >
       <ChakraUITable {...getTableProps()} variant={"mytable2"}>
         <TableCaption>

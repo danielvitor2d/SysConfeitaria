@@ -15,7 +15,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
-import { ItemRow } from "../../../../types";
+import { ItemRow, Sale } from "../../../../types";
 import { getDatetimeLocalFormatted } from "../../../../util/getDate";
 import SelectPaymentMethod from "./components/SelectPaymentMethod";
 import SelectSaleStatus from "./components/SelectSaleStatus";
@@ -23,14 +23,25 @@ import SelectClient from "./components/SelectClient";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { CellProps, Column } from "react-table";
 import Table from "./components/Table";
+import { toBRLWithSign } from "../../../../util/formatCurrency";
 
 interface MakeSaleProps {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
+  handleMakeOrUpdateSale: (sale: Sale) => Promise<boolean>;
+  mode: "create" | "update";
+  sale?: Sale;
 }
 
-export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
+export default function MakeSale({
+  isOpen,
+  onOpen,
+  onClose,
+  handleMakeOrUpdateSale,
+  mode,
+  sale,
+}: MakeSaleProps) {
   const toast = useToast();
 
   async function handleRemoveRow(itemCode: string) {
@@ -55,6 +66,17 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
         {
           Header: "Código".toUpperCase(),
           Footer: "Código".toUpperCase(),
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
+          ),
           accessor: "itemCode",
           disableResizing: false,
           width: 95,
@@ -63,7 +85,15 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
           Header: "Produto".toUpperCase(),
           Footer: "Produto".toUpperCase(),
           Cell: ({ value }) => (
-            <Text whiteSpace={"normal"}>{value.productName}</Text>
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value.productName}
+              </Text>
+            </Flex>
           ),
           accessor: "product",
           disableResizing: false,
@@ -73,7 +103,17 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
         {
           Header: "Quantidade".toUpperCase(),
           Footer: "Quantidade".toUpperCase(),
-          Cell: ({ value }) => <Text whiteSpace={"normal"}>{value}</Text>,
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
+          ),
           accessor: "quantity",
           disableResizing: false,
           isNumeric: true,
@@ -83,7 +123,15 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
           Header: "Valor Unitário".toUpperCase(),
           Footer: "Valor Unitário".toUpperCase(),
           Cell: ({ value }) => (
-            <Text whiteSpace={"normal"}>{"R$ " + value}</Text>
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {toBRLWithSign(Number(value))}
+              </Text>
+            </Flex>
           ),
           accessor: "unitaryValue",
           disableResizing: false,
@@ -94,7 +142,15 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
           Header: "Valor Total".toUpperCase(),
           Footer: "Valor Total".toUpperCase(),
           Cell: ({ value }) => (
-            <Text whiteSpace={"normal"}>{"R$ " + value}</Text>
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {toBRLWithSign(Number(value))}
+              </Text>
+            </Flex>
           ),
           accessor: "totalValue",
           disableResizing: false,
@@ -131,18 +187,20 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
   return (
     <Modal isCentered isOpen={isOpen} onClose={onClose} size={"5xl"}>
       <ModalOverlay />
-      <ModalContent bg={"#FFFFFF"}>
+      <ModalContent bg={"#f1f1f1"}>
         <ModalHeader>
-          <Text>Cadastrar venda</Text>
+          <Text>
+            {'Cadastrar venda'}
+          </Text>
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody bg={"#FFFFFF"}>
+        <ModalBody bg={"#f1f1f1"}>
           <VStack gap={5} width={"95%"} margin={"auto"}>
             <VStack gap={2} width={"100%"}>
               <Text
                 alignSelf={"flex-start"}
                 fontSize={"25px"}
-                fontWeight={"bold"}
+                fontWeight={"600"}
                 fontFamily={"Montserrat"}
               >
                 {"Dados da venda"}
@@ -162,6 +220,7 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
                       defaultValue={getDatetimeLocalFormatted(
                         new Date(Date.now())
                       )}
+                      backgroundColor={'#E8E8E8'}
                       type={"datetime-local"}
                     />
                   </HStack>
@@ -178,7 +237,7 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
                 <Text
                   alignSelf={"flex-start"}
                   fontSize={"25px"}
-                  fontWeight={"bold"}
+                  fontWeight={"600"}
                   fontFamily={"Montserrat"}
                 >
                   {"Itens da venda"}
@@ -220,7 +279,13 @@ export default function MakeSale({ isOpen, onOpen, onClose }: MakeSaleProps) {
               {"Salvar"}
             </Text>
           </Button>
-          <Button onClick={onClose}>
+          <Button 
+            onClick={onClose}
+            backgroundColor={'#E8E8E8'}
+            _hover={{
+              backgroundColor: '#d3d3d3'
+            }}
+          >
             <Text
               color={"black"}
               fontSize={"15px"}

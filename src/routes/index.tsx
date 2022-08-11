@@ -18,29 +18,29 @@ export default function Routes() {
   return (
     <BrowserRouter>
       <ReactRouterDomRoutes>
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <RequireSignUp>
               <MinimalLayout page={<SignIn />} />
             </RequireSignUp>
-          } 
+          }
         />
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             <RequireSignUp>
               <MinimalLayout page={<SignIn />} />
             </RequireSignUp>
-          } 
+          }
         />
-        <Route 
-          path="/sign-in" 
+        <Route
+          path="/sign-in"
           element={
             <RequireSignUp>
               <MinimalLayout page={<SignIn />} />
             </RequireSignUp>
-          } 
+          }
         />
         <Route
           path="/products"

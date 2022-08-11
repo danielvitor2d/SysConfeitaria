@@ -1,33 +1,23 @@
 import { HStack, Text } from "@chakra-ui/react";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Select, {
   components,
   OptionProps,
   StylesConfig,
   ControlProps,
+  NoticeProps,
 } from "react-select";
+import ClientContext from "../../../../../../contexts/ClientsContext";
 import { ClientOption, ClientRow } from "../../../../../../types";
-import makeData from "../../../../../Clients/makeData";
 
 export default function SelectClient() {
-  const [clients, setClients] = useState<ClientOption[]>(() => {
-    const data = makeData(50);
-    console.log(data);
-    return data.map((client: ClientRow) => {
-      Object.assign(client, {
-        key: client.clientCode,
-        value: client.clientCode,
-        label: client.clientName,
-      });
-      // console.log(client)
-      return { ...client };
-    });
-  });
+  const { clients } = useContext(ClientContext)
+
+  const [data, setData] = useState<ClientOption[]>();
 
   const filterClients = (inputValue: string) => {
     return clients.filter(
       (client: ClientRow) => true
-      // client.clientName.toLowerCase().includes(inputValue.toLowerCase())
     );
   };
 
@@ -39,18 +29,26 @@ export default function SelectClient() {
     });
   };
 
-  const CustomControlClient = ({
+  const Control = ({
     children,
     ...props
-  }: ControlProps<ClientOption, true>) => (
+  }: ControlProps<ClientOption, boolean>) => (
     <components.Control {...props}>{children}</components.Control>
   );
 
-  const CustomOptionClient = (props: OptionProps<ClientOption, true>) => {
+  const Option = (props: OptionProps<ClientOption, boolean>) => {
     return (
       <components.Option {...props} key={props.data.key}>
         {props.data.label}
       </components.Option>
+    );
+  };
+
+  const NoOptionsMessage = (props: NoticeProps<ClientOption, boolean>) => {
+    return (
+      <components.NoOptionsMessage {...props}>
+        {"Sem opções"}
+      </components.NoOptionsMessage>
     );
   };
 
@@ -59,21 +57,18 @@ export default function SelectClient() {
       ...styles,
       boxShadow: "unset",
       width: "270px",
-      backgroundColor: "white",
+      backgroundColor: "#E8E8E8",
       ":focus": {
         ...styles[":focus"],
         borderColor: "#63342B",
-        // backgroundColor: 'blue'
       },
       ":hover": {
         ...styles[":hover"],
         borderColor: "#b9b9b9",
-        // backgroundColor: 'red'
       },
       ":active": {
         ...styles[":active"],
         borderColor: "#63342B",
-        // backgroundColor: 'blue'
       },
       ":focus-visible": {
         ...styles[":focus-visible"],
@@ -88,10 +83,24 @@ export default function SelectClient() {
     option: (styles) => ({
       ...styles,
       cursor: "pointer",
-      // border: `1px dotted red`,
-      // height: '100%',
+    }),
+    menu: (styles) => ({
+      ...styles,
+      backgroundColor: '#E8E8E8',
+      minWidth: "200px",
     }),
   };
+
+  useEffect(() => {
+    if (clients) setData(clients.map(client => {
+      return {
+        ...client,
+        key: client.clientCode,
+        value: client.clientCode,
+        label: client.clientName,
+      }
+    }))
+  }, [clients])
 
   return (
     <HStack>
@@ -119,13 +128,12 @@ export default function SelectClient() {
         autoFocus={false}
         styles={clientStyles}
         isClearable={true}
-        // cacheOptions
-        // defaultOptions
         components={{
-          Option: CustomOptionClient,
-          Control: CustomControlClient,
+          Option,
+          Control,
+          NoOptionsMessage
         }}
-        options={clients}
+        options={data}
       />
     </HStack>
   );

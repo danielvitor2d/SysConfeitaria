@@ -21,14 +21,24 @@ import {
   ModalOverlay,
   Input,
   Table as ChakraUITable,
+  Flex,
 } from "@chakra-ui/react";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
-import { paymentMethod, saleStatus, SaleRow, bagdeColor } from "../../types";
-import MakeSale from "./components/MakeSale";
+import GlobalContext from "../../contexts/GlobalContext";
+import SalesContext from "../../contexts/SalesContext";
+import {
+  paymentMethod,
+  saleStatus,
+  SaleRow,
+  bagdeColor,
+  Sale,
+} from "../../types";
+import { toBRLWithSign } from "../../util/formatCurrency";
+import MakeOrUpdateSale from "./components/MakeOrUpdateSale";
 import Table from "./components/Table";
 import makeData from "./makeData";
 
@@ -39,19 +49,29 @@ export default function Sales() {
 
   const toast = useToast();
 
+  const { saleCode } = useContext(GlobalContext);
   const { signed } = useContext(AuthContext);
 
   const [data, setData] = useState<SaleRow[]>(() => makeData(55));
 
-  const fetchIdRef = useRef(0);
+  const { sales, addSale, updateSale, removeSale } = useContext(SalesContext);
+
+  const [sale, setSale] = useState<Sale>({} as Sale);
+  const [mode, setMode] = useState<"create" | "update">("create");
 
   const {
-    isOpen: isOpenMakeSale,
-    onOpen: onOpenMakeSale,
-    onClose: onCloseMakeSale,
+    isOpen: isOpenMakeOrUpdateSale,
+    onOpen: onOpenMakeOrUpdateSale,
+    onClose: onCloseMakeOrUpdateSale,
   } = useDisclosure();
 
-  const { register, handleSubmit, setValue } = useForm();
+  const {
+    isOpen: isOpenRemoveSale,
+    onOpen: onOpenRemoveSale,
+    onClose: onCloseRemoveSale,
+  } = useDisclosure();
+
+  const cancelRefRemoveSale = React.useRef(null);
 
   const columns = useMemo(
     () =>
@@ -59,6 +79,17 @@ export default function Sales() {
         {
           Header: "Código".toUpperCase(),
           Footer: "Código".toUpperCase(),
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
+          ),
           accessor: "saleCode",
           disableResizing: false,
           width: 95,
@@ -66,7 +97,17 @@ export default function Sales() {
         {
           Header: "Data".toUpperCase(),
           Footer: "Data".toUpperCase(),
-          Cell: ({ value }) => <Text whiteSpace={"normal"}>{value}</Text>,
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value}
+              </Text>
+            </Flex>
+          ),
           accessor: "createdAt",
           disableResizing: false,
           width: 180,
@@ -84,7 +125,19 @@ export default function Sales() {
                 mr={2}
               />
               <TagLabel>
-                <Text whiteSpace={"normal"}>{value.clientName}</Text>
+                <Flex
+                  height={"100%"}
+                  alignItems={"center"}
+                  justifyContent={"start"}
+                >
+                  <Text
+                    fontWeight={"500"}
+                    fontFamily={"Montserrat"}
+                    fontSize={"16px"}
+                  >
+                    {value.clientName + "H"}
+                  </Text>
+                </Flex>
               </TagLabel>
             </Tag>
           ),
@@ -96,7 +149,17 @@ export default function Sales() {
         {
           Header: "Total".toUpperCase(),
           Footer: "Total".toUpperCase(),
-          Cell: ({ value }) => <Text whiteSpace={"normal"}>{value}</Text>,
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {toBRLWithSign(Number(value))}
+              </Text>
+            </Flex>
+          ),
           accessor: "fullValue",
           disableResizing: false,
           isNumeric: true,
@@ -106,9 +169,15 @@ export default function Sales() {
           Header: "Pagamento".toUpperCase(),
           Footer: "Pagamento".toUpperCase(),
           Cell: ({ value }) => (
-            <Badge colorScheme={"gray"}>
-              <Text whiteSpace={"normal"}>{paymentMethod[value]}</Text>
-            </Badge>
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Badge colorScheme={"gray"}>
+                <Text whiteSpace={"normal"}>{paymentMethod[value]}</Text>
+              </Badge>
+            </Flex>
           ),
           accessor: "paymentMethod",
           disableResizing: false,
@@ -119,7 +188,13 @@ export default function Sales() {
           Header: "Status".toUpperCase(),
           Footer: "Status".toUpperCase(),
           Cell: ({ value }) => (
-            <Badge colorScheme={bagdeColor[value]}>{saleStatus[value]}</Badge>
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Badge colorScheme={bagdeColor[value]}>{saleStatus[value]}</Badge>
+            </Flex>
           ),
           accessor: "saleStatus",
           disableResizing: false,
@@ -131,11 +206,16 @@ export default function Sales() {
           Footer: "Ações".toUpperCase(),
           accessor: "actions",
           Cell: (cellProps: CellProps<SaleRow, string | undefined>) => (
-            <HStack>
+            <Flex
+              gap={2}
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
               <EditIcon
                 boxSize={"6"}
                 cursor={"pointer"}
-                onClick={() => handleUpdateRow(cellProps.row.original.saleCode)}
+                onClick={() => handleUpdateSale(cellProps.row.original)}
               />
               <DeleteIcon
                 color={"red"}
@@ -143,7 +223,7 @@ export default function Sales() {
                 cursor={"pointer"}
                 onClick={() => handleRemoveRow(cellProps.row.original.saleCode)}
               />
-            </HStack>
+            </Flex>
           ),
           disableResizing: true,
           disableSortBy: true,
@@ -155,6 +235,11 @@ export default function Sales() {
     [isLargerThan1440]
   );
 
+  async function handleMakeOrUpdateSale(sale: Sale): Promise<boolean> {
+    if (mode === "create") return await addSale(sale);
+    return await updateSale(sale);
+  }
+
   async function handleRemoveRow(saleCode: string) {
     toast({
       title: "Removendo",
@@ -163,27 +248,31 @@ export default function Sales() {
     });
   }
 
-  async function handleUpdateRow(saleCode: string) {
-    toast({
-      title: "Editando",
-      description: `Editando linha ${saleCode}`,
-      status: "info",
-    });
+  async function handleUpdateSale(sale: SaleRow): Promise<void> {
+    setMode("update");
+    setSale({ ...(sale as Sale) });
+    onOpenMakeOrUpdateSale();
   }
 
-  // useEffect(() => {
-  //   if (!signed) {
-  //     // navigate("/login");
-  //     window.location.reload()
-  //   }
-  // }, [signed]);
+  useEffect(() => {
+    if (!signed) {
+      navigate("/login");
+    }
+  }, [signed]);
+
+  useEffect(() => {
+    if (sales) setData([...sales]);
+  }, [sales]);
 
   return (
     <>
-      <MakeSale
-        isOpen={isOpenMakeSale}
-        onClose={onCloseMakeSale}
-        onOpen={onOpenMakeSale}
+      <MakeOrUpdateSale
+        handleMakeOrUpdateSale={handleMakeOrUpdateSale}
+        isOpen={isOpenMakeOrUpdateSale}
+        onClose={onCloseMakeOrUpdateSale}
+        onOpen={onOpenMakeOrUpdateSale}
+        mode={mode}
+        sale={sale}
       />
       <Box
         width={"100%"}
@@ -204,7 +293,7 @@ export default function Sales() {
           <Table
             columns={columns}
             data={data}
-            onOpenDrawerAddSale={onOpenMakeSale}
+            onOpenDrawerAddSale={onOpenMakeOrUpdateSale}
           />
         </VStack>
       </Box>
