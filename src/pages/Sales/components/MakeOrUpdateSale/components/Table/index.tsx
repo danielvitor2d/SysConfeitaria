@@ -10,8 +10,9 @@ import {
   Td,
   Tfoot,
   Table as ChakraUITable,
+  Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Column,
   useBlockLayout,
@@ -24,12 +25,12 @@ import makeData from "../../makeData";
 import Paginate from "./Paginate";
 
 interface ItemTableProps {
-  columns: Column<ItemRow>[];
+  readonly columns: Column<ItemRow>[];
+  data: ItemRow[];
+  setData: React.Dispatch<React.SetStateAction<ItemRow[]>>;
 }
 
-export default function Table({ columns }: ItemTableProps) {
-  const [data, setData] = useState<ItemRow[]>(() => makeData(7));
-
+export default function Table({ columns, data, setData }: ItemTableProps) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -117,7 +118,7 @@ export default function Table({ columns }: ItemTableProps) {
             );
           })}
         </Tbody>
-        <Tfoot>
+        {/* <Tfoot>
           {footerGroups.map((footerGroup) => (
             <Tr {...footerGroup.getFooterGroupProps()}>
               {footerGroup.headers.map((column) => (
@@ -136,7 +137,7 @@ export default function Table({ columns }: ItemTableProps) {
               ))}
             </Tr>
           ))}
-        </Tfoot>
+        </Tfoot> */}
       </ChakraUITable>
     </TableContainer>
   );

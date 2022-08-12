@@ -92,7 +92,11 @@ export default function Products() {
               alignItems={"center"}
               justifyContent={"start"}
             >
-              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+              <Text
+                fontWeight={"600"}
+                whiteSpace={"normal"}
+                fontFamily={"Montserrat"}
+              >
                 {value}
               </Text>
             </Flex>
@@ -102,8 +106,8 @@ export default function Products() {
           width: isLargerThan1440 ? 600 : 350,
         },
         {
-          Header: "Valor Unitário/Kg/L".toUpperCase(),
-          Footer: "Valor Unitário/Kg/L".toUpperCase(),
+          Header: "Valor unitário/Kg/g/L".toUpperCase(),
+          Footer: "Valor unitário/Kg/g/L".toUpperCase(),
           accessor: "unitaryValue",
           Cell: ({ value }) => (
             <Flex

@@ -19,22 +19,28 @@ import makeAnimated from "react-select/animated";
 import React, { useEffect, useState } from "react";
 
 interface SelectPaymentMethodProps {
+  mode: "create" | "update";
   sale: Sale;
   setSale: React.Dispatch<React.SetStateAction<Sale>>;
 }
 
 export default function SelectPaymentMethod({
+  mode,
   sale,
   setSale,
 }: SelectPaymentMethodProps) {
   const animatedComponents = makeAnimated();
 
-  const [methods, setMethods] = useState<PaymentMethod[]>([]);
+  const [methods, setMethods] = useState<PaymentMethod[]>(() => {
+    if (mode === "create" || !sale.paymentMethods) return [];
+    return [ ...sale.paymentMethods ];
+  });
 
   const paymentMethodStyles: StylesConfig<any> = {
     control: (styles) => ({
       ...styles,
       boxShadow: "unset",
+      minWidth: "250px",
       maxWidth: "280px",
       backgroundColor: "#E8E8E8",
       ":focus": {
@@ -105,7 +111,7 @@ export default function SelectPaymentMethod({
 
   useEffect(() => {
     Object.assign(sale, {
-      methods,
+      paymentMethods: methods,
     });
     setSale({ ...sale });
   }, [methods]);

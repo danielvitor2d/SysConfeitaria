@@ -10,40 +10,62 @@ import {
   PopoverFooter,
   Box,
   Text,
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
   useToast,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
   ButtonGroup,
   VStack,
   HStack,
   Badge,
+  InputGroup,
+  InputRightAddon,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { Item, Product } from "../../../../../../types";
+import InputNumberFormat from "../../../../../../components/InputNumberFormat";
+import { Item, ItemRow } from "../../../../../../types";
 import { toBRLWithSign } from "../../../../../../util/formatCurrency";
 import SelectProduct from "./components/SelectProduct";
 
-export default function AddItem() {
+interface AddItemProps {
+  handleAddItem: (itemRow: ItemRow) => void;
+  isOpenAddItem: boolean;
+  onOpenAddItem: () => void;
+  onCloseAddItem: () => void;
+}
+
+export default function AddItem({
+  handleAddItem,
+  isOpenAddItem,
+  onOpenAddItem,
+  onCloseAddItem,
+}: AddItemProps) {
   const [step, setStep] = useState(1);
   const [item, setItem] = useState<Item>({
-    quantity: 1,
+    quantity: 0.0,
   } as Item);
+
+  const [quantity, setQuantity] = useState<number>(0);
 
   const toast = useToast();
 
+  const handleCloseAddItem = () => {
+    setStep(1);
+    setItem({
+      quantity,
+    } as Item);
+    setQuantity(0);
+    onCloseAddItem();
+  };
+
   useEffect(() => {
-    console.log("Mudou: " + JSON.stringify(item, null, 2));
-  }, [item]);
+    // console.log("Quantity mudou: " + quantity);
+    Object.assign(item, {
+      quantity: quantity,
+      totalValue: quantity * item.unitaryValue,
+    });
+    setItem({ ...item });
+  }, [quantity]);
 
   return (
-    <Popover placement="bottom" closeOnBlur={false}>
+    <Popover placement="bottom" closeOnBlur={false} isOpen={isOpenAddItem}>
       <PopoverTrigger>
         <Button
           backgroundColor={"#70453c"}
@@ -51,6 +73,7 @@ export default function AddItem() {
           _active={{ backgroundColor: "#482017" }}
           marginRight={3}
           alignSelf={"flex-end"}
+          onClick={onOpenAddItem}
         >
           <Text
             color={"white"}
@@ -75,16 +98,73 @@ export default function AddItem() {
             textAlign={"left"}
             alignSelf={"flex-start"}
           >
-            {step === 1 ? "Escolha um produto" : "Escolha a quantidade"}
+            {step === 1 ? "Escolha um produto" : `Escolha a quantidade`}
           </Text>
         </PopoverHeader>
         <PopoverArrow />
-        <PopoverCloseButton />
+        <PopoverCloseButton onClick={handleCloseAddItem} />
         <PopoverBody>
           {step === 1 ? (
             <SelectProduct setItem={setItem} />
           ) : (
             <VStack gap={2}>
+              <HStack
+                paddingX={2}
+                alignSelf={"flex-start"}
+                gap={2}
+                width={"100%"}
+                justifyContent={"space-between"}
+              >
+                <Text
+                  fontWeight={"600"}
+                  fontFamily={"Montserrat"}
+                  textAlign={"left"}
+                  alignSelf={"center"}
+                  pl={2}
+                >
+                  {"Produto"}
+                </Text>
+                <Badge borderRadius={"5px"}>
+                  <Text
+                    fontWeight={"600"}
+                    fontFamily={"Montserrat"}
+                    textAlign={"left"}
+                    alignSelf={"flex-start"}
+                    fontSize={"12px"}
+                    whiteSpace={"normal"}
+                  >
+                    {item.product.productName}
+                  </Text>
+                </Badge>
+              </HStack>
+              <HStack
+                paddingX={2}
+                alignSelf={"flex-start"}
+                gap={2}
+                width={"100%"}
+                justifyContent={"space-between"}
+              >
+                <Text
+                  fontWeight={"600"}
+                  fontFamily={"Montserrat"}
+                  textAlign={"left"}
+                  alignSelf={"center"}
+                  pl={2}
+                >
+                  {"Valor unitário"}
+                </Text>
+                <Badge borderRadius={"5px"}>
+                  <Text
+                    fontWeight={"600"}
+                    fontFamily={"Montserrat"}
+                    textAlign={"left"}
+                    alignSelf={"flex-start"}
+                    fontSize={"16px"}
+                  >
+                    {toBRLWithSign(item.product.unitaryValue)}
+                  </Text>
+                </Badge>
+              </HStack>
               <HStack
                 paddingX={2}
                 alignSelf={"flex-start"}
@@ -107,33 +187,27 @@ export default function AddItem() {
                     fontFamily={"Montserrat"}
                     textAlign={"left"}
                     alignSelf={"flex-start"}
-                    fontSize={"20px"}
+                    fontSize={"16px"}
                   >
                     {toBRLWithSign(item.product.unitaryValue * item.quantity)}
                   </Text>
                 </Badge>
               </HStack>
-              <NumberInput
-                borderRadius={"5px"}
-                bg={"#E8E8E8"}
-                textColor={"#000"}
-                step={1}
-                defaultValue={1}
-                min={1}
-                value={item.quantity}
-                onChange={(_valueAsString: string, valueAsNumber: number) => {
-                  Object.assign(item, {
-                    quantity: valueAsNumber
-                  })
-                  setItem({ ...item })
-                }}
-              >
-                <NumberInputField />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </NumberInput>
+              <InputGroup>
+                <InputNumberFormat
+                  bg={"#E8E8E8"}
+                  textColor={"#000"}
+                  value={quantity}
+                  setValue={setQuantity}
+                />
+                <InputRightAddon
+                  bg={"#E8E8E8"}
+                  color={"#000"}
+                  children={`${item.product.unitaryType}`}
+                  borderRadius={"6px"}
+                  borderColor={"#482017"}
+                />
+              </InputGroup>
             </VStack>
           )}
         </PopoverBody>
@@ -151,6 +225,10 @@ export default function AddItem() {
                 size={"sm"}
                 onClick={() => {
                   setStep(1);
+                  setItem({
+                    quantity: 0,
+                  } as Item);
+                  setQuantity(0);
                 }}
                 colorScheme={"blue"}
               >
@@ -159,11 +237,15 @@ export default function AddItem() {
             )}
             <Button
               size={"sm"}
-              colorScheme={step === 1 ? undefined : 'green'}
+              colorScheme={step === 1 ? undefined : "green"}
               backgroundColor={step !== 1 ? undefined : "#E8E8E8"}
-              _hover={step !== 1 ? undefined : {
-                backgroundColor: "#d3d3d3",
-              }}
+              _hover={
+                step !== 1
+                  ? undefined
+                  : {
+                      backgroundColor: "#d3d3d3",
+                    }
+              }
               color={step !== 1 ? "#FFF" : "#000"}
               onClick={() => {
                 if (step === 1) {
@@ -180,6 +262,10 @@ export default function AddItem() {
                       variant: "left-accent",
                     });
                   }
+                } else {
+                  // console.log("item: " + JSON.stringify(item, null, 2));
+                  handleAddItem(item);
+                  handleCloseAddItem();
                 }
               }}
             >

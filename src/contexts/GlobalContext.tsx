@@ -110,7 +110,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         setProductCode(data.productCode || 1);
         setSaleCode(data.saleCode || 1);
         if (data.registered) {
-          console.log("data.registered: " + data.registered);
+          // console.log("data.registered: " + data.registered);
           setRegistered(data.registered);
         }
       }
@@ -131,7 +131,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    console.log("registered: " + registered);
+    // console.log("registered: " + registered);
   }, [registered]);
 
   return (

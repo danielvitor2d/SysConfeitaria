@@ -104,8 +104,12 @@ export default function Table({
 
   const globalFilterFunction = useCallback(
     (rows: Row<SaleRow>[], _ids: IdType<SaleRow>[], query: string) => {
-      if (filters.length === 0) return rows;
+      // console.log("filters: " + JSON.stringify(filters, null, 2))
+      // console.log("paymentMethodsFilter: " + JSON.stringify(paymentMethodsFilter, null, 2))
+      // console.log("saleStatusFilter: " + JSON.stringify(saleStatusFilter, null, 2))
+      // if (filters.length === 0) return rows;
       const newRows = rows.filter((row) => {
+        console.log(row);
         return (
           filters.some((filter) => {
             if (filter === "client") {
@@ -116,11 +120,11 @@ export default function Table({
             return matchSorter([row.values[filter]], query).length === 1;
           }) &&
           (paymentMethodsFilter.length === 0 ||
-            paymentMethodsFilter.includes(
-              row.values["paymentMethod"] as PaymentMethod
+            row.original.paymentMethods.some((row) =>
+              paymentMethodsFilter.includes(row)
             )) &&
           (saleStatusFilter.length === 0 ||
-            saleStatusFilter.includes(row.values["saleStatus"] as SaleStatus))
+            saleStatusFilter.includes(row.original.saleStatus))
         );
       });
       return newRows;
@@ -175,7 +179,7 @@ export default function Table({
 
   useEffect(() => {
     setGlobalFilter(filter);
-  }, [filter, setGlobalFilter]);
+  }, [filter, setGlobalFilter, paymentMethodsFilter, saleStatusFilter]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilter(event.target.value);
@@ -245,16 +249,18 @@ export default function Table({
                   fontWeight={"500"}
                   fontFamily={"Montserrat"}
                 >
-                  Pagamento
+                  {"Pagamento"}
                 </Text>
               </MenuButton>
               <MenuList minWidth="240px">
                 <MenuOptionGroup
                   title="Meios de pagamento"
                   type="checkbox"
-                  onChange={(value) =>
-                    setPaymentMethodsFilter([...value] as PaymentMethod[])
-                  }
+                  onChange={(value) => {
+                    // console.log("Selecionou: " + JSON.stringify(value, null, 2))
+                    const newValue = [...value] as PaymentMethod[];
+                    setPaymentMethodsFilter([...newValue]);
+                  }}
                 >
                   {Object.entries(paymentMethod).map((value: string[]) => (
                     <MenuItemOption key={value[0]} value={value[0]}>
@@ -281,7 +287,7 @@ export default function Table({
                   fontWeight={"500"}
                   fontFamily={"Montserrat"}
                 >
-                  Status
+                  {"Status"}
                 </Text>
               </MenuButton>
               <MenuList minWidth="240px">

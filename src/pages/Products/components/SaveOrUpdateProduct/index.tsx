@@ -147,11 +147,12 @@ export default function SaveOrUpdateProduct({
                 )}
               </VStack>
               <VStack alignItems={"flex-start"} width={"90%"}>
-                <Text textAlign={"left"}>{"Valor unitário/Kg/L"}</Text>
+                <Text textAlign={"left"}>{"Valor unitário/Kg/g/L"}</Text>
                 <InputGroup>
                   <InputNumberFormat
                     value={unitaryValue}
                     setValue={setUnitaryValue}
+                    prefix={"R$ "}
                   />
                 </InputGroup>
                 {/* {errors.unitaryValue ? (

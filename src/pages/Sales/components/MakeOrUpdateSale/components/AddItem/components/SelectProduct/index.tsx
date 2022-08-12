@@ -52,6 +52,7 @@ export default function SelectProduct({
       boxShadow: "unset",
       width: "auto",
       backgroundColor: "#E8E8E8",
+      whiteSpace: "normal",
       ":focus": {
         ...styles[":focus"],
         borderColor: "#63342B",
@@ -77,6 +78,7 @@ export default function SelectProduct({
     option: (styles) => ({
       ...styles,
       cursor: "pointer",
+      whiteSpace: "normal",
     }),
     menu: (styles) => ({
       ...styles,
@@ -110,19 +112,12 @@ export default function SelectProduct({
 
       Object.assign(prevItem, {
         product: newProd as Product,
+        unitaryValue: newProd.unitaryValue,
+        totalValue: newProd?.unitaryValue,
       });
 
       return { ...(prevItem as Item) };
     });
-    // _setProduct(() => {
-    //   if (!product) return null;
-    //   const newProd = { ...product };
-    //   delete newProd.key;
-    //   delete newProd.label;
-    //   delete newProd.value;
-
-    //   return { ...(newProd as Product) };
-    // });
   }, [product]);
 
   return (

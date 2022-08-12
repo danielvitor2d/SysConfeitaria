@@ -5,22 +5,11 @@ import {
   Text,
   useMediaQuery,
   useDisclosure,
-  HStack,
   Badge,
   Tag,
   Avatar,
   TagLabel,
   useToast,
-  Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Input,
-  Table as ChakraUITable,
   Flex,
   Wrap,
   WrapItem,
@@ -30,10 +19,8 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
-import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column, Row } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
@@ -45,13 +32,16 @@ import {
   SaleRow,
   bagdeColor,
   Sale,
+  Item,
+  PaymentMethod,
+  Client,
 } from "../../types";
 import { compareDate } from "../../util/compareDate";
+import { formatCode } from "../../util/formatCode";
 import { toBRLWithSign } from "../../util/formatCurrency";
-import { fromDatetimeToLocalFormatted } from "../../util/getDate";
+import { fromDatetimeToLocalFormatted, getDatetimeLocalFormatted } from "../../util/getDate";
 import MakeOrUpdateSale from "./components/MakeOrUpdateSale";
 import Table from "./components/Table";
-import makeData from "./makeData";
 
 export default function Sales() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
@@ -60,10 +50,10 @@ export default function Sales() {
 
   const toast = useToast();
 
-  const { saleCode } = useContext(GlobalContext);
+  const { saleCode } = useContext(GlobalContext)
   const { signed } = useContext(AuthContext);
 
-  const [data, setData] = useState<SaleRow[]>(() => makeData(55));
+  const [data, setData] = useState<SaleRow[]>([]);
 
   const { sales, addSale, updateSale, removeSale } = useContext(SalesContext);
 
@@ -131,7 +121,7 @@ export default function Sales() {
           ),
           accessor: "saleCode",
           disableResizing: false,
-          width: 95,
+          width: 110,
         },
         {
           Header: "Data".toUpperCase(),
@@ -150,7 +140,7 @@ export default function Sales() {
           accessor: "createdAt",
           sortType: sortByDate,
           disableResizing: false,
-          width: 180,
+          width: 140,
         },
         {
           Header: "Cliente".toUpperCase(),
@@ -174,6 +164,7 @@ export default function Sales() {
                     fontWeight={"500"}
                     fontFamily={"Montserrat"}
                     fontSize={"16px"}
+                    whiteSpace={"normal"}
                   >
                     {value.clientName}
                   </Text>
@@ -185,7 +176,7 @@ export default function Sales() {
           disableResizing: false,
           sortType: sortByClientName,
           isNumeric: true,
-          width: isLargerThan1440 ? 250 : 150,
+          width: isLargerThan1440 ? 350 : 250,
         },
         {
           Header: "Total".toUpperCase(),
@@ -246,7 +237,7 @@ export default function Sales() {
           accessor: "saleStatus",
           disableResizing: false,
           isNumeric: true,
-          width: 250,
+          width: 180,
         },
         {
           Header: "Ações".toUpperCase(),
@@ -283,8 +274,30 @@ export default function Sales() {
   );
 
   async function handleMakeOrUpdateSale(sale: Sale): Promise<boolean> {
-    if (mode === "create") return await addSale(sale);
-    return await updateSale(sale);
+    if (mode === "create") {
+      const result = await addSale(sale);
+      setSale({
+        saleCode: formatCode(saleCode),
+        createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
+        saleStatus: "draft",
+        paymentMethods: [] as PaymentMethod[],
+        items: [] as Item[],
+        fullValue: 0,
+        client: {} as Client,
+      } as Sale);
+      return result;
+    }
+    const result = await updateSale(sale);
+    setSale({
+      saleCode: formatCode(saleCode),
+      createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
+      saleStatus: "draft",
+      paymentMethods: [] as PaymentMethod[],
+      items: [] as Item[],
+      fullValue: 0,
+      client: {} as Client,
+    } as Sale);
+    return result;
   }
 
   async function handleRemoveRow(saleCode: string) {
@@ -313,14 +326,20 @@ export default function Sales() {
 
   return (
     <>
-      <MakeOrUpdateSale
-        handleMakeOrUpdateSale={handleMakeOrUpdateSale}
-        isOpen={isOpenMakeOrUpdateSale}
-        onClose={onCloseMakeOrUpdateSale}
-        onOpen={onOpenMakeOrUpdateSale}
-        mode={mode}
-        sale={sale}
-      />
+      {isOpenMakeOrUpdateSale ? (
+        <MakeOrUpdateSale
+          handleMakeOrUpdateSale={handleMakeOrUpdateSale}
+          isOpen={isOpenMakeOrUpdateSale}
+          onClose={onCloseMakeOrUpdateSale}
+          onOpen={onOpenMakeOrUpdateSale}
+          mode={mode}
+          setMode={setMode}
+          setSale={setSale}
+          sale={sale}
+        />
+      ) : (
+        <></>
+      )}
       <Box
         width={"100%"}
         paddingX={"1rem"}

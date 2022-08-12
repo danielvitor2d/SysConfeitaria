@@ -3,6 +3,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { ClientProvider } from "./contexts/ClientsContext";
 import { GlobalProvider } from "./contexts/GlobalContext";
 import { ProductProvider } from "./contexts/ProductsContext";
+import { SaleProvider } from "./contexts/SalesContext";
 
 import Routes from "./routes";
 import { customTheme } from "./util/themeChakra";
@@ -12,11 +13,13 @@ function App() {
     <ChakraProvider theme={customTheme}>
       <GlobalProvider>
         <AuthProvider>
-          <ClientProvider>
-            <ProductProvider>
-              <Routes />
-            </ProductProvider>
-          </ClientProvider>
+          <SaleProvider>
+            <ClientProvider>
+              <ProductProvider>
+                <Routes />
+              </ProductProvider>
+            </ClientProvider>
+          </SaleProvider>
         </AuthProvider>
       </GlobalProvider>
     </ChakraProvider>

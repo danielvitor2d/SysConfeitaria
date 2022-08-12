@@ -11,18 +11,31 @@ import Select, {
   MultiValue,
 } from "react-select";
 import ClientContext from "../../../../../../contexts/ClientsContext";
-import { Client, ClientOption, ClientRow, Sale } from "../../../../../../types";
+import { ClientOption, Sale } from "../../../../../../types";
 
 interface SelectClientProp {
+  mode: "create" | "update";
   sale: Sale;
   setSale: React.Dispatch<React.SetStateAction<Sale>>;
 }
 
-export default function SelectClient({ sale, setSale }: SelectClientProp) {
+export default function SelectClient({
+  mode,
+  sale,
+  setSale,
+}: SelectClientProp) {
   const { clients } = useContext(ClientContext);
 
-  const [data, setData] = useState<ClientOption[]>();
-  const [client, setClient] = useState<ClientOption | null>(null);
+  const [data, setData] = useState<ClientOption[]>([]);
+  const [client, setClient] = useState<ClientOption | null>(() => {
+    if (mode === "create" || !sale.client) return null;
+    return {
+      ...sale.client,
+      key: sale.client.clientCode,
+      value: sale.client.clientName,
+      label: sale.client.clientName,
+    };
+  });
 
   const Control = ({
     children,
@@ -106,6 +119,21 @@ export default function SelectClient({ sale, setSale }: SelectClientProp) {
     });
     setSale({ ...sale });
   }, [client]);
+
+  // useEffect(() => {
+  //   if (mode === 'update') {
+  //     console.log("Entrou atualizar sale --> ")
+  //     console.log(sale, null, 2)
+  //     if (!client && sale.client) {
+  //       setClient({
+  //         ...sale.client,
+  //         key: sale.client.clientCode,
+  //         value: sale.client.clientName,
+  //         label: sale.client.clientName
+  //       })
+  //     }
+  //   }
+  // }, [sale])
 
   return (
     <HStack>
