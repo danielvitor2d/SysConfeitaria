@@ -9,6 +9,12 @@ export interface ProductRow extends Product {
   actions?: string;
 }
 
+export interface ProductOption extends Product {
+  value?: string;
+  label?: string;
+  key?: string;
+}
+
 export interface ProductDocument extends Product {
   _id?: string;
 }
@@ -60,7 +66,7 @@ export type Sale = {
   saleStatus: SaleStatus;
   fullValue: string | number;
   createdAt: string;
-  paymentMethod: PaymentMethod;
+  paymentMethods: PaymentMethod[];
 };
 
 export interface SaleRow extends Sale {

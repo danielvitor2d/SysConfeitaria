@@ -5,10 +5,27 @@ import Select, {
   StylesConfig,
   SingleValueProps,
   NoticeProps,
+  ActionMeta,
+  MultiValue,
+  SingleValue,
 } from "react-select";
-import { bagdeColor, SaleStatus, saleStatus } from "../../../../../../types";
+import {
+  bagdeColor,
+  Client,
+  Sale,
+  SaleStatus,
+  saleStatus,
+} from "../../../../../../types";
 
-export default function SelectSaleStatus() {
+interface SelectSaleStatusProps {
+  sale: Sale;
+  setSale: React.Dispatch<React.SetStateAction<Sale>>;
+}
+
+export default function SelectSaleStatus({
+  sale,
+  setSale,
+}: SelectSaleStatusProps) {
   const Option = (props: OptionProps<any, boolean>) => {
     return (
       <components.Option {...props} key={props.data.key}>
@@ -19,7 +36,7 @@ export default function SelectSaleStatus() {
     );
   };
 
-  const SingleValue = ({
+  const SingleValueSaleStatus = ({
     children,
     ...props
   }: SingleValueProps<any, boolean>) => (
@@ -42,7 +59,7 @@ export default function SelectSaleStatus() {
     control: (styles) => ({
       ...styles,
       boxShadow: "unset",
-      width: "270px",
+      width: "250px",
       backgroundColor: "#E8E8E8",
       ":focus": {
         ...styles[":focus"],
@@ -72,7 +89,7 @@ export default function SelectSaleStatus() {
     }),
     menu: (styles) => ({
       ...styles,
-      backgroundColor: '#E8E8E8',
+      backgroundColor: "#E8E8E8",
       minWidth: "200px",
     }),
   };
@@ -99,10 +116,24 @@ export default function SelectSaleStatus() {
             Selecione
           </Text>
         }
+        value={{
+          value: saleStatus[sale.saleStatus],
+          label: saleStatus[sale.saleStatus],
+          key: sale.saleStatus,
+        }}
+        onChange={(
+          newValue: MultiValue<any> | SingleValue<any>,
+          _actionMeta: ActionMeta<any>
+        ) => {
+          Object.assign(sale, {
+            saleStatus: newValue.key as SaleStatus,
+          });
+          setSale({ ...sale });
+        }}
         components={{
           Option,
-          SingleValue,
-          NoOptionsMessage
+          SingleValue: SingleValueSaleStatus,
+          NoOptionsMessage,
         }}
         blurInputOnSelect={true}
         autoFocus={false}

@@ -22,11 +22,20 @@ import {
   Input,
   Table as ChakraUITable,
   Flex,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { CellProps, Column } from "react-table";
+import { CellProps, Column, Row } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
 import GlobalContext from "../../contexts/GlobalContext";
 import SalesContext from "../../contexts/SalesContext";
@@ -37,7 +46,9 @@ import {
   bagdeColor,
   Sale,
 } from "../../types";
+import { compareDate } from "../../util/compareDate";
 import { toBRLWithSign } from "../../util/formatCurrency";
+import { fromDatetimeToLocalFormatted } from "../../util/getDate";
 import MakeOrUpdateSale from "./components/MakeOrUpdateSale";
 import Table from "./components/Table";
 import makeData from "./makeData";
@@ -73,6 +84,34 @@ export default function Sales() {
 
   const cancelRefRemoveSale = React.useRef(null);
 
+  const sortByClientName = useCallback(
+    (
+      rowA: Row<SaleRow>,
+      rowB: Row<SaleRow>,
+      _columnId: String,
+      _desc: boolean
+    ) => {
+      if (rowA.values["client"].clientName < rowB.values["client"].clientName)
+        return -1;
+      return 1;
+    },
+    []
+  );
+
+  const sortByDate = useCallback(
+    (
+      rowA: Row<SaleRow>,
+      rowB: Row<SaleRow>,
+      _columnId: String,
+      _desc: boolean
+    ) => {
+      return compareDate(rowA.values["createdAt"], rowB.values["createdAt"])
+        ? -1
+        : 1;
+    },
+    []
+  );
+
   const columns = useMemo(
     () =>
       [
@@ -104,11 +143,12 @@ export default function Sales() {
               justifyContent={"start"}
             >
               <Text fontWeight={"600"} fontFamily={"Montserrat"}>
-                {value}
+                {fromDatetimeToLocalFormatted(value)}
               </Text>
             </Flex>
           ),
           accessor: "createdAt",
+          sortType: sortByDate,
           disableResizing: false,
           width: 180,
         },
@@ -135,7 +175,7 @@ export default function Sales() {
                     fontFamily={"Montserrat"}
                     fontSize={"16px"}
                   >
-                    {value.clientName + "H"}
+                    {value.clientName}
                   </Text>
                 </Flex>
               </TagLabel>
@@ -143,6 +183,7 @@ export default function Sales() {
           ),
           accessor: "client",
           disableResizing: false,
+          sortType: sortByClientName,
           isNumeric: true,
           width: isLargerThan1440 ? 250 : 150,
         },
@@ -168,18 +209,24 @@ export default function Sales() {
         {
           Header: "Pagamento".toUpperCase(),
           Footer: "Pagamento".toUpperCase(),
-          Cell: ({ value }) => (
-            <Flex
+          Cell: ({ value: paymentMethods }) => (
+            <Wrap
               height={"100%"}
               alignItems={"center"}
               justifyContent={"start"}
+              gap={1}
             >
-              <Badge colorScheme={"gray"}>
-                <Text whiteSpace={"normal"}>{paymentMethod[value]}</Text>
-              </Badge>
-            </Flex>
+              {paymentMethods &&
+                paymentMethods.map((value, index) => (
+                  <WrapItem key={index}>
+                    <Badge colorScheme={"gray"}>
+                      <Text whiteSpace={"normal"}>{paymentMethod[value]}</Text>
+                    </Badge>
+                  </WrapItem>
+                ))}
+            </Wrap>
           ),
-          accessor: "paymentMethod",
+          accessor: "paymentMethods",
           disableResizing: false,
           isNumeric: true,
           width: 250,

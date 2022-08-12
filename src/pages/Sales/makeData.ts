@@ -22,7 +22,7 @@ const range = (len: any) => {
 const newSale = (): Sale => {
   return {
     saleCode: faker.random.numeric(6),
-    createdAt: faker.date.past(2).toLocaleDateString("pt-BR"),
+    createdAt: faker.date.past(2).toISOString(),
     fullValue: Number(faker.commerce.price(0, 10000, 2)),
     client: {
       clientName: faker.name.findName(),
@@ -30,7 +30,10 @@ const newSale = (): Sale => {
       color: faker.helpers.arrayElement(colorScheme) as string,
     } as Client,
     items: [] as Item[],
-    paymentMethod: faker.helpers.objectKey(paymentMethod) as PaymentMethod,
+    paymentMethods: [
+      faker.helpers.objectKey(paymentMethod) as PaymentMethod,
+      faker.helpers.objectKey(paymentMethod) as PaymentMethod,
+    ],
     saleStatus: faker.helpers.objectKey(saleStatus) as SaleStatus,
   };
 };

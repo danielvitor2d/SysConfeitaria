@@ -1,16 +1,35 @@
 import { Badge, HStack, Text } from "@chakra-ui/react";
-import { paymentMethod } from "../../../../../../types";
+import {
+  PaymentMethod,
+  paymentMethod,
+  Sale,
+  SaleStatus,
+} from "../../../../../../types";
 import Select, {
   components,
   OptionProps,
   StylesConfig,
   MultiValueGenericProps,
   NoticeProps,
+  ActionMeta,
+  MultiValue,
+  SingleValue,
 } from "react-select";
 import makeAnimated from "react-select/animated";
+import React, { useEffect, useState } from "react";
 
-export default function SelectPaymentMethod() {
+interface SelectPaymentMethodProps {
+  sale: Sale;
+  setSale: React.Dispatch<React.SetStateAction<Sale>>;
+}
+
+export default function SelectPaymentMethod({
+  sale,
+  setSale,
+}: SelectPaymentMethodProps) {
   const animatedComponents = makeAnimated();
+
+  const [methods, setMethods] = useState<PaymentMethod[]>([]);
 
   const paymentMethodStyles: StylesConfig<any> = {
     control: (styles) => ({
@@ -49,16 +68,17 @@ export default function SelectPaymentMethod() {
     }),
     multiValueLabel: (base) => ({
       ...base,
-      backgroundColor: '#696d8a',
-      color: 'white',
+      backgroundColor: "#EDF2F7",
+      color: "#1A202C",
+      fontWeight: "600",
     }),
     multiValueRemove: (base) => ({
       ...base,
-      backgroundColor: '#696d8a',
+      backgroundColor: "#EDF2F7",
     }),
     menu: (styles) => ({
       ...styles,
-      backgroundColor: '#E8E8E8',
+      backgroundColor: "#E8E8E8",
       minWidth: "200px",
     }),
   };
@@ -80,10 +100,15 @@ export default function SelectPaymentMethod() {
   };
 
   const MultiValueLabel = (props: MultiValueGenericProps<any, boolean>) => {
-    return (
-      <components.MultiValueLabel {...props} />
-    );
+    return <components.MultiValueLabel {...props} />;
   };
+
+  useEffect(() => {
+    Object.assign(sale, {
+      methods,
+    });
+    setSale({ ...sale });
+  }, [methods]);
 
   return (
     <HStack>
@@ -104,14 +129,42 @@ export default function SelectPaymentMethod() {
             fontWeight={"500"}
             fontFamily={"Montserrat"}
           >
-            Selecione
+            {"Selecione"}
           </Text>
         }
+        value={methods.map((_method) => {
+          return {
+            key: _method,
+            label: paymentMethod[_method],
+            value: paymentMethod[_method],
+          };
+        })}
+        onChange={(
+          _newValue: MultiValue<any> | SingleValue<any>,
+          actionMeta: ActionMeta<any>
+        ) => {
+          if (
+            actionMeta.action === "deselect-option" ||
+            actionMeta.action === "clear"
+          ) {
+            setMethods([]);
+          } else if (actionMeta.action === "select-option") {
+            setMethods([...methods, actionMeta.option.key]);
+          } else if (actionMeta.action === "remove-value") {
+            setMethods((prevMethods) => {
+              return [
+                ...prevMethods.filter(
+                  (_method) => _method != actionMeta.removedValue.key
+                ),
+              ];
+            });
+          }
+        }}
         components={{
           ...animatedComponents,
           Option,
           NoOptionsMessage,
-          MultiValueLabel
+          MultiValueLabel,
         }}
         blurInputOnSelect={true}
         autoFocus={false}

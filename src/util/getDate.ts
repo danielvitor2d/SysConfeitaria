@@ -11,3 +11,12 @@ export const getDatetimeLocalFormatted = (date: Date) => {
 
   return `${year}-${month}-${day}T${hour}:${minute}`;
 };
+export const getDatetimeLocalFormattedString = (date: string) => {
+  const [day, month, year] = date.split("/");
+
+  return `${year}-${month}-${day}T00:00`;
+};
+export const fromDatetimeToLocalFormatted = (_date: string) => {
+  const [date] = _date.split("T");
+  return date.split("-").reverse().join("/");
+};

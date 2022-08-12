@@ -29,9 +29,7 @@ interface SaleContextData {
   removeSale: (saleCode: string) => Promise<boolean>;
 }
 
-const SaleContext = createContext<SaleContextData>(
-  {} as SaleContextData
-);
+const SaleContext = createContext<SaleContextData>({} as SaleContextData);
 
 export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
   const { getNextSaleCode } = useContext(GlobalContext);
@@ -103,9 +101,7 @@ export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <SaleContext.Provider
-      value={{ sales, addSale, updateSale, removeSale }}
-    >
+    <SaleContext.Provider value={{ sales, addSale, updateSale, removeSale }}>
       {children}
     </SaleContext.Provider>
   );

@@ -1,11 +1,9 @@
 // import 'regenerator-runtime/runtime';
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import {
-  Badge,
   Box,
   Button,
   chakra,
-  filter,
   GridItem,
   HStack,
   Input,
@@ -17,7 +15,6 @@ import {
   MenuList,
   MenuOptionGroup,
   SimpleGrid,
-  Skeleton,
   Table as ChakraUITable,
   TableCaption,
   TableContainer,
@@ -42,7 +39,6 @@ import {
   Column,
   IdType,
   Row,
-  useAsyncDebounce,
   useBlockLayout,
   useGlobalFilter,
   usePagination,
@@ -52,7 +48,6 @@ import {
 } from "react-table";
 import Paginate from "../Paginate";
 import { ProductRow } from "../../../../types";
-import { handleInputChange } from "react-select/dist/declarations/src/utils";
 import { matchSorter } from "match-sorter";
 
 interface ProductTableProps {
@@ -236,7 +231,7 @@ export default function Table({
                 >
                   <MenuItemOption value="productCode">Código</MenuItemOption>
                   <MenuItemOption value="productName">
-                    {'Nome do Produto'}
+                    {"Nome do Produto"}
                   </MenuItemOption>
                 </MenuOptionGroup>
               </MenuList>

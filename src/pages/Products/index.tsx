@@ -8,36 +8,22 @@ import {
   AlertDialogOverlay,
   Box,
   Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
   Flex,
   HStack,
-  Input,
-  InputGroup,
-  Select,
   Text,
   useDisclosure,
   useMediaQuery,
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { faker } from "@faker-js/faker";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
 import { Product, ProductRow } from "../../types";
 import Table from "./components/Table";
 
-import makeData from "./makeData";
 import { toBRLWithSign } from "../../util/formatCurrency";
-import InputNumberFormat from "../../components/InputNumberFormat";
 import GlobalContext from "../../contexts/GlobalContext";
 import ProductContext from "../../contexts/ProductsContext";
 import SaveOrUpdateProduct from "./components/SaveOrUpdateProduct";

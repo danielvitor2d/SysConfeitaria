@@ -6,28 +6,23 @@ import Select, {
   StylesConfig,
   ControlProps,
   NoticeProps,
+  SingleValue,
+  ActionMeta,
+  MultiValue,
 } from "react-select";
 import ClientContext from "../../../../../../contexts/ClientsContext";
-import { ClientOption, ClientRow } from "../../../../../../types";
+import { Client, ClientOption, ClientRow, Sale } from "../../../../../../types";
 
-export default function SelectClient() {
-  const { clients } = useContext(ClientContext)
+interface SelectClientProp {
+  sale: Sale;
+  setSale: React.Dispatch<React.SetStateAction<Sale>>;
+}
+
+export default function SelectClient({ sale, setSale }: SelectClientProp) {
+  const { clients } = useContext(ClientContext);
 
   const [data, setData] = useState<ClientOption[]>();
-
-  const filterClients = (inputValue: string) => {
-    return clients.filter(
-      (client: ClientRow) => true
-    );
-  };
-
-  const promiseOptions = (inputValue: string) => {
-    new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(filterClients(inputValue));
-      }, 500);
-    });
-  };
+  const [client, setClient] = useState<ClientOption | null>(null);
 
   const Control = ({
     children,
@@ -86,21 +81,31 @@ export default function SelectClient() {
     }),
     menu: (styles) => ({
       ...styles,
-      backgroundColor: '#E8E8E8',
+      backgroundColor: "#E8E8E8",
       minWidth: "200px",
     }),
   };
 
   useEffect(() => {
-    if (clients) setData(clients.map(client => {
-      return {
-        ...client,
-        key: client.clientCode,
-        value: client.clientCode,
-        label: client.clientName,
-      }
-    }))
-  }, [clients])
+    if (clients)
+      setData(
+        clients.map((client) => {
+          return {
+            ...client,
+            key: client.clientCode,
+            value: client.clientCode,
+            label: client.clientName,
+          };
+        })
+      );
+  }, [clients]);
+
+  useEffect(() => {
+    Object.assign(sale, {
+      client,
+    });
+    setSale({ ...sale });
+  }, [client]);
 
   return (
     <HStack>
@@ -114,6 +119,20 @@ export default function SelectClient() {
         {"Cliente"}
       </Text>
       <Select
+        value={client}
+        onChange={(
+          newValue: MultiValue<ClientOption> | SingleValue<ClientOption>,
+          _actionMeta: ActionMeta<ClientOption>
+        ) => {
+          if (
+            _actionMeta.action === "deselect-option" ||
+            _actionMeta.action === "clear"
+          ) {
+            setClient(null);
+          } else if (_actionMeta.action === "select-option") {
+            setClient({ ...(newValue as ClientOption) });
+          }
+        }}
         placeholder={
           <Text
             color={"black"}
@@ -131,7 +150,7 @@ export default function SelectClient() {
         components={{
           Option,
           Control,
-          NoOptionsMessage
+          NoOptionsMessage,
         }}
         options={data}
       />

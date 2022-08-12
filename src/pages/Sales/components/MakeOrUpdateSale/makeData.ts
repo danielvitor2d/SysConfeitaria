@@ -20,8 +20,8 @@ const range = (len: any) => {
 };
 
 const newSale = (): Item => {
-  const quantity = Number(faker.random.numeric(2));
-  const unitaryValue = Number(faker.commerce.price(0, 10000, 2));
+  const quantity = Number(faker.random.numeric(1));
+  const unitaryValue = Number(faker.commerce.price(0, 50, 2));
   return {
     itemCode: faker.random.numeric(6),
     product: {
