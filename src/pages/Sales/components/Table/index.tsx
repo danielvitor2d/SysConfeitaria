@@ -31,11 +31,12 @@ import {
 import {
   faAngleDown,
   faCircleXmark,
+  faFilePdf,
   faPlus,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
   Column,
   IdType,
@@ -55,8 +56,16 @@ import {
   PaymentMethod,
   SaleStatus,
   bagdeColor,
+  Sale,
 } from "../../../../types";
 import { matchSorter } from "match-sorter";
+
+import { CustomTableLayout } from 'pdfmake/interfaces'
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+
+import SaleContext from "../../../../contexts/SalesContext";
+import { salesReport } from "../relatorio";
 
 interface SalesTableProps {
   columns: Column<SaleRow>[];
@@ -89,6 +98,40 @@ export default function Table({
         background: "#482017",
       },
     },
+  };
+
+  const { sales } = useContext(SaleContext)
+
+  const create = () => {
+    pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+    const tableLayouts = {
+      exampleLayout: {
+        hLineWidth: function (i: number, node: any) {
+          if (i === 0 || i === node.table.body.length) {
+            return 0;
+          }
+          return (i === node.table.headerRows) ? 2 : 1;
+        },
+        vLineWidth: function (i: number) {
+          return 0;
+        },
+        hLineColor: function (i: number) {
+          return i === 1 ? 'black' : '#aaa';
+        },
+        paddingLeft: function (i: number) {
+          return i === 0 ? 0 : 8;
+        },
+        paddingRight: function (i: number, node: any) {
+          return (i === node.table.widths.length - 1) ? 0 : 8;
+        },
+        defaultBorder: true,
+        vLineColor: 'red'
+      } as CustomTableLayout
+    };
+    pdfMake.tableLayouts = tableLayouts
+
+    pdfMake.createPdf(salesReport(sales as Sale[], tableLayouts), tableLayouts).open({}, window.open('', '_blank'));
   };
 
   const [filter, setFilter] = useState<string>("");
@@ -196,39 +239,74 @@ export default function Table({
         columns={[1, 1, 1, 2, 2]}
       >
         <GridItem colSpan={[1, 1, 1, 1, 1]}>
-          <Button
-            alignSelf={"flex-start"}
-            backgroundColor={"#EAC3AE"}
-            _hover={{
-              backgroundColor: "#eac3aeb2",
-            }}
-            _active={{
-              backgroundColor: "#eac3ae83",
-            }}
-            borderRadius={"6px"}
-            borderWidth={"1px"}
-            borderColor={"#63342B"}
-            onClick={onOpenDrawerAddSale}
-          >
-            <HStack alignItems={"center"}>
-              <Text
-                fontFamily={"Montserrat"}
-                fontWeight={"600"}
-                textColor={"#63342B"}
-                marginTop={"2px"}
-                textAlign={"center"}
-              >
-                {"Nova venda".toUpperCase()}
-              </Text>
-              <Box height={"25px"} width={"25px"} textAlign={"center"}>
-                <FontAwesomeIcon
-                  color={"#63342B"}
-                  icon={faPlus}
-                  fontSize={"25px"}
-                />
-              </Box>
-            </HStack>
-          </Button>
+          <HStack>
+            <Button
+              alignSelf={"flex-start"}
+              backgroundColor={"#EAC3AE"}
+              _hover={{
+                backgroundColor: "#eac3aeb2",
+              }}
+              _active={{
+                backgroundColor: "#eac3ae83",
+              }}
+              borderRadius={"6px"}
+              borderWidth={"1px"}
+              borderColor={"#63342B"}
+              onClick={onOpenDrawerAddSale}
+            >
+              <HStack alignItems={"center"}>
+                <Text
+                  fontFamily={"Montserrat"}
+                  fontWeight={"600"}
+                  textColor={"#63342B"}
+                  marginTop={"2px"}
+                  textAlign={"center"}
+                >
+                  {"Nova venda".toUpperCase()}
+                </Text>
+                <Box height={"25px"} width={"25px"} textAlign={"center"}>
+                  <FontAwesomeIcon
+                    color={"#63342B"}
+                    icon={faPlus}
+                    fontSize={"25px"}
+                  />
+                </Box>
+              </HStack>
+            </Button>
+            <Button
+              alignSelf={"flex-start"}
+              backgroundColor={"#EAC3AE"}
+              _hover={{
+                backgroundColor: "#eac3aeb2",
+              }}
+              _active={{
+                backgroundColor: "#eac3ae83",
+              }}
+              borderRadius={"6px"}
+              borderWidth={"1px"}
+              borderColor={"#63342B"}
+              onClick={create}
+            >
+              <HStack alignItems={"center"}>
+                <Text
+                  fontFamily={"Montserrat"}
+                  fontWeight={"600"}
+                  textColor={"#63342B"}
+                  marginTop={"2px"}
+                  textAlign={"center"}
+                >
+                  {"Gerar relatório".toUpperCase()}
+                </Text>
+                <Box height={"25px"} width={"25px"} textAlign={"center"}>
+                  <FontAwesomeIcon
+                    color={"#63342B"}
+                    icon={faFilePdf}
+                    fontSize={"25px"}
+                  />
+                </Box>
+              </HStack>
+            </Button>
+          </HStack>
         </GridItem>
         <GridItem colSpan={[1, 1, 1, 1, 1]}>
           <HStack>

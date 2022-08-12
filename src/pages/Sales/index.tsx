@@ -13,6 +13,13 @@ import {
   Flex,
   Wrap,
   WrapItem,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Button,
 } from "@chakra-ui/react";
 import React, {
   useCallback,
@@ -64,13 +71,7 @@ export default function Sales() {
     isOpen: isOpenMakeOrUpdateSale,
     onOpen: onOpenMakeOrUpdateSale,
     onClose: onCloseMakeOrUpdateSale,
-  } = useDisclosure();
-
-  const {
-    isOpen: isOpenRemoveSale,
-    onOpen: onOpenRemoveSale,
-    onClose: onCloseRemoveSale,
-  } = useDisclosure();
+  } = useDisclosure()
 
   const cancelRefRemoveSale = React.useRef(null);
 
@@ -259,7 +260,12 @@ export default function Sales() {
                 color={"red"}
                 boxSize={"6"}
                 cursor={"pointer"}
-                onClick={() => handleRemoveRow(cellProps.row.original.saleCode)}
+                onClick={() => {
+                  setSale({
+                    saleCode: cellProps.row.original.saleCode
+                  } as Sale)
+                  handleRemoveRow(cellProps.row.original.saleCode)
+                }}
               />
             </Flex>
           ),
@@ -301,11 +307,40 @@ export default function Sales() {
   }
 
   async function handleRemoveRow(saleCode: string) {
-    toast({
-      title: "Removendo",
-      description: `Removendo linha ${saleCode}`,
-      status: "info",
+    onOpenRemoveSale()
+  }
+
+  async function handleRemoveSale(saleCode: string): Promise<void> {
+    const toastId = toast({
+      title: "Removendo venda",
+      description: "Removendo dados",
+      isClosable: true,
+      status: "loading",
+      variant: "left-accent",
+      position: "bottom-right",
     });
+    const result = await removeSale(saleCode);
+    toast.close(toastId);
+    if (result) {
+      toast({
+        title: "Venda removida",
+        description: "Dados removidos",
+        isClosable: true,
+        status: "success",
+        variant: "left-accent",
+        position: "bottom-right",
+      });
+    } else {
+      toast({
+        title: "Erro ao remover venda",
+        description:
+          "Verifique sua conexão à internet ou tente novamente mais tarde",
+        isClosable: true,
+        status: "warning",
+        variant: "left-accent",
+        position: "bottom-right",
+      });
+    }
   }
 
   async function handleUpdateSale(sale: SaleRow): Promise<void> {
@@ -324,6 +359,12 @@ export default function Sales() {
     if (sales) setData([...sales]);
   }, [sales]);
 
+  const {
+    isOpen: isOpenRemoveSale,
+    onOpen: onOpenRemoveSale,
+    onClose: onCloseRemoveSale,
+  } = useDisclosure();
+
   return (
     <>
       {isOpenMakeOrUpdateSale ? (
@@ -340,6 +381,44 @@ export default function Sales() {
       ) : (
         <></>
       )}
+      <AlertDialog
+        isOpen={isOpenRemoveSale}
+        leastDestructiveRef={cancelRefRemoveSale}
+        onClose={onOpenRemoveSale}
+        closeOnEsc={true}
+        closeOnOverlayClick={true}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              {"Remover venda"}
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              {"Você tem certeza de que quer remover essa venda? Essa ação não poderá ser desfeita"}
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button
+                ref={cancelRefRemoveSale}
+                onClick={onCloseRemoveSale}
+              >
+                {"Cancelar"}
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => {
+                  handleRemoveSale(sale.saleCode);
+                  onCloseRemoveSale()
+                }}
+                ml={3}
+              >
+                {"Remover"}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       <Box
         width={"100%"}
         paddingX={"1rem"}
