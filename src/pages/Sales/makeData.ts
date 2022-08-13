@@ -25,7 +25,7 @@ const newSale = (): Sale => {
     createdAt: faker.date.past(2).toISOString(),
     fullValue: Number(faker.commerce.price(0, 10000, 2)),
     client: {
-      clientName: faker.commerce.productDescription(),
+      clientName: faker.name.findName(),
       avatar: faker.image.avatar(),
       color: faker.helpers.arrayElement(colorScheme) as string,
     } as Client,
