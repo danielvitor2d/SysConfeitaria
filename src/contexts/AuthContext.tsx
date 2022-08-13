@@ -1,17 +1,3 @@
-import { compare, hash } from "bcryptjs";
-import {
-  addDoc,
-  collection,
-  doc,
-  DocumentData,
-  getDocs,
-  getFirestore,
-  Query,
-  query,
-  QuerySnapshot,
-  setDoc,
-  where,
-} from "firebase/firestore/lite";
 import {
   createUserWithEmailAndPassword,
   getAuth,
@@ -22,6 +8,7 @@ import {
 } from "firebase/auth";
 import { FC, ReactNode, useContext, useEffect } from "react";
 import { useState, createContext } from "react";
+import { useCookies } from "react-cookie";
 
 import GlobalContext from "./GlobalContext";
 
@@ -40,6 +27,8 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const { register } = useContext(GlobalContext);
+
+  // const [cookies, setCookie] = useCookies(['access_token', 'refresh_token'])
 
   const auth = getAuth();
 
@@ -78,6 +67,15 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setSigned(true);
+        // if (auth.currentUser) {
+        //   auth.currentUser.getIdToken(true).then(function (token) {
+        //     let expires = new Date()
+        //     expires.setTime(expires.getTime() + (10000))
+        //     setCookie('access_token', token, { path: '/', expires })
+
+        //     // Cookies.set('__session', token, {expires: 7});
+        //   })
+        // }
       } else {
         setSigned(false);
       }

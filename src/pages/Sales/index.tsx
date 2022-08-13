@@ -46,7 +46,10 @@ import {
 import { compareDate } from "../../util/compareDate";
 import { formatCode } from "../../util/formatCode";
 import { toBRLWithSign } from "../../util/formatCurrency";
-import { fromDatetimeToLocalFormatted, getDatetimeLocalFormatted } from "../../util/getDate";
+import {
+  fromDatetimeToLocalFormatted,
+  getDatetimeLocalFormatted,
+} from "../../util/getDate";
 import MakeOrUpdateSale from "./components/MakeOrUpdateSale";
 import Table from "./components/Table";
 
@@ -57,21 +60,23 @@ export default function Sales() {
 
   const toast = useToast();
 
-  const { saleCode } = useContext(GlobalContext)
+  const { saleCode } = useContext(GlobalContext);
   const { signed } = useContext(AuthContext);
 
   const [data, setData] = useState<SaleRow[]>([]);
 
-  const { sales, addSale, updateSale, removeSale } = useContext(SalesContext);
+  const {
+    sales,
+    addSale,
+    updateSale,
+    removeSale,
+    isOpenMakeOrUpdateSale,
+    onOpenMakeOrUpdateSale,
+    onCloseMakeOrUpdateSale,
+  } = useContext(SalesContext);
 
   const [sale, setSale] = useState<Sale>({} as Sale);
   const [mode, setMode] = useState<"create" | "update">("create");
-
-  const {
-    isOpen: isOpenMakeOrUpdateSale,
-    onOpen: onOpenMakeOrUpdateSale,
-    onClose: onCloseMakeOrUpdateSale,
-  } = useDisclosure()
 
   const cancelRefRemoveSale = React.useRef(null);
 
@@ -262,9 +267,9 @@ export default function Sales() {
                 cursor={"pointer"}
                 onClick={() => {
                   setSale({
-                    saleCode: cellProps.row.original.saleCode
-                  } as Sale)
-                  handleRemoveRow(cellProps.row.original.saleCode)
+                    saleCode: cellProps.row.original.saleCode,
+                  } as Sale);
+                  handleRemoveRow(cellProps.row.original.saleCode);
                 }}
               />
             </Flex>
@@ -307,7 +312,7 @@ export default function Sales() {
   }
 
   async function handleRemoveRow(saleCode: string) {
-    onOpenRemoveSale()
+    onOpenRemoveSale();
   }
 
   async function handleRemoveSale(saleCode: string): Promise<void> {
@@ -395,21 +400,20 @@ export default function Sales() {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              {"Você tem certeza de que quer remover essa venda? Essa ação não poderá ser desfeita"}
+              {
+                "Você tem certeza de que quer remover essa venda? Essa ação não poderá ser desfeita"
+              }
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button
-                ref={cancelRefRemoveSale}
-                onClick={onCloseRemoveSale}
-              >
+              <Button ref={cancelRefRemoveSale} onClick={onCloseRemoveSale}>
                 {"Cancelar"}
               </Button>
               <Button
                 colorScheme="red"
                 onClick={() => {
                   handleRemoveSale(sale.saleCode);
-                  onCloseRemoveSale()
+                  onCloseRemoveSale();
                 }}
                 ml={3}
               >

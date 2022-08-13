@@ -27,6 +27,16 @@ export type Client = {
   contact: string;
   avatar?: string;
   color?: string;
+  address: {
+    rua?: string;
+    numero?: string;
+    bairro?: string;
+    cidade?: string;
+    estado?: string;
+    complemento?: string;
+    referencia?: string;
+    cep?: string;
+  };
 };
 
 export interface ClientRow extends Client {

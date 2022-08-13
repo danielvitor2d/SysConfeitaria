@@ -1,12 +1,24 @@
 import { PaymentMethod, paymentMethod, Sale } from "../../../types";
-import { fromNumberToStringFormatted, toBRLWithSign } from "../../../util/formatCurrency";
+import {
+  fromNumberToStringFormatted,
+  toBRLWithSign,
+} from "../../../util/formatCurrency";
 import makeData from "../makeData";
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
-import { PageSize, Margins, CustomTableLayout, Node, TDocumentDefinitions } from 'pdfmake/interfaces'
+import {
+  PageSize,
+  Margins,
+  CustomTableLayout,
+  Node,
+  TDocumentDefinitions,
+} from "pdfmake/interfaces";
 import { getBase64ImageFromURL } from "./Table";
-import { fromDatetimeToLocalFormatted, getDateMinusDays } from "../../../util/getDate";
+import {
+  fromDatetimeToLocalFormatted,
+  getDateMinusDays,
+} from "../../../util/getDate";
 import { compareDateStrict } from "../../../util/compareDate";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -21,10 +33,14 @@ const tableLayouts = {
       return 0;
     },
     hLineColor: function (i: number, node: any) {
-      return (i === 0 ? 'white' : (i === 1 || i === node.table.body.length ? '#CBC9CA' : '#D9D9D9'));
+      return i === 0
+        ? "white"
+        : i === 1 || i === node.table.body.length
+        ? "#CBC9CA"
+        : "#D9D9D9";
     },
     vLineColor: function (i: number, node: any) {
-      return (i === 0 || i === node.table.widths.length ? '#CBC9CA' : 'white');
+      return i === 0 || i === node.table.widths.length ? "#CBC9CA" : "white";
     },
     // hLineStyle: function (i: number, node: any) {
     //   if (i === 1 || i === node.table.body.length) {
@@ -39,35 +55,47 @@ const tableLayouts = {
     //   return {dash: {length: 4}};
     // },
     fillColor: function (rowIndex: number, _node: any, _columnIndex: number) {
-      return (rowIndex != 0 && rowIndex % 2 === 1) ? '#CCCCCC' : null;
+      return rowIndex != 0 && rowIndex % 2 === 1 ? "#CCCCCC" : null;
     },
     defaultBorder: true,
-  } as CustomTableLayout
+  } as CustomTableLayout,
 };
 
-export const salesReport = async (sales: any[], type: 'daily' | 'weekly' | 'monthly') => {
-  const data = sales.filter(sale => {
-    if (type === 'daily') {
-      const date = getDateMinusDays(1)
+export const salesReport = async (
+  sales: any[],
+  type: "daily" | "weekly" | "monthly"
+) => {
+  const data = sales.filter((sale) => {
+    if (type === "daily") {
+      const date = getDateMinusDays(1);
       // console.log("Date days: " + date)
       // console.log("createdAt: " + sale.createdAt)
       // console.log("Date now: " + fromDatetimeToLocalFormatted(sale.createdAt))
       // return sale.createdAt
-      return compareDateStrict(date, fromDatetimeToLocalFormatted(sale.createdAt))
-    } else if (type === 'weekly') {
-      const date = getDateMinusDays(7)
+      return compareDateStrict(
+        date,
+        fromDatetimeToLocalFormatted(sale.createdAt)
+      );
+    } else if (type === "weekly") {
+      const date = getDateMinusDays(7);
       // console.log("Date weekly: " + date)
       // console.log("createdAt: " + sale.createdAt)
       // console.log("Date now: " + fromDatetimeToLocalFormatted(sale.createdAt))
-      return compareDateStrict(date, fromDatetimeToLocalFormatted(sale.createdAt))
+      return compareDateStrict(
+        date,
+        fromDatetimeToLocalFormatted(sale.createdAt)
+      );
     } else {
-      const date = getDateMinusDays(30)
+      const date = getDateMinusDays(30);
       // console.log("Date monthly: " + date)
       // console.log("createdAt: " + sale.createdAt)
       // console.log("Date now: " + fromDatetimeToLocalFormatted(sale.createdAt))
-      return compareDateStrict(date, fromDatetimeToLocalFormatted(sale.createdAt))
+      return compareDateStrict(
+        date,
+        fromDatetimeToLocalFormatted(sale.createdAt)
+      );
     }
-  })
+  });
   //(() => makeData(300))();
   const rows = data.map((sale: any) => {
     return [
@@ -93,27 +121,24 @@ export const salesReport = async (sales: any[], type: 'daily' | 'weekly' | 'mont
   });
 
   const totalValue = data.reduce((previousValue: any, currentValue: any) => {
-    return previousValue + currentValue.fullValue
-  }, 0)
+    return previousValue + currentValue.fullValue;
+  }, 0);
 
   return {
     content: [
       {
         columns: [
           {
-            text: [
-              'Relatório de\n',
-              'vendas'
-            ],
+            text: ["Relatório de\n", "vendas"],
             fontSize: 24,
             bold: true,
-            style: 'header',
+            style: "header",
           },
           {
-            image: await getBase64ImageFromURL('./src/assets/logo_matrix.png'),
+            image: await getBase64ImageFromURL("./src/assets/logo_matrix.png"),
             width: 150,
             height: 55,
-          }
+          },
         ],
         margin: [0, 0, 0, 15],
       },
@@ -121,20 +146,20 @@ export const salesReport = async (sales: any[], type: 'daily' | 'weekly' | 'mont
         columns: [
           {
             text: [
-              { text: 'Caixa total: ', fontSize: 14, bold: true },
-              toBRLWithSign(totalValue)
+              { text: "Caixa total: ", fontSize: 14, bold: true },
+              toBRLWithSign(totalValue),
             ],
-            margin: [0, 0, 0, 15]
+            margin: [0, 0, 0, 15],
           },
           {
             text: [
-              { text: 'Data: ', fontSize: 14, bold: true },
+              { text: "Data: ", fontSize: 14, bold: true },
               // fromDatetimeToLocalFormatted()
-              new Date(Date.now()).toLocaleDateString("pt-BR")
+              new Date(Date.now()).toLocaleDateString("pt-BR"),
             ],
-            margin: [0, 0, 0, 5]
+            margin: [0, 0, 0, 5],
           },
-        ]
+        ],
       },
       {
         // layout: "lightHorizontalLines",
@@ -154,7 +179,7 @@ export const salesReport = async (sales: any[], type: 'daily' | 'weekly' | 'mont
           ],
           keepWithHeaderRows: 25,
         },
-        layout: tableLayouts.exampleLayout
+        layout: tableLayouts.exampleLayout,
         // layout: {
         //   fillColor: function (rowIndex: number, _node: any, _columnIndex: number) {
         //     return (rowIndex > 0 && rowIndex % 2 === 1) ? '#CCCCCC' : null;
@@ -162,7 +187,7 @@ export const salesReport = async (sales: any[], type: 'daily' | 'weekly' | 'mont
         // }
       },
     ],
-    pageSize: 'A4' as PageSize,
-    pageMargins: [ 30, 30, 60, 60 ] as Margins,
+    pageSize: "A4" as PageSize,
+    pageMargins: [30, 30, 60, 60] as Margins,
   };
 };

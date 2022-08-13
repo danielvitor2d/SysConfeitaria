@@ -141,7 +141,7 @@ export default function SignIn() {
               ) : (
                 <></>
               )}
-              <Box>
+              <VStack>
                 <InputGroup>
                   <Input
                     {...register("password", { required: true })}
@@ -178,12 +178,17 @@ export default function SignIn() {
                   cursor={"pointer"}
                   textAlign={"end"}
                   fontSize={"12px"}
+                  width={"fit-content"}
+                  alignSelf={"flex-end"}
+                  onClick={() => {
+                    console.log("Recuperar senha");
+                  }}
                   textColor={"#323238"}
                   textDecorationLine={"underline"}
                 >
-                  Esqueceu sua senha?
+                  {"Esqueceu sua senha?"}
                 </Text>
-              </Box>
+              </VStack>
             </VStack>
             <Button
               width={"full"}

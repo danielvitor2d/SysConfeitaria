@@ -1,3 +1,4 @@
+import { useDisclosure } from "@chakra-ui/react";
 import {
   collection,
   deleteDoc,
@@ -27,6 +28,9 @@ interface SaleContextData {
   addSale: (sale: Sale) => Promise<boolean>;
   updateSale: (sale: Sale) => Promise<boolean>;
   removeSale: (saleCode: string) => Promise<boolean>;
+  isOpenMakeOrUpdateSale: boolean;
+  onOpenMakeOrUpdateSale: () => void;
+  onCloseMakeOrUpdateSale: () => void;
 }
 
 const SaleContext = createContext<SaleContextData>({} as SaleContextData);
@@ -35,6 +39,12 @@ export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
   const { getNextSaleCode } = useContext(GlobalContext);
 
   const [sales, setSales] = useState<SaleDocument[]>([]);
+
+  const {
+    isOpen: isOpenMakeOrUpdateSale,
+    onOpen: onOpenMakeOrUpdateSale,
+    onClose: onCloseMakeOrUpdateSale,
+  } = useDisclosure();
 
   const db = getFirestore(app);
 
@@ -101,7 +111,17 @@ export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <SaleContext.Provider value={{ sales, addSale, updateSale, removeSale }}>
+    <SaleContext.Provider
+      value={{
+        sales,
+        addSale,
+        updateSale,
+        removeSale,
+        isOpenMakeOrUpdateSale,
+        onOpenMakeOrUpdateSale,
+        onCloseMakeOrUpdateSale,
+      }}
+    >
       {children}
     </SaleContext.Provider>
   );

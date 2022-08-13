@@ -20,8 +20,10 @@ import { ReactComponent as LogoHome } from "../../../../assets/logo_home.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRightFromBracket,
+  faBoxesPacking,
   faCake,
   faCartArrowDown,
+  faCartPlus,
   faChevronLeft,
   faChevronRight,
   faGear,
@@ -31,6 +33,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import AuthContext from "../../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import SalesContext from "../../../../contexts/SalesContext";
 
 interface SidebarStateProp {
   mode: "open" | "close";
@@ -49,6 +52,8 @@ type SidebarType = {
 export default function Sidebar() {
   const navigate = useNavigate();
 
+  const { onOpenMakeOrUpdateSale } = useContext(SalesContext);
+
   useEffect(() => {
     document.addEventListener("keydown", detectKeyDown, true);
     return () => document.removeEventListener("keydown", detectKeyDown);
@@ -61,12 +66,15 @@ export default function Sidebar() {
       navigate("/sales");
     }
     if (ev.key === "@" && ev.shiftKey) {
-      navigate("/clients");
+      navigate("/payments");
     }
     if (ev.key === "#" && ev.shiftKey) {
-      navigate("/products");
+      navigate("/clients");
     }
     if (ev.key === "$" && ev.shiftKey) {
+      navigate("/products");
+    }
+    if (ev.key === "%" && ev.shiftKey) {
       navigate("/settings");
     }
     if (ev.key === "%" && ev.shiftKey) {
@@ -87,7 +95,14 @@ export default function Sidebar() {
       key: "sales",
       title: "Vendas",
       route: "/sales",
-      icon: faCartArrowDown,
+      icon: faCartPlus,
+      shortcut: ["shift", "1"],
+    },
+    {
+      key: "sales",
+      title: "Pagamentos",
+      route: "/payments",
+      icon: faBoxesPacking,
       shortcut: ["shift", "1"],
     },
     {
@@ -224,6 +239,10 @@ export default function Sidebar() {
               }}
               borderRadius={sidebarState.mode == "open" ? "15px" : "full"}
               width={"70%"}
+              onClick={() => {
+                navigate("/sales");
+                onOpenMakeOrUpdateSale();
+              }}
             >
               <HStack alignItems={"center"}>
                 {sidebarState.mode == "open" && (

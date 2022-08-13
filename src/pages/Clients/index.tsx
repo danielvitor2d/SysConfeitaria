@@ -354,6 +354,16 @@ export default function Clients() {
                 clientDocument: "",
                 clientEmail: "",
                 contact: "",
+                address: {
+                  rua: "",
+                  numero: "",
+                  complemento: "",
+                  referencia: "",
+                  cep: "",
+                  bairro: "",
+                  cidade: "",
+                  estado: "Ceará",
+                },
               });
               onOpenAddOrUpdateClient();
             }}

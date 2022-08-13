@@ -72,7 +72,7 @@ export default function MakeSale({
   const { saleCode } = useContext(GlobalContext);
 
   const [data, setData] = useState<ItemRow[]>([]);
-  const [item, setItem] = useState<Item>({} as Item)
+  const [item, setItem] = useState<Item>({} as Item);
 
   const [sale, setSale] = useState<Sale>(() => {
     return {
@@ -113,7 +113,7 @@ export default function MakeSale({
 
   const handleAddItem = (itemRow: ItemRow) => {
     const newData = [itemRow, ...data];
-    setData([ ...newData ]);
+    setData([...newData]);
   };
 
   async function handleRemoveItem(itemIndex: number) {
@@ -125,9 +125,9 @@ export default function MakeSale({
       variant: "left-accent",
       position: "bottom-right",
     });
-    data.splice(Number(itemIndex), 1)
-    setData([ ...data ])
-    const result = true
+    data.splice(Number(itemIndex), 1);
+    setData([...data]);
+    const result = true;
     toast.close(toastId);
     if (result) {
       toast({
@@ -290,7 +290,7 @@ export default function MakeSale({
                 boxSize={"6"}
                 cursor={"pointer"}
                 onClick={() => {
-                  onOpenRemoveItem()
+                  onOpenRemoveItem();
                   // setItem({
                   //   itemCode: String(cellProps.row.index),
                   // } as Item);
@@ -457,17 +457,14 @@ export default function MakeSale({
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button
-                ref={cancelRefRemoveItem}
-                onClick={onCloseRemoveItem}
-              >
+              <Button ref={cancelRefRemoveItem} onClick={onCloseRemoveItem}>
                 {"Cancelar"}
               </Button>
               <Button
                 colorScheme="red"
                 onClick={() => {
                   handleRemoveItem(Number(item.itemCode));
-                  onCloseRemoveItem()
+                  onCloseRemoveItem();
                 }}
                 ml={3}
               >
@@ -588,9 +585,9 @@ export default function MakeSale({
                 </Button>
                 <Button
                   onClick={() => {
-                    clearFields()
-                    onClose()
-                    onClose()
+                    clearFields();
+                    onClose();
+                    onClose();
                   }}
                   backgroundColor={"#E8E8E8"}
                   _hover={{

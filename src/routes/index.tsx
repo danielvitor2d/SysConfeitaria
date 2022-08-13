@@ -13,6 +13,8 @@ import SignIn from "../pages/SignIn";
 import RequireSignIn from "./RequireSignIn";
 import RequireSignUp from "./RequireSignUp";
 import NotFound from "../pages/NotFound";
+import Settings from "../pages/Settings";
+import Payments from "../pages/Payments";
 
 export default function Routes() {
   return (
@@ -43,6 +45,14 @@ export default function Routes() {
           }
         />
         <Route
+          path="/settings"
+          element={
+            <RequireSignIn>
+              <MainLayout page={<Settings />} />
+            </RequireSignIn>
+          }
+        />
+        <Route
           path="/products"
           element={
             <RequireSignIn>
@@ -55,6 +65,14 @@ export default function Routes() {
           element={
             <RequireSignIn>
               <MainLayout page={<Clients />} />
+            </RequireSignIn>
+          }
+        />
+        <Route
+          path="/payments"
+          element={
+            <RequireSignIn>
+              <MainLayout page={<Payments />} />
             </RequireSignIn>
           }
         />

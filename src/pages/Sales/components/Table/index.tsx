@@ -146,9 +146,11 @@ export default function Table({
 
   const { sales } = useContext(SaleContext);
 
-  const create = async (type: 'daily' | 'weekly' | 'monthly') => {
+  const create = async (type: "daily" | "weekly" | "monthly") => {
     pdfMake
-      .createPdf((await salesReport(sales as Sale[], type) as TDocumentDefinitions))
+      .createPdf(
+        (await salesReport(sales as Sale[], type)) as TDocumentDefinitions
+      )
       .open({}, window.open("", "_blank"));
   };
 
@@ -246,25 +248,27 @@ export default function Table({
     setFilter(event.target.value);
   };
 
-  const options = ['Último dia', 'Última semana', 'Último mês']
+  const options = ["Último dia", "Última semana", "Último mês"];
 
-  const [radioValue, setRadioValue] = useState<'Último dia' | 'Última semana' | 'Último mês'>('Último dia')
+  const [radioValue, setRadioValue] = useState<
+    "Último dia" | "Última semana" | "Último mês"
+  >("Último dia");
 
   const { getRootProps, getRadioProps } = useRadioGroup({
-    name: 'reportsType',
-    defaultValue: 'Último dia',
+    name: "reportsType",
+    defaultValue: "Último dia",
     onChange: (nextValue: string) => {
-      if (nextValue === 'Último dia') {
-        setRadioValue('Último dia')
-      } else if (nextValue === 'Última semana') {
-        setRadioValue('Última semana')
+      if (nextValue === "Último dia") {
+        setRadioValue("Último dia");
+      } else if (nextValue === "Última semana") {
+        setRadioValue("Última semana");
       } else {
-        setRadioValue('Último mês')
+        setRadioValue("Último mês");
       }
     },
-  } as UseRadioGroupProps)
+  } as UseRadioGroupProps);
 
-  const group = getRootProps()
+  const group = getRootProps();
 
   return (
     <>
@@ -312,9 +316,7 @@ export default function Table({
                   </Box>
                 </HStack>
               </Button>
-              <Popover
-                placement='bottom'
-              >
+              <Popover placement="bottom">
                 <PopoverTrigger>
                   <Button
                     alignSelf={"flex-start"}
@@ -354,34 +356,38 @@ export default function Table({
                   bg="#70453c"
                   borderColor="#63342A"
                 >
-                  <PopoverHeader pt={4} fontWeight='bold' border='0'>
-                    {'Gerar relatórios'}
+                  <PopoverHeader pt={4} fontWeight="bold" border="0">
+                    {"Gerar relatórios"}
                   </PopoverHeader>
                   <PopoverArrow />
                   <PopoverCloseButton />
                   <PopoverBody>
-                  <HStack {...group} width={'100%'} alignItems={'flex-start'}>
-                    {options.map((value) => {
-                      const radio = getRadioProps({ value })
-                      return (
-                        <RadioCard key={value} {...radio} alignSelf={'flex-start'}>
-                          {value}
-                        </RadioCard>
-                      )
-                    })}
-                  </HStack>
+                    <HStack {...group} width={"100%"} alignItems={"flex-start"}>
+                      {options.map((value) => {
+                        const radio = getRadioProps({ value });
+                        return (
+                          <RadioCard
+                            key={value}
+                            {...radio}
+                            alignSelf={"flex-start"}
+                          >
+                            {value}
+                          </RadioCard>
+                        );
+                      })}
+                    </HStack>
                   </PopoverBody>
                   <PopoverFooter
-                    border='0'
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='flex-end'
+                    border="0"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-end"
                     pb={4}
                   >
-                    <ButtonGroup size='sm'>
-                      <Button 
-                        color={'#63342A'} 
-                        bg={'#EAC3AE'}
+                    <ButtonGroup size="sm">
+                      <Button
+                        color={"#63342A"}
+                        bg={"#EAC3AE"}
                         _hover={{
                           backgroundColor: "#eac3aeb2",
                         }}
@@ -389,16 +395,16 @@ export default function Table({
                           backgroundColor: "#eac3ae83",
                         }}
                         onClick={() => {
-                          if (radioValue === 'Último dia') {
-                            create('daily')
-                          } else if (radioValue === 'Última semana') {
-                            create('weekly')
+                          if (radioValue === "Último dia") {
+                            create("daily");
+                          } else if (radioValue === "Última semana") {
+                            create("weekly");
                           } else {
-                            create('monthly')
+                            create("monthly");
                           }
                         }}
                       >
-                        {'Gerar'}
+                        {"Gerar"}
                       </Button>
                     </ButtonGroup>
                   </PopoverFooter>

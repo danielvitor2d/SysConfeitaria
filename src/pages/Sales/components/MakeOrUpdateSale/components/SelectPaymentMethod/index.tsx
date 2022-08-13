@@ -33,7 +33,7 @@ export default function SelectPaymentMethod({
 
   const [methods, setMethods] = useState<PaymentMethod[]>(() => {
     if (mode === "create" || !sale.paymentMethods) return [];
-    return [ ...sale.paymentMethods ];
+    return [...sale.paymentMethods];
   });
 
   const paymentMethodStyles: StylesConfig<any> = {
