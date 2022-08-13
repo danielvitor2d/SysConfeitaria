@@ -151,14 +151,6 @@ export default function MakeSale({
     }
   }
 
-  // async function handleUpdateItem(itemCode: string) {
-  //   toast({
-  //     title: "Editando",
-  //     description: `Editando linha ${itemCode}`,
-  //     status: "info",
-  //   });
-  // }
-
   const sortByProductName = useCallback(
     (
       rowA: Row<ItemRow>,

@@ -19,6 +19,28 @@ export interface ProductDocument extends Product {
   _id?: string;
 }
 
+export type Payment = {
+  paymentCode: string;
+  paymentTitle: string;
+  paymentDescription: string;
+  paymentValue: number;
+  createdAt: string;
+};
+
+export interface PaymentRow extends Payment {
+  actions?: string;
+}
+
+export interface PaymentOption extends Payment {
+  value?: string;
+  label?: string;
+  key?: string;
+}
+
+export interface PaymentDocument extends Payment {
+  _id?: string;
+}
+
 export type Client = {
   clientCode: string;
   clientName: string;

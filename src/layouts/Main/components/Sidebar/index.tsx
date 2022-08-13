@@ -77,7 +77,8 @@ export default function Sidebar() {
     if (ev.key === "%" && ev.shiftKey) {
       navigate("/settings");
     }
-    if (ev.key === "%" && ev.shiftKey) {
+    if (ev.key === "Q" && ev.shiftKey) {
+      console.log("Sair");
       signOut();
     }
   };
@@ -103,21 +104,21 @@ export default function Sidebar() {
       title: "Pagamentos",
       route: "/payments",
       icon: faBoxesPacking,
-      shortcut: ["shift", "1"],
+      shortcut: ["shift", "2"],
     },
     {
       key: "clients",
       title: "Clientes",
       route: "/clients",
       icon: faUsers,
-      shortcut: ["shift", "2"],
+      shortcut: ["shift", "3"],
     },
     {
       key: "products",
       title: "Produtos",
       route: "/products",
       icon: faCake,
-      shortcut: ["shift", "3"],
+      shortcut: ["shift", "4"],
     },
     {
       key: "settings",
@@ -125,18 +126,15 @@ export default function Sidebar() {
       route: "/settings",
       icon: faGear,
       precedesDivider: true,
-      shortcut: ["shift", "4"],
+      shortcut: ["shift", "5"],
     },
     {
       key: "logout",
       title: "Sair",
       route: "",
       icon: faArrowRightFromBracket,
-      onClick: () => {
-        signOut();
-        navigate("/login");
-      },
-      shortcut: ["shift", "5"],
+      onClick: signOut,
+      shortcut: ["shift", "Q"],
     },
   ];
 

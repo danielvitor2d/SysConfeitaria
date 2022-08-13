@@ -2,6 +2,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ClientProvider } from "./contexts/ClientsContext";
 import { GlobalProvider } from "./contexts/GlobalContext";
+import { PaymentProvider } from "./contexts/PaymentContext";
 import { ProductProvider } from "./contexts/ProductsContext";
 import { SaleProvider } from "./contexts/SalesContext";
 
@@ -14,11 +15,13 @@ function App() {
       <GlobalProvider>
         <AuthProvider>
           <SaleProvider>
-            <ClientProvider>
-              <ProductProvider>
-                <Routes />
-              </ProductProvider>
-            </ClientProvider>
+            <PaymentProvider>
+              <ClientProvider>
+                <ProductProvider>
+                  <Routes />
+                </ProductProvider>
+              </ClientProvider>
+            </PaymentProvider>
           </SaleProvider>
         </AuthProvider>
       </GlobalProvider>

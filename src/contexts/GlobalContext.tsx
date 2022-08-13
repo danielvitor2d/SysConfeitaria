@@ -25,9 +25,11 @@ interface GlobalContextData {
   getNextClientCode: () => Promise<number>;
   getNextProductCode: () => Promise<number>;
   getNextSaleCode: () => Promise<number>;
+  getNextPaymentCode: () => Promise<number>;
   clientCode: number;
   productCode: number;
   saleCode: number;
+  paymentCode: number;
   register: () => Promise<void>;
   registered: boolean;
 }
@@ -38,6 +40,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
   const [clientCode, setClientCode] = useState(1);
   const [productCode, setProductCode] = useState(1);
   const [saleCode, setSaleCode] = useState(1);
+  const [paymentCode, setPaymentCode] = useState(1);
   const [registered, setRegistered] = useState(false);
 
   const db = getFirestore(app);
@@ -84,6 +87,20 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
     }
   }
 
+  async function getNextPaymentCode() {
+    const currentPaymentCode = paymentCode;
+    try {
+      await updateDoc(doc(db, "global", "0"), {
+        paymentCode: paymentCode + 1,
+      });
+      setPaymentCode(paymentCode + 1);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      return paymentCode;
+    }
+  }
+
   async function register() {
     try {
       await updateDoc(doc(db, "global", "0"), {
@@ -109,8 +126,8 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         setClientCode(data.clientCode || 1);
         setProductCode(data.productCode || 1);
         setSaleCode(data.saleCode || 1);
+        setPaymentCode(data.paymentCode || 1);
         if (data.registered) {
-          // console.log("data.registered: " + data.registered);
           setRegistered(data.registered);
         }
       }
@@ -140,11 +157,13 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         getNextClientCode,
         getNextProductCode,
         getNextSaleCode,
+        getNextPaymentCode,
         register,
         registered,
         clientCode,
         productCode,
         saleCode,
+        paymentCode,
       }}
     >
       {children}
