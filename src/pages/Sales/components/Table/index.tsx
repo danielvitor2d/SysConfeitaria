@@ -154,7 +154,7 @@ export default function Table({
 
   const create = async (type: "daily" | "weekly" | "monthly") => {
     const img = new Image()
-    img.src = './src/assets/logo_matrix.png'
+    img.src = './src/assets/logo_confeitaria.png'
 
     const head = [['Código', 'Cliente', 'Valor', 'Forma de pagamento']]
 
@@ -200,7 +200,8 @@ export default function Table({
       startY: 30,
       theme: 'striped',
       alternateRowStyles: {
-        fillColor: '#8bb1ce',
+        fillColor: '#BEBEBE',
+        // fillColor: '#ac7e73',
       },
       headStyles: {
         fillColor: '#FFF',
