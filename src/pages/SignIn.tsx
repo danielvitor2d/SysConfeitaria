@@ -67,7 +67,7 @@ export default function SignIn() {
         variant: "left-accent",
         position: "bottom-right",
       });
-      navigate("/sales");
+      navigate("/start");
     } else {
       toast({
         title: "Erro ao tentar fazer login",
@@ -83,7 +83,7 @@ export default function SignIn() {
 
   useEffect(() => {
     if (signed) {
-      navigate("/sales");
+      navigate("/start");
     }
   }, [signed]);
 

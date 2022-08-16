@@ -3,6 +3,7 @@ import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
+  ButtonGroup,
   chakra,
   GridItem,
   HStack,
@@ -14,6 +15,14 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverFooter,
+  PopoverHeader,
+  PopoverTrigger,
   SimpleGrid,
   Table as ChakraUITable,
   TableCaption,
@@ -25,16 +34,19 @@ import {
   Th,
   Thead,
   Tr,
+  useRadioGroup,
+  UseRadioGroupProps,
   VStack,
 } from "@chakra-ui/react";
 import {
   faAngleDown,
   faCircleXmark,
+  faFilePdf,
   faPlus,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   Column,
   IdType,
@@ -47,8 +59,16 @@ import {
   useTable,
 } from "react-table";
 import Paginate from "../Paginate";
-import { PaymentRow } from "../../../../types";
+import { paymentMethod, PaymentMethod, PaymentRow } from "../../../../types";
 import { matchSorter } from "match-sorter";
+import { options } from "pdfkit";
+import RadioCard from "../../../Sales/components/Table/RadioCard";
+import PaymentContext from "../../../../contexts/PaymentContext";
+import { compareDate } from "../../../../util/compareDate";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { fromNumberToStringFormatted } from "../../../../util/formatCurrency";
+import { getDateMinusDays, getDateMinusMonth, fromDatetimeToLocalFormatted } from "../../../../util/getDate";
 
 interface PaymentTableProps {
   columns: Column<PaymentRow>[];
@@ -81,6 +101,78 @@ export default function Table({
         background: "#482017",
       },
     },
+  };
+
+  const { payments } = useContext(PaymentContext)
+
+  const create = async (type: "daily" | "weekly" | "monthly") => {
+    const img = new Image()
+    img.src = './src/assets/logo_confeitaria.png'
+
+    const head = [['Código', 'Título', 'Valor', 'Data do pagamento']]
+
+    const initDay = (type === 'daily' ? getDateMinusDays(0) : type === 'weekly' ? getDateMinusDays(6) : getDateMinusMonth(1))
+    const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR")
+
+    let paymentsToReport = payments.filter(payment => {
+      return compareDate(
+        initDay,
+        fromDatetimeToLocalFormatted(payment.createdAt)
+      );
+    })
+
+    let total = 0
+
+    let data = paymentsToReport.map(payment => {
+      total += (payment.paymentValue as number)
+      return [
+        payment.paymentCode,
+        payment.paymentTitle,
+        "R$ " + fromNumberToStringFormatted(payment.paymentValue as number),
+        fromDatetimeToLocalFormatted(payment.createdAt)
+      ];
+    })
+
+    const doc = new jsPDF()
+
+    doc.setFontSize(22)
+    doc.text("Relatório de Pagamentos", 15, 17);
+
+    doc.setFontSize(14)
+    doc.text("Total pago: ", 15, 26)
+    doc.setFontSize(12)
+    doc.text(`R$ ${fromNumberToStringFormatted(total)}`, 60, 26)
+
+    doc.setFontSize(14)
+    doc.text("Período: ", 15, 32)
+    doc.setFontSize(12)
+    doc.text(`${initDay} - ${lastDay}`, 60, 32)
+
+    doc.addImage(img, 'png', 140, 5, 60, 20)
+
+    autoTable(doc, {
+      head: head,
+      body: data,
+      didDrawCell: (data) => {
+        console.log(data.column.index)
+      },
+      pageBreak: 'auto',
+      startY: 40,
+      theme: 'striped',
+      alternateRowStyles: {
+        fillColor: '#BEBEBE',
+        // fillColor: '#ac7e73',
+      },
+      headStyles: {
+        fillColor: '#FFF',
+        textColor: '#353535'
+      },
+      bodyStyles: {
+        textColor: '#353535'
+      }
+    })
+
+    doc.output('dataurlnewwindow', { filename: 'my-report.pdf' })
   };
 
   const [filter, setFilter] = useState<string>("");
@@ -155,6 +247,28 @@ export default function Table({
     setFilter(event.target.value);
   };
 
+  const options = ["Último dia", "Última semana", "Último mês"];
+
+  const [radioValue, setRadioValue] = useState<
+    "Último dia" | "Última semana" | "Último mês"
+  >("Último dia");
+
+  const { getRootProps, getRadioProps } = useRadioGroup({
+    name: "reportsType",
+    defaultValue: "Último dia",
+    onChange: (nextValue: string) => {
+      if (nextValue === "Último dia") {
+        setRadioValue("Último dia");
+      } else if (nextValue === "Última semana") {
+        setRadioValue("Última semana");
+      } else {
+        setRadioValue("Último mês");
+      }
+    },
+  } as UseRadioGroupProps);
+
+  const group = getRootProps();
+
   return (
     <VStack gap={1}>
       <SimpleGrid
@@ -166,39 +280,135 @@ export default function Table({
         columns={[1, 1, 1, 2, 2]}
       >
         <GridItem colSpan={[1, 1, 1, 1, 1]}>
-          <Button
-            alignSelf={"flex-start"}
-            backgroundColor={"#EAC3AE"}
-            _hover={{
-              backgroundColor: "#eac3aeb2",
-            }}
-            _active={{
-              backgroundColor: "#eac3ae83",
-            }}
-            borderRadius={"6px"}
-            borderWidth={"1px"}
-            borderColor={"#63342B"}
-            onClick={onOpenDrawerAddPayment}
-          >
-            <HStack alignItems={"center"}>
-              <Text
-                fontFamily={"Montserrat"}
-                fontWeight={"600"}
-                textColor={"#63342B"}
-                marginTop={"2px"}
-                textAlign={"center"}
+          <HStack>
+            <Button
+              alignSelf={"flex-start"}
+              backgroundColor={"#EAC3AE"}
+              _hover={{
+                backgroundColor: "#eac3aeb2",
+              }}
+              _active={{
+                backgroundColor: "#eac3ae83",
+              }}
+              borderRadius={"6px"}
+              borderWidth={"1px"}
+              borderColor={"#63342B"}
+              onClick={onOpenDrawerAddPayment}
+            >
+              <HStack alignItems={"center"}>
+                <Text
+                  fontFamily={"Montserrat"}
+                  fontWeight={"600"}
+                  textColor={"#63342B"}
+                  marginTop={"2px"}
+                  textAlign={"center"}
+                >
+                  {"Novo pagamento".toUpperCase()}
+                </Text>
+                <Box height={"25px"} width={"25px"} textAlign={"center"}>
+                  <FontAwesomeIcon
+                    color={"#63342B"}
+                    icon={faPlus}
+                    fontSize={"25px"}
+                  />
+                </Box>
+              </HStack>
+            </Button>
+            <Popover placement="bottom">
+              <PopoverTrigger>
+                <Button
+                  alignSelf={"flex-start"}
+                  backgroundColor={"#EAC3AE"}
+                  _hover={{
+                    backgroundColor: "#eac3aeb2",
+                  }}
+                  _active={{
+                    backgroundColor: "#eac3ae83",
+                  }}
+                  borderRadius={"6px"}
+                  borderWidth={"1px"}
+                  borderColor={"#63342B"}
+                >
+                  <HStack alignItems={"center"}>
+                    <Text
+                      fontFamily={"Montserrat"}
+                      fontWeight={"600"}
+                      textColor={"#63342B"}
+                      marginTop={"2px"}
+                      textAlign={"center"}
+                    >
+                      {"Relatórios".toUpperCase()}
+                    </Text>
+                    <Box height={"25px"} width={"25px"} textAlign={"center"}>
+                      <FontAwesomeIcon
+                        color={"#63342B"}
+                        icon={faFilePdf}
+                        fontSize={"25px"}
+                      />
+                    </Box>
+                  </HStack>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                color="white"
+                bg="#70453c"
+                borderColor="#63342A"
               >
-                {"Novo pagamento".toUpperCase()}
-              </Text>
-              <Box height={"25px"} width={"25px"} textAlign={"center"}>
-                <FontAwesomeIcon
-                  color={"#63342B"}
-                  icon={faPlus}
-                  fontSize={"25px"}
-                />
-              </Box>
-            </HStack>
-          </Button>
+                <PopoverHeader pt={4} fontWeight="bold" border="0">
+                  {"Gerar relatórios"}
+                </PopoverHeader>
+                <PopoverArrow />
+                <PopoverCloseButton />
+                <PopoverBody>
+                  <HStack {...group} width={"100%"} alignItems={"flex-start"}>
+                    {options.map((value) => {
+                      const radio = getRadioProps({ value });
+                      return (
+                        <RadioCard
+                          key={value}
+                          {...radio}
+                          alignSelf={"flex-start"}
+                        >
+                          {value}
+                        </RadioCard>
+                      );
+                    })}
+                  </HStack>
+                </PopoverBody>
+                <PopoverFooter
+                  border="0"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-end"
+                  pb={4}
+                >
+                  <ButtonGroup size="sm">
+                    <Button
+                      color={"#63342A"}
+                      bg={"#EAC3AE"}
+                      _hover={{
+                        backgroundColor: "#eac3aeb2",
+                      }}
+                      _active={{
+                        backgroundColor: "#eac3ae83",
+                      }}
+                      onClick={async () => {
+                        if (radioValue === "Último dia") {
+                          await create("daily");
+                        } else if (radioValue === "Última semana") {
+                          await create("weekly");
+                        } else {
+                          await create("monthly");
+                        }
+                      }}
+                    >
+                      {"Gerar"}
+                    </Button>
+                  </ButtonGroup>
+                </PopoverFooter>
+              </PopoverContent>
+            </Popover>
+          </HStack>
         </GridItem>
         <GridItem colSpan={[1, 1, 1, 1, 1]}>
           <HStack justifyContent={"flex-end"}>
@@ -311,9 +521,8 @@ export default function Table({
                     {column.canResize ? (
                       <Box
                         {...column.getResizerProps()}
-                        className={`resizer ${
-                          column.isResizing ? "isResizing" : ""
-                        }`}
+                        className={`resizer ${column.isResizing ? "isResizing" : ""
+                          }`}
                       />
                     ) : null}
                   </Th>

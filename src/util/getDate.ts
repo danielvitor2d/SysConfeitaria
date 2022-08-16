@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const getDatetimeLocalFormatted = (date: Date) => {
   let year = date.getFullYear();
   let month = String(date.getMonth() + 1);
@@ -21,16 +23,26 @@ export const fromDatetimeToLocalFormatted = (_date: string) => {
   return date.split("-").reverse().join("/");
 };
 export const getDateMinusDays = (days: number) => {
-  var date = new Date(
-    getDatetimeLocalFormattedString(new Date().toLocaleDateString("pt-BR"))
-  );
+  var date = moment().subtract(days, 'day').toDate()
 
-  // console.log("Date now: " + JSON.stringify(date))
+  console.log("Date now: " + JSON.stringify(date))
 
-  var last = new Date(date.getTime() - days * 24 * 60 * 60 * 1000);
-  var day = String(last.getDate());
-  var month = String(last.getMonth() + 1);
-  var year = String(last.getFullYear());
+  var day = String(date.getDate());
+  var month = String(date.getMonth() + 1);
+  var year = String(date.getFullYear());
+
+  month.length < 2 ? (month = "0" + month) : undefined;
+  day.length < 2 ? (day = "0" + day) : undefined;
+
+  return day + "/" + month + "/" + year;
+};
+
+export const getDateMinusMonth = (months: number) => {
+  var date = moment().subtract(months, 'month').toDate()
+
+  var day = String(date.getDate());
+  var month = String(date.getMonth() + 1);
+  var year = String(date.getFullYear());
 
   month.length < 2 ? (month = "0" + month) : undefined;
   day.length < 2 ? (day = "0" + day) : undefined;

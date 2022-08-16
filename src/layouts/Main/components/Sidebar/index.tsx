@@ -27,6 +27,7 @@ import {
   faChevronLeft,
   faChevronRight,
   faGear,
+  faHome,
   faPlus,
   faUsers,
   IconDefinition,
@@ -63,18 +64,21 @@ export default function Sidebar() {
     // console.log("Clicked key: " + ev.key);
     // console.log("Clicked key: " + ev.ctrlKey);
     if (ev.key === "!" && ev.shiftKey) {
-      navigate("/sales");
+      navigate("/start");
     }
     if (ev.key === "@" && ev.shiftKey) {
-      navigate("/payments");
+      navigate("/sales");
     }
     if (ev.key === "#" && ev.shiftKey) {
-      navigate("/clients");
+      navigate("/payments");
     }
     if (ev.key === "$" && ev.shiftKey) {
-      navigate("/products");
+      navigate("/clients");
     }
     if (ev.key === "%" && ev.shiftKey) {
+      navigate("/products");
+    }
+    if (ev.key === "S" && ev.shiftKey) {
       navigate("/settings");
     }
     if (ev.key === "Q" && ev.shiftKey) {
@@ -93,32 +97,39 @@ export default function Sidebar() {
 
   const MENUS_SIDEBAR: Array<SidebarType> = [
     {
+      key: "start",
+      title: "Início",
+      route: "/start",
+      icon: faHome,
+      shortcut: ["shift", "1"],
+    },
+    {
       key: "sales",
       title: "Vendas",
       route: "/sales",
       icon: faCartPlus,
-      shortcut: ["shift", "1"],
+      shortcut: ["shift", "2"],
     },
     {
       key: "sales",
       title: "Pagamentos",
       route: "/payments",
       icon: faBoxesPacking,
-      shortcut: ["shift", "2"],
+      shortcut: ["shift", "3"],
     },
     {
       key: "clients",
       title: "Clientes",
       route: "/clients",
       icon: faUsers,
-      shortcut: ["shift", "3"],
+      shortcut: ["shift", "4"],
     },
     {
       key: "products",
       title: "Produtos",
       route: "/products",
       icon: faCake,
-      shortcut: ["shift", "4"],
+      shortcut: ["shift", "5"],
     },
     {
       key: "settings",
@@ -126,7 +137,7 @@ export default function Sidebar() {
       route: "/settings",
       icon: faGear,
       precedesDivider: true,
-      shortcut: ["shift", "5"],
+      shortcut: ["shift", "S"],
     },
     {
       key: "logout",

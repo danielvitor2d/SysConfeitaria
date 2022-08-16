@@ -90,6 +90,8 @@ import { MyDocument } from "./report";
 import jsPDF from 'jspdf'
 import autoTable from "jspdf-autotable";
 import { fromNumberToStringFormatted } from "../../../../util/formatCurrency";
+import { fromDatetimeToLocalFormatted, getDateMinusDays, getDateMinusMonth } from "../../../../util/getDate";
+import { compareDate, compareDateStrict } from "../../../../util/compareDate";
 
 interface SalesTableProps {
   columns: Column<SaleRow>[];
@@ -158,7 +160,20 @@ export default function Table({
 
     const head = [['Código', 'Cliente', 'Valor', 'Forma de pagamento']]
 
-    let data = sales.map(sale => {
+    const initDay = (type === 'daily' ? getDateMinusDays(0) : type === 'weekly' ? getDateMinusDays(6) : getDateMinusMonth(1))
+    const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR")
+
+    let salesToReport = sales.filter(sale => {
+      return compareDate(
+        initDay,
+        fromDatetimeToLocalFormatted(sale.createdAt)
+      );
+    })
+
+    let total = 0
+
+    let data = salesToReport.map(sale => {
+      total += (sale.fullValue as number)
       return [
         sale.saleCode,
         sale.client.clientName,
@@ -181,12 +196,20 @@ export default function Table({
       ];
     })
 
-    data = [...data, ...data, ...data, ...data]
-    
     const doc = new jsPDF()
 
-    doc.setFontSize(25)
+    doc.setFontSize(22)
     doc.text("Relatório de Vendas", 15, 17);
+    
+    doc.setFontSize(14)
+    doc.text("Total arrecadado: ", 15, 26)
+    doc.setFontSize(12)
+    doc.text(`R$ ${fromNumberToStringFormatted(total)}`, 60, 26)
+    
+    doc.setFontSize(14)
+    doc.text("Período: ", 15, 32)
+    doc.setFontSize(12)
+    doc.text(`${initDay} - ${lastDay}`, 60, 32)
 
     doc.addImage(img, 'png', 140, 5, 60, 20)
 
@@ -197,7 +220,7 @@ export default function Table({
         console.log(data.column.index)
       },
       pageBreak: 'auto',
-      startY: 30,
+      startY: 40,
       theme: 'striped',
       alternateRowStyles: {
         fillColor: '#BEBEBE',

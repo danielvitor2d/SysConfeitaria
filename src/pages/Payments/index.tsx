@@ -16,9 +16,9 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CellProps, Column } from "react-table";
+import { CellProps, Column, Row } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
 import { PaymentRow, Payment } from "../../types";
 import Table from "./components/Table";
@@ -29,6 +29,8 @@ import React from "react";
 import { formatCode } from "../../util/formatCode";
 import PaymentContext from "../../contexts/PaymentContext";
 import SaveOrUpdatePayment from "./components/SaveOrUpdatePayment";
+import { fromDatetimeToLocalFormatted } from "../../util/getDate";
+import { compareDate } from "../../util/compareDate";
 
 export default function Payments() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
@@ -61,6 +63,20 @@ export default function Payments() {
   } = useDisclosure();
 
   const cancelRefRemovePayment = React.useRef(null);
+
+  const sortByDate = useCallback(
+    (
+      rowA: Row<PaymentRow>,
+      rowB: Row<PaymentRow>,
+      _columnId: String,
+      _desc: boolean
+    ) => {
+      return compareDate(rowA.values["createdAt"], rowB.values["createdAt"])
+        ? -1
+        : 1;
+    },
+    []
+  );
 
   const columns = useMemo(
     () =>
@@ -125,11 +141,30 @@ export default function Payments() {
           ),
           accessor: "paymentDescription",
           disableResizing: false,
-          width: 350,
+          width: 450,
         },
         {
-          Header: "Valor unitário/Kg/g/L".toUpperCase(),
-          Footer: "Valor unitário/Kg/g/L".toUpperCase(),
+          Header: "Data".toUpperCase(),
+          Footer: "Data".toUpperCase(),
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {fromDatetimeToLocalFormatted(value)}
+              </Text>
+            </Flex>
+          ),
+          accessor: "createdAt",
+          sortType: sortByDate,
+          disableResizing: false,
+          width: 150,
+        },
+        {
+          Header: "Valor".toUpperCase(),
+          Footer: "Valor".toUpperCase(),
           accessor: "paymentValue",
           Cell: ({ value }) => (
             <Flex
@@ -144,7 +179,7 @@ export default function Payments() {
           ),
           disableResizing: false,
           isNumeric: true,
-          width: 250,
+          width: 150,
         },
         {
           Header: "Ações".toUpperCase(),
