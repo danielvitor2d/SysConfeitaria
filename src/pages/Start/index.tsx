@@ -1,11 +1,15 @@
-import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
-import { useContext, useMemo } from 'react';
-import { Bar, ChartConfig, Pie } from '@kimizuy/react-chartjs'
-import SaleContext from '../../contexts/SalesContext';
-import PaymentContext from '../../contexts/PaymentContext';
-import { fromDatetimeToLocalFormatted, getDateMinusDays, getDateMinusMonth } from '../../util/getDate';
-import { compareDate } from '../../util/compareDate';
-import { fromNumberToStringFormatted } from '../../util/formatCurrency';
+import { Box, Flex, HStack, Text, VStack } from "@chakra-ui/react";
+import { useContext, useMemo } from "react";
+import { Bar, ChartConfig, Pie } from "@kimizuy/react-chartjs";
+import SaleContext from "../../contexts/SalesContext";
+import PaymentContext from "../../contexts/PaymentContext";
+import {
+  fromDatetimeToLocalFormatted,
+  getDateMinusDays,
+  getDateMinusMonth,
+} from "../../util/getDate";
+import { compareDate } from "../../util/compareDate";
+import { fromNumberToStringFormatted } from "../../util/formatCurrency";
 
 export default function Start() {
   // const data = useMemo(() => {
@@ -33,93 +37,109 @@ export default function Start() {
   // //   data: data,
   // // };
 
-  const { sales } = useContext(SaleContext)
-  const { payments } = useContext(PaymentContext)
+  const { sales } = useContext(SaleContext);
+  const { payments } = useContext(PaymentContext);
 
-  const initDay = getDateMinusDays(0)
-  const initWeek = getDateMinusDays(6)
-  const initMonth = getDateMinusMonth(1)
+  const initDay = getDateMinusDays(0);
+  const initWeek = getDateMinusDays(6);
+  const initMonth = getDateMinusMonth(1);
 
-  const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR")
+  const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR");
 
-  let salesToReportDay = sales.filter(sale => {
-    return compareDate(
-      initDay,
-      fromDatetimeToLocalFormatted(sale.createdAt)
-    );
-  })
+  let salesToReportDay = sales.filter((sale) => {
+    return compareDate(initDay, fromDatetimeToLocalFormatted(sale.createdAt));
+  });
 
-  let paymentsToReportDay = payments.filter(payment => {
+  let paymentsToReportDay = payments.filter((payment) => {
     return compareDate(
       initDay,
       fromDatetimeToLocalFormatted(payment.createdAt)
     );
-  })
+  });
 
-  let totalSalesDay = 0
+  let totalSalesDay = 0;
 
-  salesToReportDay.forEach(sale => {
-    totalSalesDay += (sale.fullValue as number)
-  })
+  salesToReportDay.forEach((sale) => {
+    totalSalesDay += sale.fullValue as number;
+  });
 
-  let totalPaymentsDay = 0
+  let totalPaymentsDay = 0;
 
-  paymentsToReportDay.forEach(payment => {
-    totalPaymentsDay += (payment.paymentValue)
-  })
+  paymentsToReportDay.forEach((payment) => {
+    totalPaymentsDay += payment.paymentValue;
+  });
 
-  let salesToReportWeek = sales.filter(sale => {
-    return compareDate(
-      initWeek,
-      fromDatetimeToLocalFormatted(sale.createdAt)
-    );
-  })
+  let salesToReportWeek = sales.filter((sale) => {
+    return compareDate(initWeek, fromDatetimeToLocalFormatted(sale.createdAt));
+  });
 
-  let paymentsToReportWeek = payments.filter(payment => {
+  let paymentsToReportWeek = payments.filter((payment) => {
     return compareDate(
       initWeek,
       fromDatetimeToLocalFormatted(payment.createdAt)
     );
-  })
+  });
 
-  let totalSalesWeek = 0
+  let totalSalesWeek = 0;
 
-  salesToReportWeek.forEach(sale => {
-    totalSalesWeek += (sale.fullValue as number)
-  })
+  salesToReportWeek.forEach((sale) => {
+    totalSalesWeek += sale.fullValue as number;
+  });
 
-  let totalPaymentsWeek = 0
+  let totalPaymentsWeek = 0;
 
-  paymentsToReportWeek.forEach(payment => {
-    totalPaymentsWeek += (payment.paymentValue)
-  })
+  paymentsToReportWeek.forEach((payment) => {
+    totalPaymentsWeek += payment.paymentValue;
+  });
 
+  let salesToReportMonth = sales.filter((sale) => {
+    return compareDate(initWeek, fromDatetimeToLocalFormatted(sale.createdAt));
+  });
 
-  let salesToReportMonth = sales.filter(sale => {
-    return compareDate(
-      initWeek,
-      fromDatetimeToLocalFormatted(sale.createdAt)
-    );
-  })
-
-  let paymentsToReportMonth = payments.filter(payment => {
+  let paymentsToReportMonth = payments.filter((payment) => {
     return compareDate(
       initWeek,
       fromDatetimeToLocalFormatted(payment.createdAt)
     );
-  })
+  });
 
-  let totalSalesMonth = 0
+  let totalSalesMonth = 0;
 
-  salesToReportMonth.forEach(sale => {
-    totalSalesMonth += (sale.fullValue as number)
-  })
+  salesToReportMonth.forEach((sale) => {
+    totalSalesMonth += sale.fullValue as number;
+  });
 
-  let totalPaymentsMonth = 0
+  let totalPaymentsMonth = 0;
 
-  paymentsToReportMonth.forEach(payment => {
-    totalPaymentsMonth += (payment.paymentValue)
-  })
+  paymentsToReportMonth.forEach((payment) => {
+    totalPaymentsMonth += payment.paymentValue;
+  });
+
+  const options = {
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          color: "#2b2b2b",
+          font: {
+            size: 18,
+          },
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            let label = context.dataset.label || "";
+            return (
+              label +
+              " R$ " +
+              fromNumberToStringFormatted(context.raw as number)
+            );
+          },
+        },
+      },
+    },
+  };
 
   const config_01: ChartConfig = useMemo(() => {
     return {
@@ -132,37 +152,14 @@ export default function Start() {
               "rgba(255, 99, 132, 0.2)",
               "rgba(54, 162, 235, 0.2)",
             ],
-            borderColor: [
-              "rgba(255, 99, 132, 1)",
-              "rgba(54, 162, 235, 1)",
-            ],
-            borderWidth: 1
-          }
+            borderColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+            borderWidth: 1,
+          },
         ],
       },
-      options: {
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.dataset.label || '';
-
-                        return label + " R$ " + fromNumberToStringFormatted(context.raw as number)
-
-                        // if (label) {
-                        //     label += ': ';
-                        // }
-                        // if (context.parsed.y !== null) {
-                        //     label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
-                        // }
-                        // return label;
-                    }
-                }
-            }
-        }
-    } 
-    }
-  }, [sales, payments])
+      options,
+    };
+  }, [sales, payments]);
 
   const config_02: ChartConfig = useMemo(() => {
     return {
@@ -175,37 +172,14 @@ export default function Start() {
               "rgba(255, 99, 132, 0.2)",
               "rgba(54, 162, 235, 0.2)",
             ],
-            borderColor: [
-              "rgba(255, 99, 132, 1)",
-              "rgba(54, 162, 235, 1)",
-            ],
-            borderWidth: 1
-          }
+            borderColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+            borderWidth: 1,
+          },
         ],
       },
-      options: {
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.dataset.label || '';
-
-                        return label + " R$ " + fromNumberToStringFormatted(context.raw as number)
-
-                        // if (label) {
-                        //     label += ': ';
-                        // }
-                        // if (context.parsed.y !== null) {
-                        //     label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
-                        // }
-                        // return label;
-                    }
-                }
-            }
-        }
-    }
-    }
-  }, [sales, payments])
+      options,
+    };
+  }, [sales, payments]);
 
   const config_03: ChartConfig = useMemo(() => {
     return {
@@ -218,37 +192,14 @@ export default function Start() {
               "rgba(255, 99, 132, 0.2)",
               "rgba(54, 162, 235, 0.2)",
             ],
-            borderColor: [
-              "rgba(255, 99, 132, 1)",
-              "rgba(54, 162, 235, 1)",
-            ],
-            borderWidth: 1
-          }
+            borderColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+            borderWidth: 1,
+          },
         ],
       },
-      options: {
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.dataset.label || '';
-
-                        return label + " R$ " + fromNumberToStringFormatted(context.raw as number)
-
-                        // if (label) {
-                        //     label += ': ';
-                        // }
-                        // if (context.parsed.y !== null) {
-                        //     label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
-                        // }
-                        // return label;
-                    }
-                }
-            }
-        }
-    }
-    }
-  }, [sales, payments])
+      options,
+    };
+  }, [sales, payments]);
 
   const config: ChartConfig = {
     data: {
@@ -263,7 +214,7 @@ export default function Start() {
             "rgba(255, 206, 86, 0.2)",
             "rgba(75, 192, 192, 0.2)",
             "rgba(153, 102, 255, 0.2)",
-            "rgba(255, 159, 64, 0.2)"
+            "rgba(255, 159, 64, 0.2)",
           ],
           borderColor: [
             "rgba(255, 99, 132, 1)",
@@ -271,75 +222,76 @@ export default function Start() {
             "rgba(255, 206, 86, 1)",
             "rgba(75, 192, 192, 1)",
             "rgba(153, 102, 255, 1)",
-            "rgba(255, 159, 64, 1)"
+            "rgba(255, 159, 64, 1)",
           ],
-          borderWidth: 1
-        }
-      ]
+          borderWidth: 1,
+        },
+      ],
     },
     options: {
       scales: {
         y: {
-          beginAtZero: true
-        }
+          beginAtZero: true,
+        },
       },
-      aspectRatio: 1.618
-    }
+      aspectRatio: 1.618,
+    },
   };
 
   return (
-    <VStack
-      backgroundColor={'#FFF'}
-      padding={'50px'}
-      height={'100vh'}
-      gap={10}
-    >
+    <VStack backgroundColor={"#FFF"} padding={"50px"} height={"100vh"} gap={10}>
       <Text
-        fontSize={'30px'}
-        textAlign={'center'}
-        fontFamily={'Montserrat'}
-        fontWeight={'600'}
+        fontSize={"30px"}
+        textAlign={"center"}
+        fontFamily={"Montserrat"}
+        fontWeight={"600"}
       >
-        {'Entradas x Vendas'.toUpperCase()}
+        {"Entradas x Vendas".toUpperCase()}
       </Text>
-      <Flex 
-        flexDirection={'row'}
-        justifyContent={'space-between'}
-        alignContent={'center'}
+      <Flex
+        flexDirection={"row"}
+        justifyContent={"space-between"}
+        alignContent={"center"}
         gap={40}
       >
-        <Flex boxSize={'400px'} alignContent={'center'} alignItems={'center'} flexDirection={'column'} gap={'25px'} >
+        <Flex
+          boxSize={"400px"}
+          alignContent={"center"}
+          alignItems={"center"}
+          flexDirection={"column"}
+          gap={"25px"}
+        >
           <Pie {...config_01} />
-          <Text
-            fontSize={'20px'}
-            fontWeight={600}
-            fontFamily={'Montserrat'}
-          >
-            {'Diário (' + initDay + ' - ' + lastDay + ')'}
+          <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {"Diário (" + initDay + " - " + lastDay + ")"}
           </Text>
         </Flex>
-        <Flex boxSize={'400px'} alignContent={'center'} alignItems={'center'} flexDirection={'column'} gap={'25px'} >
+        <Flex
+          boxSize={"400px"}
+          alignContent={"center"}
+          alignItems={"center"}
+          flexDirection={"column"}
+          gap={"25px"}
+        >
           <Pie {...config_02} />
-          <Text
-            fontSize={'20px'}
-            fontWeight={600}
-            fontFamily={'Montserrat'}
-          >
-            {'Semanal (' + initWeek + ' - ' + lastDay + ')'}
+          <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {"Semanal (" + initWeek + " - " + lastDay + ")"}
           </Text>
         </Flex>
-        <Flex boxSize={'400px'} alignContent={'center'} alignItems={'center'} flexDirection={'column'} gap={'25px'} >
+        <Flex
+          boxSize={"400px"}
+          alignContent={"center"}
+          alignItems={"center"}
+          flexDirection={"column"}
+          gap={"25px"}
+        >
           <Pie {...config_03} />
-          <Text
-            fontSize={'20px'}
-            fontWeight={600}
-            fontFamily={'Montserrat'}
-          >
-            {'Mensal (' + initMonth + ' - ' + lastDay + ')'}
+          <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {"Mensal (" + initMonth + " - " + lastDay + ")"}
           </Text>
         </Flex>
       </Flex>
       {/* <Bar data={data} /> */}
     </VStack>
-  )
+  );
 }

@@ -74,7 +74,7 @@ export default function SaveOrUpdatePayment({
       createdAt: dataForm.createdAt,
     };
 
-    console.log("cretedAt: " + JSON.stringify(dataForm.createdAt, null, 2))
+    console.log("cretedAt: " + JSON.stringify(dataForm.createdAt, null, 2));
 
     const result = await handleAddOrUpdatePayment(dataInput);
 
@@ -170,7 +170,7 @@ export default function SaveOrUpdatePayment({
               <VStack alignItems={"flex-start"} width={"90%"}>
                 <Text>{"Data do pagamento"}</Text>
                 <Input
-                  {...register('createdAt')}
+                  {...register("createdAt")}
                   defaultValue={getDatetimeLocalFormatted(new Date(Date.now()))}
                   width={"100%"}
                   backgroundColor={"white"}

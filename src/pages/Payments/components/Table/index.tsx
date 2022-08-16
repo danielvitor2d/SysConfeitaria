@@ -68,7 +68,11 @@ import { compareDate } from "../../../../util/compareDate";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { fromNumberToStringFormatted } from "../../../../util/formatCurrency";
-import { getDateMinusDays, getDateMinusMonth, fromDatetimeToLocalFormatted } from "../../../../util/getDate";
+import {
+  getDateMinusDays,
+  getDateMinusMonth,
+  fromDatetimeToLocalFormatted,
+} from "../../../../util/getDate";
 
 interface PaymentTableProps {
   columns: Column<PaymentRow>[];
@@ -103,76 +107,81 @@ export default function Table({
     },
   };
 
-  const { payments } = useContext(PaymentContext)
+  const { payments } = useContext(PaymentContext);
 
   const create = async (type: "daily" | "weekly" | "monthly") => {
-    const img = new Image()
-    img.src = './src/assets/logo_confeitaria.png'
+    const img = new Image();
+    img.src = "./src/assets/logo_confeitaria.png";
 
-    const head = [['Código', 'Título', 'Valor', 'Data do pagamento']]
+    const head = [["Código", "Título", "Valor", "Data do pagamento"]];
 
-    const initDay = (type === 'daily' ? getDateMinusDays(0) : type === 'weekly' ? getDateMinusDays(6) : getDateMinusMonth(1))
-    const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR")
+    const initDay =
+      type === "daily"
+        ? getDateMinusDays(0)
+        : type === "weekly"
+        ? getDateMinusDays(6)
+        : getDateMinusMonth(1);
+    const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR");
 
-    let paymentsToReport = payments.filter(payment => {
+    let paymentsToReport = payments.filter((payment) => {
       return compareDate(
         initDay,
         fromDatetimeToLocalFormatted(payment.createdAt)
       );
-    })
+    });
 
-    let total = 0
+    let total = 0;
 
-    let data = paymentsToReport.map(payment => {
-      total += (payment.paymentValue as number)
+    let data = paymentsToReport.map((payment) => {
+      total += payment.paymentValue as number;
       return [
         payment.paymentCode,
         payment.paymentTitle,
         "R$ " + fromNumberToStringFormatted(payment.paymentValue as number),
-        fromDatetimeToLocalFormatted(payment.createdAt)
+        fromDatetimeToLocalFormatted(payment.createdAt),
       ];
-    })
+    });
 
-    const doc = new jsPDF()
+    const doc = new jsPDF();
 
-    doc.setFontSize(22)
+    doc.setFontSize(22);
     doc.text("Relatório de Pagamentos", 15, 17);
 
-    doc.setFontSize(14)
-    doc.text("Total pago: ", 15, 26)
-    doc.setFontSize(12)
-    doc.text(`R$ ${fromNumberToStringFormatted(total)}`, 60, 26)
+    doc.setFontSize(14);
+    doc.text("Total pago: ", 15, 26);
+    doc.setFontSize(12);
+    doc.text(`R$ ${fromNumberToStringFormatted(total)}`, 60, 26);
 
-    doc.setFontSize(14)
-    doc.text("Período: ", 15, 32)
-    doc.setFontSize(12)
-    doc.text(`${initDay} - ${lastDay}`, 60, 32)
+    doc.setFontSize(14);
+    doc.text("Período: ", 15, 32);
+    doc.setFontSize(12);
+    doc.text(`${initDay} - ${lastDay}`, 60, 32);
 
-    doc.addImage(img, 'png', 140, 5, 60, 20)
+    doc.addImage(img, "png", 140, 5, 60, 20);
 
     autoTable(doc, {
       head: head,
       body: data,
       didDrawCell: (data) => {
-        console.log(data.column.index)
+        console.log(data.column.index);
       },
-      pageBreak: 'auto',
+      pageBreak: "auto",
       startY: 40,
-      theme: 'striped',
+      theme: "striped",
       alternateRowStyles: {
-        fillColor: '#BEBEBE',
+        fillColor: "#BEBEBE",
         // fillColor: '#ac7e73',
       },
       headStyles: {
-        fillColor: '#FFF',
-        textColor: '#353535'
+        fillColor: "#FFF",
+        textColor: "#353535",
       },
       bodyStyles: {
-        textColor: '#353535'
-      }
-    })
+        textColor: "#353535",
+      },
+    });
 
-    doc.output('dataurlnewwindow', { filename: 'my-report.pdf' })
+    doc.output("dataurlnewwindow", { filename: "my-report.pdf" });
   };
 
   const [filter, setFilter] = useState<string>("");
@@ -349,11 +358,7 @@ export default function Table({
                   </HStack>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent
-                color="white"
-                bg="#70453c"
-                borderColor="#63342A"
-              >
+              <PopoverContent color="white" bg="#70453c" borderColor="#63342A">
                 <PopoverHeader pt={4} fontWeight="bold" border="0">
                   {"Gerar relatórios"}
                 </PopoverHeader>
@@ -521,8 +526,9 @@ export default function Table({
                     {column.canResize ? (
                       <Box
                         {...column.getResizerProps()}
-                        className={`resizer ${column.isResizing ? "isResizing" : ""
-                          }`}
+                        className={`resizer ${
+                          column.isResizing ? "isResizing" : ""
+                        }`}
                       />
                     ) : null}
                   </Th>

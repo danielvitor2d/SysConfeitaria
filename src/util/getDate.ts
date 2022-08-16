@@ -23,9 +23,9 @@ export const fromDatetimeToLocalFormatted = (_date: string) => {
   return date.split("-").reverse().join("/");
 };
 export const getDateMinusDays = (days: number) => {
-  var date = moment().subtract(days, 'day').toDate()
+  var date = moment().subtract(days, "day").toDate();
 
-  console.log("Date now: " + JSON.stringify(date))
+  console.log("Date now: " + JSON.stringify(date));
 
   var day = String(date.getDate());
   var month = String(date.getMonth() + 1);
@@ -38,7 +38,7 @@ export const getDateMinusDays = (days: number) => {
 };
 
 export const getDateMinusMonth = (months: number) => {
-  var date = moment().subtract(months, 'month').toDate()
+  var date = moment().subtract(months, "month").toDate();
 
   var day = String(date.getDate());
   var month = String(date.getMonth() + 1);

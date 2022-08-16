@@ -145,6 +145,7 @@ export default function Sales() {
           ),
           accessor: "createdAt",
           sortType: sortByDate,
+          isSorted: true,
           disableResizing: false,
           width: 140,
         },

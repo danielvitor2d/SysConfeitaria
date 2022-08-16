@@ -77,7 +77,9 @@ import {
 } from "../../../../types";
 import { matchSorter } from "match-sorter";
 
-import ReactPDF, { PDFViewer } from '@react-pdf/renderer';
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
+
+import ReactPDF, { PDFViewer } from "@react-pdf/renderer";
 
 import { CustomTableLayout, TDocumentDefinitions } from "pdfmake/interfaces";
 import pdfMake from "pdfmake/build/pdfmake";
@@ -87,10 +89,14 @@ import SaleContext from "../../../../contexts/SalesContext";
 import { salesReport } from "../relatorio";
 import RadioCard from "./RadioCard";
 import { MyDocument } from "./report";
-import jsPDF from 'jspdf'
+import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { fromNumberToStringFormatted } from "../../../../util/formatCurrency";
-import { fromDatetimeToLocalFormatted, getDateMinusDays, getDateMinusMonth } from "../../../../util/getDate";
+import {
+  fromDatetimeToLocalFormatted,
+  getDateMinusDays,
+  getDateMinusMonth,
+} from "../../../../util/getDate";
 import { compareDate, compareDateStrict } from "../../../../util/compareDate";
 
 interface SalesTableProps {
@@ -155,25 +161,39 @@ export default function Table({
   const { sales } = useContext(SaleContext);
 
   const create = async (type: "daily" | "weekly" | "monthly") => {
-    const img = new Image()
-    img.src = './src/assets/logo_confeitaria.png'
+    const storage = getStorage();
+    const pathReference = ref(storage, 'logo_confeitaria.png');
+    const urlImage = await getDownloadURL(pathReference)
 
-    const head = [['Código', 'Cliente', 'Valor', 'Forma de pagamento']]
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob';
+    xhr.onload = (event) => {
+      const blob = xhr.response;
+    };
+    xhr.open('GET', urlImage);
+    xhr.send();
 
-    const initDay = (type === 'daily' ? getDateMinusDays(0) : type === 'weekly' ? getDateMinusDays(6) : getDateMinusMonth(1))
-    const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR")
+    const img = new Image();
+    img.src = urlImage//"./src/assets/logo_confeitaria.png";
 
-    let salesToReport = sales.filter(sale => {
-      return compareDate(
-        initDay,
-        fromDatetimeToLocalFormatted(sale.createdAt)
-      );
-    })
+    const head = [["Código", "Cliente", "Valor", "Forma de pagamento"]];
 
-    let total = 0
+    const initDay =
+      type === "daily"
+        ? getDateMinusDays(0)
+        : type === "weekly"
+        ? getDateMinusDays(6)
+        : getDateMinusMonth(1);
+    const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR");
 
-    let data = salesToReport.map(sale => {
-      total += (sale.fullValue as number)
+    let salesToReport = sales.filter((sale) => {
+      return compareDate(initDay, fromDatetimeToLocalFormatted(sale.createdAt));
+    });
+
+    let total = 0;
+
+    let data = salesToReport.map((sale) => {
+      total += sale.fullValue as number;
       return [
         sale.saleCode,
         sale.client.clientName,
@@ -188,54 +208,56 @@ export default function Table({
             if (!previousValue || previousValue.length === 0)
               return paymentMethod[currentValue as PaymentMethod];
             return (
-              previousValue + ", " + paymentMethod[currentValue as PaymentMethod]
+              previousValue +
+              ", " +
+              paymentMethod[currentValue as PaymentMethod]
             );
           },
           ""
         ),
       ];
-    })
+    });
 
-    const doc = new jsPDF()
+    const doc = new jsPDF();
 
-    doc.setFontSize(22)
+    doc.setFontSize(22);
     doc.text("Relatório de Vendas", 15, 17);
-    
-    doc.setFontSize(14)
-    doc.text("Total arrecadado: ", 15, 26)
-    doc.setFontSize(12)
-    doc.text(`R$ ${fromNumberToStringFormatted(total)}`, 60, 26)
-    
-    doc.setFontSize(14)
-    doc.text("Período: ", 15, 32)
-    doc.setFontSize(12)
-    doc.text(`${initDay} - ${lastDay}`, 60, 32)
 
-    doc.addImage(img, 'png', 140, 5, 60, 20)
+    doc.setFontSize(14);
+    doc.text("Total arrecadado: ", 15, 26);
+    doc.setFontSize(12);
+    doc.text(`R$ ${fromNumberToStringFormatted(total)}`, 60, 26);
+
+    doc.setFontSize(14);
+    doc.text("Período: ", 15, 32);
+    doc.setFontSize(12);
+    doc.text(`${initDay} - ${lastDay}`, 60, 32);
+
+    doc.addImage(img, "png", 140, 5, 60, 20);
 
     autoTable(doc, {
       head: head,
       body: data,
       didDrawCell: (data) => {
-        console.log(data.column.index)
+        console.log(data.column.index);
       },
-      pageBreak: 'auto',
+      pageBreak: "auto",
       startY: 40,
-      theme: 'striped',
+      theme: "striped",
       alternateRowStyles: {
-        fillColor: '#BEBEBE',
+        fillColor: "#BEBEBE",
         // fillColor: '#ac7e73',
       },
       headStyles: {
-        fillColor: '#FFF',
-        textColor: '#353535'
+        fillColor: "#FFF",
+        textColor: "#353535",
       },
       bodyStyles: {
-        textColor: '#353535'
-      }
-    })
+        textColor: "#353535",
+      },
+    });
 
-    doc.output('dataurlnewwindow', { filename: 'my-report.pdf' })
+    doc.output("dataurlnewwindow", { filename: "my-report.pdf" });
   };
 
   const [filter, setFilter] = useState<string>("");
@@ -309,7 +331,15 @@ export default function Table({
     {
       columns,
       data,
-      initialState: { pageIndex: 0 },
+      initialState: {
+        pageIndex: 0,
+        sortBy: [
+          {
+            id: 'createdAt',
+            desc: true
+          }
+        ]
+      },
       autoResetPage: false,
       autoResetFilters: false,
       autoResetExpanded: false,

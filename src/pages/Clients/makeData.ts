@@ -25,7 +25,7 @@ const newClient = (): Client => {
       cnpj.format(cnpj.generate()),
       cpf.format(cpf.generate()),
     ]),
-    address: {}
+    address: {},
   };
 };
 
