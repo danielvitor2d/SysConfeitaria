@@ -77,6 +77,8 @@ import {
 } from "../../../../types";
 import { matchSorter } from "match-sorter";
 
+import ReactPDF, { PDFViewer } from '@react-pdf/renderer';
+
 import { CustomTableLayout, TDocumentDefinitions } from "pdfmake/interfaces";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -84,6 +86,7 @@ import pdfFonts from "pdfmake/build/vfs_fonts";
 import SaleContext from "../../../../contexts/SalesContext";
 import { salesReport } from "../relatorio";
 import RadioCard from "./RadioCard";
+import { MyDocument } from "./report";
 
 interface SalesTableProps {
   columns: Column<SaleRow>[];
@@ -147,6 +150,8 @@ export default function Table({
   const { sales } = useContext(SaleContext);
 
   const create = async (type: "daily" | "weekly" | "monthly") => {
+    // ReactPDF.render(<MyDocument />, `${__dirname}/example.pdf`);
+    // ReactPDF.renderToStream(<MyDocument />);
     pdfMake
       .createPdf(
         (await salesReport(sales as Sale[], type)) as TDocumentDefinitions
@@ -394,13 +399,13 @@ export default function Table({
                         _active={{
                           backgroundColor: "#eac3ae83",
                         }}
-                        onClick={() => {
+                        onClick={async () => {
                           if (radioValue === "Último dia") {
-                            create("daily");
+                            await create("daily");
                           } else if (radioValue === "Última semana") {
-                            create("weekly");
+                            await create("weekly");
                           } else {
-                            create("monthly");
+                            await create("monthly");
                           }
                         }}
                       >

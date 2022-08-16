@@ -115,7 +115,7 @@ export default function Header() {
               fontStyle={"normal"}
               fontSize={"20px"}
               textAlign={"center"}
-              color={cashReceiptsOfDay > 0 ? "#00B37E" : "#ff4646"}
+              color={cashReceiptsOfDay >= 0 ? "#00B37E" : "#ff4646"}
               lineHeight={"24px"}
             >
               {toBRLWithSign(cashReceiptsOfDay)}
@@ -146,7 +146,7 @@ export default function Header() {
               fontStyle={"normal"}
               fontSize={"20px"}
               textAlign={"center"}
-              color={cashReceiptsOfWeek > 0 ? "#00B37E" : "#ff4646"}
+              color={cashReceiptsOfWeek >= 0 ? "#00B37E" : "#ff4646"}
               lineHeight={"24px"}
             >
               {toBRLWithSign(cashReceiptsOfWeek)}

@@ -6,7 +6,7 @@ import {
 import makeData from "../makeData";
 
 import pdfMake from "pdfmake/build/pdfmake";
-// import pdfFonts from "pdfmake/build/vfs_fonts";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 import {
   PageSize,
   Margins,
@@ -20,7 +20,7 @@ import {
   getDateMinusDays,
 } from "../../../util/getDate";
 import { compareDateStrict } from "../../../util/compareDate";
-// pdfMake.vfs = pdfFonts.pdfMake.vfs;
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const tableLayouts = {
   exampleLayout: {
