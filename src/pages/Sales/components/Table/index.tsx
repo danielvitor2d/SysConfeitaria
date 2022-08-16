@@ -87,6 +87,9 @@ import SaleContext from "../../../../contexts/SalesContext";
 import { salesReport } from "../relatorio";
 import RadioCard from "./RadioCard";
 import { MyDocument } from "./report";
+import jsPDF from 'jspdf'
+import autoTable from "jspdf-autotable";
+import { fromNumberToStringFormatted } from "../../../../util/formatCurrency";
 
 interface SalesTableProps {
   columns: Column<SaleRow>[];
@@ -150,13 +153,65 @@ export default function Table({
   const { sales } = useContext(SaleContext);
 
   const create = async (type: "daily" | "weekly" | "monthly") => {
-    // ReactPDF.render(<MyDocument />, `${__dirname}/example.pdf`);
-    // ReactPDF.renderToStream(<MyDocument />);
-    pdfMake
-      .createPdf(
-        (await salesReport(sales as Sale[], type)) as TDocumentDefinitions
-      )
-      .open({}, window.open("", "_blank"));
+    const img = new Image()
+    img.src = './src/assets/logo_matrix.png'
+
+    const head = [['Código', 'Cliente', 'Valor', 'Forma de pagamento']]
+
+    let data = sales.map(sale => {
+      return [
+        sale.saleCode,
+        sale.client.clientName,
+        "R$ " + fromNumberToStringFormatted(sale.fullValue as number),
+        sale.paymentMethods.reduce(
+          (
+            previousValue: string,
+            currentValue: any,
+            _currentIndex: number,
+            _array: any[]
+          ) => {
+            if (!previousValue || previousValue.length === 0)
+              return paymentMethod[currentValue as PaymentMethod];
+            return (
+              previousValue + ", " + paymentMethod[currentValue as PaymentMethod]
+            );
+          },
+          ""
+        ),
+      ];
+    })
+
+    data = [...data, ...data, ...data, ...data]
+    
+    const doc = new jsPDF()
+
+    doc.setFontSize(25)
+    doc.text("Relatório de Vendas", 15, 17);
+
+    doc.addImage(img, 'png', 140, 5, 60, 20)
+
+    autoTable(doc, {
+      head: head,
+      body: data,
+      didDrawCell: (data) => {
+        console.log(data.column.index)
+      },
+      pageBreak: 'auto',
+      startY: 30,
+      theme: 'striped',
+      alternateRowStyles: {
+        fillColor: '#8bb1ce',
+      },
+      headStyles: {
+        fillColor: '#FFF',
+        textColor: '#353535'
+      },
+      bodyStyles: {
+        textColor: '#353535'
+      }
+    })
+
+    doc.output('dataurlnewwindow', { filename: 'my-report.pdf' })
   };
 
   const [filter, setFilter] = useState<string>("");
