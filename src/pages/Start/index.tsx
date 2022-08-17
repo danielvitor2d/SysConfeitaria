@@ -1,6 +1,6 @@
-import { Box, Flex, HStack, Text, VStack } from "@chakra-ui/react";
+import { Flex, SimpleGrid, Text, VStack } from "@chakra-ui/react";
 import { useContext, useMemo } from "react";
-import { Bar, ChartConfig, Pie } from "@kimizuy/react-chartjs";
+import { ChartConfig, Pie } from "@kimizuy/react-chartjs";
 import SaleContext from "../../contexts/SalesContext";
 import PaymentContext from "../../contexts/PaymentContext";
 import {
@@ -239,7 +239,7 @@ export default function Start() {
   };
 
   return (
-    <VStack backgroundColor={"#FFF"} padding={"50px"} height={"100vh"} gap={10}>
+    <VStack backgroundColor={"#FFF"} height={"100%"} gap={10}>
       <Text
         fontSize={"30px"}
         textAlign={"center"}
@@ -248,11 +248,13 @@ export default function Start() {
       >
         {"Entradas x Vendas".toUpperCase()}
       </Text>
-      <Flex
+      <SimpleGrid
         flexDirection={"row"}
         justifyContent={"space-between"}
         alignContent={"center"}
-        gap={40}
+        alignItems={'center'}
+        columns={[1, 1, 1, 2, 3, 3]}
+        gap={[55, 55, 55, 55, 45, 45]}
       >
         <Flex
           boxSize={"400px"}
@@ -290,7 +292,7 @@ export default function Start() {
             {"Mensal (" + initMonth + " - " + lastDay + ")"}
           </Text>
         </Flex>
-      </Flex>
+      </SimpleGrid>
       {/* <Bar data={data} /> */}
     </VStack>
   );

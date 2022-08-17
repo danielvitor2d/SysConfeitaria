@@ -8,7 +8,6 @@ import {
 } from "firebase/auth";
 import { FC, ReactNode, useContext, useEffect } from "react";
 import { useState, createContext } from "react";
-import { useCookies } from "react-cookie";
 
 import GlobalContext from "./GlobalContext";
 
@@ -28,8 +27,6 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const { register } = useContext(GlobalContext);
 
-  // const [cookies, setCookie] = useCookies(['access_token', 'refresh_token'])
-
   const auth = getAuth();
 
   const [signed, setSigned] = useState(false);
@@ -45,6 +42,10 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       console.log(error);
       return false;
     }
+  }
+
+  async function changePassword(old_password: string, new_password: string) {
+    const user = auth.currentUser
   }
 
   async function signIn(email: string, password: string): Promise<boolean> {
