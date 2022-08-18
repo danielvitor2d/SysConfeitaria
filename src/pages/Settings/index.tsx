@@ -22,7 +22,7 @@ interface FormData {
 }
 
 export default function Settings() {
-  const toast = useToast()
+  const toast = useToast();
 
   const {
     register,
@@ -56,7 +56,7 @@ export default function Settings() {
       return;
     }
 
-    const registeredWithSuccess = true//await signUp(data.email, data.password);
+    const registeredWithSuccess = true; //await signUp(data.email, data.password);
 
     if (registeredWithSuccess) {
       toast({

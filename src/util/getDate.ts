@@ -25,7 +25,7 @@ export const fromDatetimeToLocalFormatted = (_date: string) => {
 export const getDateMinusDays = (days: number) => {
   var date = moment().subtract(days, "day").toDate();
 
-  console.log("Date now: " + JSON.stringify(date));
+  // console.log("Date now: " + JSON.stringify(date));
 
   var day = String(date.getDate());
   var month = String(date.getMonth() + 1);

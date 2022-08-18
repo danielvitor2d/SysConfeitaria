@@ -16,24 +16,19 @@ import Select, {
   SingleValue,
 } from "react-select";
 import makeAnimated from "react-select/animated";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import SaleContext from "../../../../../../contexts/SalesContext";
 
-interface SelectPaymentMethodProps {
-  mode: "create" | "update";
-  sale: Sale;
-  setSale: React.Dispatch<React.SetStateAction<Sale>>;
-}
+interface SelectPaymentMethodProps {}
 
-export default function SelectPaymentMethod({
-  mode,
-  sale,
-  setSale,
-}: SelectPaymentMethodProps) {
+export default function SelectPaymentMethod() {
+  const { mode, selectedSale, setSelectedSale } = useContext(SaleContext);
+
   const animatedComponents = makeAnimated();
 
   const [methods, setMethods] = useState<PaymentMethod[]>(() => {
-    if (mode === "create" || !sale.paymentMethods) return [];
-    return [...sale.paymentMethods];
+    if (mode === "create" || selectedSale === null) return [];
+    return [...selectedSale.paymentMethods];
   });
 
   const paymentMethodStyles: StylesConfig<any> = {
@@ -110,10 +105,12 @@ export default function SelectPaymentMethod({
   };
 
   useEffect(() => {
-    Object.assign(sale, {
-      paymentMethods: methods,
-    });
-    setSale({ ...sale });
+    if (selectedSale !== null) {
+      Object.assign(selectedSale, {
+        paymentMethods: methods,
+      });
+      setSelectedSale({ ...selectedSale });
+    }
   }, [methods]);
 
   return (

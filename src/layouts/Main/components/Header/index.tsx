@@ -28,7 +28,7 @@ export default function Header() {
   }, [sales]);
 
   const paymentsOfDay = useMemo(() => {
-    console.log("payments: " + JSON.stringify(payments, null, 2));
+    // console.log("payments: " + JSON.stringify(payments, null, 2));
     return payments.filter((payment: Payment) => {
       const date = getDateMinusDays(1);
       return compareDateStrict(
@@ -49,7 +49,7 @@ export default function Header() {
   }, [sales]);
 
   const paymentsOfWeek = useMemo(() => {
-    console.log("payments: " + JSON.stringify(payments, null, 2));
+    // console.log("payments: " + JSON.stringify(payments, null, 2));
     return payments.filter((payment: Payment) => {
       const date = getDateMinusDays(30);
       return compareDateStrict(

@@ -74,7 +74,7 @@ export default function SaveOrUpdatePayment({
       createdAt: dataForm.createdAt,
     };
 
-    console.log("cretedAt: " + JSON.stringify(dataForm.createdAt, null, 2));
+    // console.log("cretedAt: " + JSON.stringify(dataForm.createdAt, null, 2));
 
     const result = await handleAddOrUpdatePayment(dataInput);
 

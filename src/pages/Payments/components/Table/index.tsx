@@ -163,7 +163,7 @@ export default function Table({
       head: head,
       body: data,
       didDrawCell: (data) => {
-        console.log(data.column.index);
+        // console.log(data.column.index);
       },
       pageBreak: "auto",
       startY: 40,

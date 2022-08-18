@@ -252,7 +252,7 @@ export default function Start() {
         flexDirection={"row"}
         justifyContent={"space-between"}
         alignContent={"center"}
-        alignItems={'center'}
+        alignItems={"center"}
         columns={[1, 1, 1, 2, 3, 3]}
         gap={[55, 55, 55, 55, 45, 45]}
       >

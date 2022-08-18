@@ -84,7 +84,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         const data = doc.data() as PaymentDocument;
         return data;
       });
-      console.log("paymentsData: " + JSON.stringify(paymentsData));
+      // console.log("paymentsData: " + JSON.stringify(paymentsData));
 
       setPayments(paymentsData);
     } catch (error) {

@@ -27,15 +27,13 @@ import Paginate from "./Paginate";
 interface ItemTableProps {
   readonly columns: Column<ItemRow>[];
   data: ItemRow[];
-  setData: React.Dispatch<React.SetStateAction<ItemRow[]>>;
 }
 
-export default function Table({ columns, data, setData }: ItemTableProps) {
+export default function Table({ columns, data }: ItemTableProps) {
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    footerGroups,
     prepareRow,
     page,
     canPreviousPage,

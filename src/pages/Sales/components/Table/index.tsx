@@ -162,19 +162,19 @@ export default function Table({
 
   const create = async (type: "daily" | "weekly" | "monthly") => {
     const storage = getStorage();
-    const pathReference = ref(storage, 'logo_confeitaria.png');
-    const urlImage = await getDownloadURL(pathReference)
+    const pathReference = ref(storage, "logo_confeitaria.png");
+    const urlImage = await getDownloadURL(pathReference);
 
     const xhr = new XMLHttpRequest();
-    xhr.responseType = 'blob';
+    xhr.responseType = "blob";
     xhr.onload = (event) => {
       const blob = xhr.response;
     };
-    xhr.open('GET', urlImage);
+    xhr.open("GET", urlImage);
     xhr.send();
 
     const img = new Image();
-    img.src = urlImage//"./src/assets/logo_confeitaria.png";
+    img.src = urlImage; //"./src/assets/logo_confeitaria.png";
 
     const head = [["Código", "Cliente", "Valor", "Forma de pagamento"]];
 
@@ -335,10 +335,10 @@ export default function Table({
         pageIndex: 0,
         sortBy: [
           {
-            id: 'createdAt',
-            desc: true
-          }
-        ]
+            id: "createdAt",
+            desc: true,
+          },
+        ],
       },
       autoResetPage: false,
       autoResetFilters: false,

@@ -28,12 +28,12 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Client, Item, ItemRow, PaymentMethod, Sale } from "../../../../types";
+import { Item, ItemRow, Sale } from "../../../../types";
 import { getDatetimeLocalFormatted } from "../../../../util/getDate";
 import SelectPaymentMethod from "./components/SelectPaymentMethod";
 import SelectSaleStatus from "./components/SelectSaleStatus";
 import SelectClient from "./components/SelectClient";
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon } from "@chakra-ui/icons";
 import { CellProps, Column, Row } from "react-table";
 import Table from "./components/Table";
 import {
@@ -41,7 +41,6 @@ import {
   toBRLWithSign,
 } from "../../../../util/formatCurrency";
 import { formatCode } from "../../../../util/formatCode";
-import GlobalContext from "../../../../contexts/GlobalContext";
 import AddItem from "./components/AddItem";
 import SaleContext from "../../../../contexts/SalesContext";
 
@@ -50,70 +49,47 @@ interface MakeSaleProps {
   onOpen: () => void;
   onClose: () => void;
   handleMakeOrUpdateSale: (sale: Sale) => Promise<boolean>;
-  mode: "create" | "update";
-  setMode: React.Dispatch<React.SetStateAction<"create" | "update">>;
-  sale?: Sale;
-  setSale?: React.Dispatch<React.SetStateAction<Sale>>;
 }
 
 export default function MakeSale({
   isOpen,
-  onOpen,
   onClose,
   handleMakeOrUpdateSale,
-  mode,
-  setMode,
-  sale: saleToUpdate,
-  setSale: setSaleToUpdate,
 }: MakeSaleProps) {
   const toast = useToast();
 
-  const { sales } = useContext(SaleContext);
-  const { saleCode } = useContext(GlobalContext);
+  const { mode, setMode, selectedSale, setSelectedSale, resetSelectedSale } =
+    useContext(SaleContext);
 
-  const [data, setData] = useState<ItemRow[]>([]);
-  const [item, setItem] = useState<Item>({} as Item);
-
-  const [sale, setSale] = useState<Sale>(() => {
-    return {
-      saleCode: formatCode(saleCode),
-      createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
-      saleStatus: "draft",
-      paymentMethods: [] as PaymentMethod[],
-      items: [] as Item[],
-      fullValue: 0,
-      client: {} as Client,
-    } as Sale;
-  });
+  const [item, setItem] = useState<Item | null>(null);
 
   useEffect(() => {
-    setSale({ ...(saleToUpdate as Sale) });
-  }, [saleToUpdate]);
+    if (selectedSale !== null) {
+      const newTotalValue = selectedSale.items.reduce(
+        (
+          previousValue: number,
+          currentValue: ItemRow,
+          _currentIndex: number,
+          _array: ItemRow[]
+        ) => {
+          return previousValue + currentValue.totalValue;
+        },
+        0
+      );
 
-  useEffect(() => {
-    const newTotalValue = data.reduce(
-      (
-        previousValue: number,
-        currentValue: ItemRow,
-        _currentIndex: number,
-        _array: ItemRow[]
-      ) => {
-        return previousValue + currentValue.totalValue;
-      },
-      0
-    );
+      Object.assign(selectedSale, {
+        fullValue: newTotalValue,
+      });
 
-    Object.assign(sale, {
-      items: data as Item[],
-      fullValue: newTotalValue,
-    });
-
-    setSale({ ...sale });
-  }, [data]);
+      setSelectedSale({ ...selectedSale });
+    }
+  }, [selectedSale.items]);
 
   const handleAddItem = (itemRow: ItemRow) => {
-    const newData = [itemRow, ...data];
-    setData([...newData]);
+    if (selectedSale !== null) {
+      selectedSale.items = [itemRow, ...selectedSale.items];
+      setSelectedSale({ ...selectedSale });
+    }
   };
 
   async function handleRemoveItem(itemIndex: number) {
@@ -125,10 +101,16 @@ export default function MakeSale({
       variant: "left-accent",
       position: "bottom-right",
     });
-    data.splice(Number(itemIndex), 1);
-    setData([...data]);
+
+    if (selectedSale !== null) {
+      selectedSale.items.splice(Number(itemIndex), 1);
+      setSelectedSale({ ...selectedSale });
+    }
+
     const result = true;
+
     toast.close(toastId);
+
     if (result) {
       toast({
         title: "Item removido",
@@ -173,7 +155,7 @@ export default function MakeSale({
         {
           Header: "Código".toUpperCase(),
           Footer: "Código".toUpperCase(),
-          Cell: ({ _value, row }) => (
+          Cell: ({ row }) => (
             <Flex
               height={"100%"}
               alignItems={"center"}
@@ -282,10 +264,10 @@ export default function MakeSale({
                 boxSize={"6"}
                 cursor={"pointer"}
                 onClick={() => {
+                  setItem({
+                    itemCode: String(cellProps.row.index),
+                  } as Item);
                   onOpenRemoveItem();
-                  // setItem({
-                  //   itemCode: String(cellProps.row.index),
-                  // } as Item);
                   // handleRemoveItem(cellProps.row.index)
                 }}
               />
@@ -296,13 +278,16 @@ export default function MakeSale({
           width: 100,
         },
       ] as Array<Column<ItemRow>>,
-    [data]
+    []
   );
 
   async function handleFinishSale() {
+    if (selectedSale === null) return;
     // Verificar data
     // Verificar Pagamento
-    if (!(sale.paymentMethods && sale.paymentMethods.length > 0)) {
+    if (
+      !(selectedSale.paymentMethods && selectedSale.paymentMethods.length > 0)
+    ) {
       toast({
         title: "Dados faltando",
         description: "Por favor, escolha um ou mais métodos de pagamento",
@@ -314,7 +299,7 @@ export default function MakeSale({
       return;
     }
     // Verificar cliente
-    if (!sale.client) {
+    if (!selectedSale.client) {
       toast({
         title: "Dados faltando",
         description: "Por favor, escolha um cliente",
@@ -326,7 +311,7 @@ export default function MakeSale({
       return;
     }
     // Verificar Status
-    if (!(sale.saleStatus && sale.saleStatus.length > 0)) {
+    if (!(selectedSale.saleStatus && selectedSale.saleStatus.length > 0)) {
       toast({
         title: "Dados faltando",
         description: "Por favor, selecione um status",
@@ -338,7 +323,7 @@ export default function MakeSale({
       return;
     }
     // Verificar items
-    if (!(sale.items && sale.items.length > 0)) {
+    if (!(selectedSale.items && selectedSale.items.length > 0)) {
       toast({
         title: "Dados faltando",
         description: "Por favor, selecione um ou mais itens para a venda",
@@ -358,7 +343,8 @@ export default function MakeSale({
       variant: "left-accent",
       position: "bottom-right",
     });
-    if (await handleMakeOrUpdateSale({ ...sale })) {
+
+    if (await handleMakeOrUpdateSale({ ...selectedSale })) {
       toast.close(toastId);
       toast({
         title: "Dados salvos",
@@ -386,34 +372,17 @@ export default function MakeSale({
 
   const clearFields = () => {
     setMode("create");
-    setData([]);
-    setSale({
-      saleCode: formatCode(saleCode),
-      createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
-      saleStatus: "draft",
-      paymentMethods: [] as PaymentMethod[],
-      items: [] as Item[],
-      fullValue: 0,
-      client: {} as Client,
-    } as Sale);
-    if (setSaleToUpdate)
-      setSaleToUpdate({
-        saleCode: formatCode(saleCode),
-        createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
-        saleStatus: "draft",
-        paymentMethods: [] as PaymentMethod[],
-        items: [] as Item[],
-        fullValue: 0,
-        client: {} as Client,
-      } as Sale);
+    resetSelectedSale();
+    // setSelectedSale({
+    //   saleCode: formatCode(saleCode),
+    //   createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
+    //   saleStatus: "draft",
+    //   paymentMethods: [] as PaymentMethod[],
+    //   items: [] as Item[],
+    //   fullValue: 0,
+    //   client: {} as Client,
+    // } as Sale);
   };
-
-  useEffect(() => {
-    if (saleToUpdate && mode === "update") {
-      setSale({ ...saleToUpdate });
-      setData([...saleToUpdate.items.map((item) => item as ItemRow)]);
-    }
-  }, [mode, saleToUpdate, sales]);
 
   const cancelRefRemoveItem = React.useRef(null);
 
@@ -455,8 +424,9 @@ export default function MakeSale({
               <Button
                 colorScheme="red"
                 onClick={() => {
-                  handleRemoveItem(Number(item.itemCode));
+                  if (item !== null) handleRemoveItem(Number(item.itemCode));
                   onCloseRemoveItem();
+                  setItem(null);
                 }}
                 ml={3}
               >
@@ -466,7 +436,14 @@ export default function MakeSale({
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-      <Modal isOpen={isOpen} onClose={onClose} size={"5xl"}>
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          clearFields();
+          onClose();
+        }}
+        size={"5xl"}
+      >
         <ModalOverlay />
         <ModalContent bg={"#f1f1f1"}>
           <ModalHeader>
@@ -497,28 +474,29 @@ export default function MakeSale({
                         {"Data"}
                       </Text>
                       <Input
-                        value={sale.createdAt}
+                        value={
+                          selectedSale?.createdAt ||
+                          getDatetimeLocalFormatted(new Date(Date.now()))
+                        }
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
                         ) => {
-                          Object.assign(sale, {
-                            createdAt: event.target.value,
-                          });
-                          setSale({ ...sale });
+                          if (selectedSale) {
+                            Object.assign(selectedSale, {
+                              createdAt: event.target.value,
+                            });
+                            setSelectedSale({ ...selectedSale });
+                          }
                         }}
                         backgroundColor={"#E8E8E8"}
                         type={"datetime-local"}
                       />
                     </HStack>
-                    <SelectClient mode={mode} sale={sale} setSale={setSale} />
+                    <SelectClient />
                   </VStack>
                   <VStack alignItems={"flex-start"}>
-                    <SelectPaymentMethod
-                      mode={mode}
-                      sale={sale}
-                      setSale={setSale}
-                    />
-                    <SelectSaleStatus sale={sale} setSale={setSale} />
+                    <SelectPaymentMethod />
+                    <SelectSaleStatus />
                   </VStack>
                 </HStack>
               </VStack>
@@ -539,7 +517,7 @@ export default function MakeSale({
                     onCloseAddItem={onCloseAddItem}
                   />
                 </HStack>
-                <Table columns={columns} data={data} setData={setData} />
+                <Table columns={columns} data={selectedSale?.items || []} />
               </VStack>
             </VStack>
           </ModalBody>
@@ -555,7 +533,9 @@ export default function MakeSale({
                 </Text>
                 <Text textAlign={"end"} fontSize={"20px"}>
                   {"R$ " +
-                    fromNumberToStringFormatted(sale.fullValue as number)}
+                    fromNumberToStringFormatted(
+                      (selectedSale?.fullValue as number) || 0
+                    )}
                 </Text>
               </HStack>
               <HStack gap={1}>
@@ -578,7 +558,6 @@ export default function MakeSale({
                 <Button
                   onClick={() => {
                     clearFields();
-                    onClose();
                     onClose();
                   }}
                   backgroundColor={"#E8E8E8"}

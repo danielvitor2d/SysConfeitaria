@@ -1,4 +1,5 @@
 import { Badge, HStack, Text } from "@chakra-ui/react";
+import { useContext, useEffect, useState } from "react";
 import Select, {
   components,
   OptionProps,
@@ -9,6 +10,7 @@ import Select, {
   MultiValue,
   SingleValue,
 } from "react-select";
+import SaleContext from "../../../../../../contexts/SalesContext";
 import {
   bagdeColor,
   Client,
@@ -17,15 +19,16 @@ import {
   saleStatus,
 } from "../../../../../../types";
 
-interface SelectSaleStatusProps {
-  sale: Sale;
-  setSale: React.Dispatch<React.SetStateAction<Sale>>;
-}
+export default function SelectSaleStatus() {
+  const { mode, selectedSale, setSelectedSale } = useContext(SaleContext);
 
-export default function SelectSaleStatus({
-  sale,
-  setSale,
-}: SelectSaleStatusProps) {
+  const [selectedSaleStatus, setSelectedSaleStatus] = useState<SaleStatus>(
+    () => {
+      if (mode === "create" || selectedSale === null) return "draft";
+      return selectedSale.saleStatus;
+    }
+  );
+
   const Option = (props: OptionProps<any, boolean>) => {
     return (
       <components.Option {...props} key={props.data.key}>
@@ -94,6 +97,15 @@ export default function SelectSaleStatus({
     }),
   };
 
+  useEffect(() => {
+    if (selectedSale !== null) {
+      Object.assign(selectedSale, {
+        saleStatus: selectedSaleStatus,
+      });
+      setSelectedSale({ ...selectedSale });
+    }
+  }, [selectedSaleStatus]);
+
   return (
     <HStack>
       <Text
@@ -117,18 +129,15 @@ export default function SelectSaleStatus({
           </Text>
         }
         value={{
-          value: saleStatus[sale.saleStatus],
-          label: saleStatus[sale.saleStatus],
-          key: sale.saleStatus,
+          value: saleStatus[selectedSaleStatus],
+          label: saleStatus[selectedSaleStatus],
+          key: selectedSaleStatus,
         }}
         onChange={(
           newValue: MultiValue<any> | SingleValue<any>,
           _actionMeta: ActionMeta<any>
         ) => {
-          Object.assign(sale, {
-            saleStatus: newValue.key as SaleStatus,
-          });
-          setSale({ ...sale });
+          setSelectedSaleStatus(newValue.key as SaleStatus);
         }}
         components={{
           Option,

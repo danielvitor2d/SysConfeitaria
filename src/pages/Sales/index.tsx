@@ -32,6 +32,7 @@ import { useNavigate } from "react-router-dom";
 import { CellProps, Column, Row } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
 import GlobalContext from "../../contexts/GlobalContext";
+import SaleContext from "../../contexts/SalesContext";
 import SalesContext from "../../contexts/SalesContext";
 import {
   paymentMethod,
@@ -62,10 +63,15 @@ export default function Sales() {
 
   const { saleCode } = useContext(GlobalContext);
   const { signed } = useContext(AuthContext);
+  const { resetSelectedSale } = useContext(SaleContext);
 
   const [data, setData] = useState<SaleRow[]>([]);
 
   const {
+    mode,
+    setMode,
+    selectedSale,
+    setSelectedSale,
     sales,
     addSale,
     updateSale,
@@ -74,9 +80,6 @@ export default function Sales() {
     onOpenMakeOrUpdateSale,
     onCloseMakeOrUpdateSale,
   } = useContext(SalesContext);
-
-  const [sale, setSale] = useState<Sale>({} as Sale);
-  const [mode, setMode] = useState<"create" | "update">("create");
 
   const cancelRefRemoveSale = React.useRef(null);
 
@@ -260,17 +263,21 @@ export default function Sales() {
               <EditIcon
                 boxSize={"6"}
                 cursor={"pointer"}
-                onClick={() => handleUpdateSale(cellProps.row.original)}
+                onClick={() => {
+                  console.log(
+                    "original_table: " +
+                      JSON.stringify(cellProps.row.original, null, 2)
+                  );
+                  handleUpdateSale(cellProps.row.original);
+                }}
               />
               <DeleteIcon
                 color={"red"}
                 boxSize={"6"}
                 cursor={"pointer"}
                 onClick={() => {
-                  setSale({
-                    saleCode: cellProps.row.original.saleCode,
-                  } as Sale);
-                  handleRemoveRow(cellProps.row.original.saleCode);
+                  setSelectedSale(cellProps.row.original);
+                  handleRemoveRow();
                 }}
               />
             </Flex>
@@ -288,35 +295,20 @@ export default function Sales() {
   async function handleMakeOrUpdateSale(sale: Sale): Promise<boolean> {
     if (mode === "create") {
       const result = await addSale(sale);
-      setSale({
-        saleCode: formatCode(saleCode),
-        createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
-        saleStatus: "draft",
-        paymentMethods: [] as PaymentMethod[],
-        items: [] as Item[],
-        fullValue: 0,
-        client: {} as Client,
-      } as Sale);
+      resetSelectedSale();
       return result;
     }
     const result = await updateSale(sale);
-    setSale({
-      saleCode: formatCode(saleCode),
-      createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
-      saleStatus: "draft",
-      paymentMethods: [] as PaymentMethod[],
-      items: [] as Item[],
-      fullValue: 0,
-      client: {} as Client,
-    } as Sale);
+    resetSelectedSale();
     return result;
   }
 
-  async function handleRemoveRow(saleCode: string) {
+  async function handleRemoveRow() {
     onOpenRemoveSale();
   }
 
   async function handleRemoveSale(saleCode: string): Promise<void> {
+    if (saleCode.length === 0) return;
     const toastId = toast({
       title: "Removendo venda",
       description: "Removendo dados",
@@ -326,6 +318,7 @@ export default function Sales() {
       position: "bottom-right",
     });
     const result = await removeSale(saleCode);
+    resetSelectedSale();
     toast.close(toastId);
     if (result) {
       toast({
@@ -351,7 +344,10 @@ export default function Sales() {
 
   async function handleUpdateSale(sale: SaleRow): Promise<void> {
     setMode("update");
-    setSale({ ...(sale as Sale) });
+
+    const { actions, ...saleToUpdate } = sale;
+    setSelectedSale(saleToUpdate);
+
     onOpenMakeOrUpdateSale();
   }
 
@@ -379,10 +375,6 @@ export default function Sales() {
           isOpen={isOpenMakeOrUpdateSale}
           onClose={onCloseMakeOrUpdateSale}
           onOpen={onOpenMakeOrUpdateSale}
-          mode={mode}
-          setMode={setMode}
-          setSale={setSale}
-          sale={sale}
         />
       ) : (
         <></>
@@ -407,13 +399,20 @@ export default function Sales() {
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelRefRemoveSale} onClick={onCloseRemoveSale}>
+              <Button
+                ref={cancelRefRemoveSale}
+                onClick={() => {
+                  resetSelectedSale();
+                  onCloseRemoveSale();
+                }}
+              >
                 {"Cancelar"}
               </Button>
               <Button
                 colorScheme="red"
                 onClick={() => {
-                  handleRemoveSale(sale.saleCode);
+                  handleRemoveSale(selectedSale.saleCode);
+                  resetSelectedSale();
                   onCloseRemoveSale();
                 }}
                 ml={3}

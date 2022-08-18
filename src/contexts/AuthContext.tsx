@@ -45,7 +45,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   }
 
   async function changePassword(old_password: string, new_password: string) {
-    const user = auth.currentUser
+    const user = auth.currentUser;
   }
 
   async function signIn(email: string, password: string): Promise<boolean> {

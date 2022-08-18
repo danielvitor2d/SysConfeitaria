@@ -70,7 +70,7 @@ export function toNumberString(value: string) {
   return result;
 }
 export const fromNumberToStringFormatted = (value: number): string => {
-  let valueAsString = String(value);
+  let valueAsString = String(value.toFixed(2));
   if (valueAsString.includes(".")) {
     let integerPartString = valueAsString.split(".")[0];
     let decimalPartString = valueAsString.split(".")[1];

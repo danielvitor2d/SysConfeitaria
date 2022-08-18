@@ -11,29 +11,22 @@ import Select, {
   MultiValue,
 } from "react-select";
 import ClientContext from "../../../../../../contexts/ClientsContext";
+import SaleContext from "../../../../../../contexts/SalesContext";
 import { ClientOption, Sale } from "../../../../../../types";
 
-interface SelectClientProp {
-  mode: "create" | "update";
-  sale: Sale;
-  setSale: React.Dispatch<React.SetStateAction<Sale>>;
-}
-
-export default function SelectClient({
-  mode,
-  sale,
-  setSale,
-}: SelectClientProp) {
+export default function SelectClient() {
   const { clients } = useContext(ClientContext);
+  const { mode, setMode, selectedSale, setSelectedSale } =
+    useContext(SaleContext);
 
   const [data, setData] = useState<ClientOption[]>([]);
   const [client, setClient] = useState<ClientOption | null>(() => {
-    if (mode === "create" || !sale.client) return null;
+    if (mode === "create" || selectedSale === null) return null;
     return {
-      ...sale.client,
-      key: sale.client.clientCode,
-      value: sale.client.clientName,
-      label: sale.client.clientName,
+      ...selectedSale.client,
+      key: selectedSale.client.clientCode,
+      value: selectedSale.client.clientName,
+      label: selectedSale.client.clientName,
     };
   });
 
@@ -100,24 +93,26 @@ export default function SelectClient({
   };
 
   useEffect(() => {
-    if (clients)
-      setData(
-        clients.map((client) => {
-          return {
-            ...client,
-            key: client.clientCode,
-            value: client.clientCode,
-            label: client.clientName,
-          };
-        })
-      );
+    setData(
+      clients.map((client) => {
+        return {
+          ...client,
+          key: client.clientCode,
+          value: client.clientCode,
+          label: client.clientName,
+        };
+      })
+    );
   }, [clients]);
 
   useEffect(() => {
-    Object.assign(sale, {
-      client,
-    });
-    setSale({ ...sale });
+    if (selectedSale) {
+      console.log("client: " + JSON.stringify(client, null, 2));
+      Object.assign(selectedSale, {
+        client,
+      });
+      setSelectedSale({ ...selectedSale });
+    }
   }, [client]);
 
   // useEffect(() => {
@@ -152,6 +147,8 @@ export default function SelectClient({
           newValue: MultiValue<ClientOption> | SingleValue<ClientOption>,
           _actionMeta: ActionMeta<ClientOption>
         ) => {
+          console.log("newValue: " + JSON.stringify(newValue, null, 2));
+          console.log("_actionMeta: " + JSON.stringify(_actionMeta, null, 2));
           if (
             _actionMeta.action === "deselect-option" ||
             _actionMeta.action === "clear"

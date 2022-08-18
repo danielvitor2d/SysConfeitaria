@@ -56,7 +56,6 @@ export default function AddItem({
   };
 
   useEffect(() => {
-    // console.log("Quantity mudou: " + quantity);
     Object.assign(item, {
       quantity: quantity,
       totalValue: quantity * item.unitaryValue,
@@ -263,7 +262,9 @@ export default function AddItem({
                     });
                   }
                 } else {
-                  // console.log("item: " + JSON.stringify(item, null, 2));
+                  console.log(
+                    "[AddItem] item: " + JSON.stringify(item, null, 2)
+                  );
                   handleAddItem(item);
                   handleCloseAddItem();
                 }

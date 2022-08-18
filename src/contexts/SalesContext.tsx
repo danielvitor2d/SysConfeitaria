@@ -12,11 +12,13 @@ import {
   setDoc,
   onSnapshot,
 } from "firebase/firestore";
-import { FC, ReactNode, useContext, useEffect } from "react";
+import React, { FC, ReactNode, useContext, useEffect, useMemo } from "react";
 import { useState, createContext } from "react";
 
 import app from "../settings/setupFirebase";
-import { Sale, SaleDocument } from "../types";
+import { Client, Item, PaymentMethod, Sale, SaleDocument } from "../types";
+import { formatCode } from "../util/formatCode";
+import { getDatetimeLocalFormatted } from "../util/getDate";
 import GlobalContext from "./GlobalContext";
 
 interface SaleProviderProps {
@@ -24,27 +26,50 @@ interface SaleProviderProps {
 }
 
 interface SaleContextData {
+  mode: "create" | "update";
+  setMode: React.Dispatch<React.SetStateAction<"create" | "update">>;
   sales: SaleDocument[];
+  selectedSale: Sale;
+  setSelectedSale: React.Dispatch<React.SetStateAction<Sale>>;
   addSale: (sale: Sale) => Promise<boolean>;
   updateSale: (sale: Sale) => Promise<boolean>;
   removeSale: (saleCode: string) => Promise<boolean>;
   isOpenMakeOrUpdateSale: boolean;
   onOpenMakeOrUpdateSale: () => void;
   onCloseMakeOrUpdateSale: () => void;
+  resetSelectedSale: () => void;
 }
 
 const SaleContext = createContext<SaleContextData>({} as SaleContextData);
 
 export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
-  const { getNextSaleCode } = useContext(GlobalContext);
+  const { saleCode, getNextSaleCode } = useContext(GlobalContext);
+
+  const defaultSale = useMemo(() => {
+    return {
+      saleCode: formatCode(saleCode),
+      createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
+      saleStatus: "draft",
+      paymentMethods: [] as PaymentMethod[],
+      items: [] as Item[],
+      fullValue: 0,
+      client: {} as Client,
+    } as Sale;
+  }, []);
 
   const [sales, setSales] = useState<SaleDocument[]>([]);
+  const [selectedSale, setSelectedSale] = useState<Sale>(defaultSale);
+  const [mode, setMode] = useState<"create" | "update">("create");
 
   const {
     isOpen: isOpenMakeOrUpdateSale,
     onOpen: onOpenMakeOrUpdateSale,
     onClose: onCloseMakeOrUpdateSale,
   } = useDisclosure();
+
+  const resetSelectedSale = () => {
+    setSelectedSale({ ...defaultSale });
+  };
 
   const db = getFirestore(app);
 
@@ -113,10 +138,15 @@ export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
   return (
     <SaleContext.Provider
       value={{
+        mode,
+        setMode,
+        selectedSale,
+        setSelectedSale,
         sales,
         addSale,
         updateSale,
         removeSale,
+        resetSelectedSale,
         isOpenMakeOrUpdateSale,
         onOpenMakeOrUpdateSale,
         onCloseMakeOrUpdateSale,
