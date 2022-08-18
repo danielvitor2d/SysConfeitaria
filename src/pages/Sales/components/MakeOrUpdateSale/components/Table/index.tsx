@@ -20,9 +20,9 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
+import Paginate from "../../../../../../components/Paginate";
 import { ItemRow } from "../../../../../../types";
 import makeData from "../../makeData";
-import Paginate from "./Paginate";
 
 interface ItemTableProps {
   readonly columns: Column<ItemRow>[];

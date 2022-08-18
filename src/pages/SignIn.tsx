@@ -20,6 +20,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-regular-svg-icons";
 import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import GlobalContext from "../contexts/GlobalContext";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
 interface FormData {
   email: string;
@@ -30,6 +31,7 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<FormData>();
 
@@ -43,7 +45,6 @@ export default function SignIn() {
 
   const toast = useToast();
 
-  const { registered } = useContext(GlobalContext);
   const { signed, signIn } = useContext(AuthContext);
 
   async function handleSignIn(data: FormData) {
@@ -80,6 +81,53 @@ export default function SignIn() {
       });
     }
   }
+
+  const handleRecoverPassword = async () => {
+    const email = getValues("email");
+    if (email.length === 0) {
+      toast({
+        title: "E-mail inválido",
+        description: "Tente novamente",
+        isClosable: true,
+        position: "bottom-right",
+        variant: "left-accent",
+        status: "warning",
+      });
+      return;
+    }
+    try {
+      const toastId = toast({
+        title: "Enviando e-mail",
+        description: "Enviando e-mail para redefinição de senha",
+        isClosable: true,
+        position: "bottom-right",
+        variant: "left-accent",
+        status: "success",
+      });
+      const auth = getAuth();
+      await sendPasswordResetEmail(auth, email);
+      toast.close(toastId);
+      toast({
+        title: "E-mail enviado",
+        description:
+          "Seu e-mail para redefinição de senha foi enviado para sua caixa de e-mail. Verifique também sua caixa de spam",
+        isClosable: true,
+        position: "bottom-right",
+        variant: "left-accent",
+        status: "success",
+      });
+    } catch (error) {
+      toast.closeAll();
+      toast({
+        title: "Erro ao enviar e-mail",
+        description: "Houve um problema com seu e-mail. Tente novamente",
+        isClosable: true,
+        position: "bottom-right",
+        variant: "left-accent",
+        status: "warning",
+      });
+    }
+  };
 
   useEffect(() => {
     if (signed) {
@@ -180,9 +228,7 @@ export default function SignIn() {
                   fontSize={"12px"}
                   width={"fit-content"}
                   alignSelf={"flex-end"}
-                  onClick={() => {
-                    console.log("Recuperar senha");
-                  }}
+                  onClick={handleRecoverPassword}
                   textColor={"#323238"}
                   textDecorationLine={"underline"}
                 >

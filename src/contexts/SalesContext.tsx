@@ -55,7 +55,7 @@ export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
       fullValue: 0,
       client: {} as Client,
     } as Sale;
-  }, []);
+  }, [saleCode]);
 
   const [sales, setSales] = useState<SaleDocument[]>([]);
   const [selectedSale, setSelectedSale] = useState<Sale>(defaultSale);
@@ -134,6 +134,10 @@ export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    console.log("currentSaleCode: " + saleCode)
+  }, [saleCode])
 
   return (
     <SaleContext.Provider

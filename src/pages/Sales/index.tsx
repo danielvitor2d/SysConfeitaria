@@ -31,7 +31,6 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column, Row } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
-import GlobalContext from "../../contexts/GlobalContext";
 import SaleContext from "../../contexts/SalesContext";
 import SalesContext from "../../contexts/SalesContext";
 import {
@@ -40,17 +39,10 @@ import {
   SaleRow,
   bagdeColor,
   Sale,
-  Item,
-  PaymentMethod,
-  Client,
 } from "../../types";
 import { compareDate } from "../../util/compareDate";
-import { formatCode } from "../../util/formatCode";
 import { toBRLWithSign } from "../../util/formatCurrency";
-import {
-  fromDatetimeToLocalFormatted,
-  getDatetimeLocalFormatted,
-} from "../../util/getDate";
+import { fromDatetimeToLocalFormatted } from "../../util/getDate";
 import MakeOrUpdateSale from "./components/MakeOrUpdateSale";
 import Table from "./components/Table";
 
@@ -61,11 +53,8 @@ export default function Sales() {
 
   const toast = useToast();
 
-  const { saleCode } = useContext(GlobalContext);
   const { signed } = useContext(AuthContext);
   const { resetSelectedSale } = useContext(SaleContext);
-
-  const [data, setData] = useState<SaleRow[]>([]);
 
   const {
     mode,
@@ -78,7 +67,6 @@ export default function Sales() {
     removeSale,
     isOpenMakeOrUpdateSale,
     onOpenMakeOrUpdateSale,
-    onCloseMakeOrUpdateSale,
   } = useContext(SalesContext);
 
   const cancelRefRemoveSale = React.useRef(null);
@@ -263,22 +251,13 @@ export default function Sales() {
               <EditIcon
                 boxSize={"6"}
                 cursor={"pointer"}
-                onClick={() => {
-                  console.log(
-                    "original_table: " +
-                      JSON.stringify(cellProps.row.original, null, 2)
-                  );
-                  handleUpdateSale(cellProps.row.original);
-                }}
+                onClick={() => handleClickUpdateSale(cellProps.row.original)}
               />
               <DeleteIcon
                 color={"red"}
                 boxSize={"6"}
                 cursor={"pointer"}
-                onClick={() => {
-                  setSelectedSale(cellProps.row.original);
-                  handleRemoveRow();
-                }}
+                onClick={() => handleClickRemoveSale(cellProps.row.original)}
               />
             </Flex>
           ),
@@ -292,6 +271,15 @@ export default function Sales() {
     [isLargerThan1440]
   );
 
+  async function handleClickUpdateSale(sale: SaleRow): Promise<void> {
+    setMode("update");
+
+    const { actions, ...saleToUpdate } = sale;
+    setSelectedSale(saleToUpdate);
+
+    onOpenMakeOrUpdateSale();
+  }
+
   async function handleMakeOrUpdateSale(sale: Sale): Promise<boolean> {
     if (mode === "create") {
       const result = await addSale(sale);
@@ -303,7 +291,10 @@ export default function Sales() {
     return result;
   }
 
-  async function handleRemoveRow() {
+  async function handleClickRemoveSale(sale: SaleRow) {
+    const { actions, ...saleToUpdate } = sale;
+    setSelectedSale(saleToUpdate);
+
     onOpenRemoveSale();
   }
 
@@ -342,24 +333,11 @@ export default function Sales() {
     }
   }
 
-  async function handleUpdateSale(sale: SaleRow): Promise<void> {
-    setMode("update");
-
-    const { actions, ...saleToUpdate } = sale;
-    setSelectedSale(saleToUpdate);
-
-    onOpenMakeOrUpdateSale();
-  }
-
   useEffect(() => {
     if (!signed) {
       navigate("/login");
     }
   }, [signed]);
-
-  useEffect(() => {
-    if (sales) setData([...sales]);
-  }, [sales]);
 
   const {
     isOpen: isOpenRemoveSale,
@@ -370,12 +348,7 @@ export default function Sales() {
   return (
     <>
       {isOpenMakeOrUpdateSale ? (
-        <MakeOrUpdateSale
-          handleMakeOrUpdateSale={handleMakeOrUpdateSale}
-          isOpen={isOpenMakeOrUpdateSale}
-          onClose={onCloseMakeOrUpdateSale}
-          onOpen={onOpenMakeOrUpdateSale}
-        />
+        <MakeOrUpdateSale handleMakeOrUpdateSale={handleMakeOrUpdateSale} />
       ) : (
         <></>
       )}
@@ -412,7 +385,6 @@ export default function Sales() {
                 colorScheme="red"
                 onClick={() => {
                   handleRemoveSale(selectedSale.saleCode);
-                  resetSelectedSale();
                   onCloseRemoveSale();
                 }}
                 ml={3}
@@ -441,7 +413,7 @@ export default function Sales() {
           </Text>
           <Table
             columns={columns}
-            data={data}
+            data={sales}
             onOpenDrawerAddSale={onOpenMakeOrUpdateSale}
           />
         </VStack>

@@ -16,12 +16,12 @@ import { ClientOption, Sale } from "../../../../../../types";
 
 export default function SelectClient() {
   const { clients } = useContext(ClientContext);
-  const { mode, setMode, selectedSale, setSelectedSale } =
+  const { mode, selectedSale, setSelectedSale } =
     useContext(SaleContext);
 
   const [data, setData] = useState<ClientOption[]>([]);
   const [client, setClient] = useState<ClientOption | null>(() => {
-    if (mode === "create" || selectedSale === null) return null;
+    if (mode === "create") return null;
     return {
       ...selectedSale.client,
       key: selectedSale.client.clientCode,
@@ -106,29 +106,12 @@ export default function SelectClient() {
   }, [clients]);
 
   useEffect(() => {
-    if (selectedSale) {
-      console.log("client: " + JSON.stringify(client, null, 2));
-      Object.assign(selectedSale, {
-        client,
-      });
+    if (selectedSale && client) {
+      const { key, label, value, ...newClient } = client
+      selectedSale.client = newClient
       setSelectedSale({ ...selectedSale });
     }
   }, [client]);
-
-  // useEffect(() => {
-  //   if (mode === 'update') {
-  //     console.log("Entrou atualizar sale --> ")
-  //     console.log(sale, null, 2)
-  //     if (!client && sale.client) {
-  //       setClient({
-  //         ...sale.client,
-  //         key: sale.client.clientCode,
-  //         value: sale.client.clientName,
-  //         label: sale.client.clientName
-  //       })
-  //     }
-  //   }
-  // }, [sale])
 
   return (
     <HStack>
@@ -147,8 +130,6 @@ export default function SelectClient() {
           newValue: MultiValue<ClientOption> | SingleValue<ClientOption>,
           _actionMeta: ActionMeta<ClientOption>
         ) => {
-          console.log("newValue: " + JSON.stringify(newValue, null, 2));
-          console.log("_actionMeta: " + JSON.stringify(_actionMeta, null, 2));
           if (
             _actionMeta.action === "deselect-option" ||
             _actionMeta.action === "clear"
@@ -165,7 +146,7 @@ export default function SelectClient() {
             fontWeight={"500"}
             fontFamily={"Montserrat"}
           >
-            Selecione
+            {'Selecione'}
           </Text>
         }
         blurInputOnSelect={true}

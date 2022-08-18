@@ -51,7 +51,6 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 import {
@@ -65,7 +64,6 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import Paginate from "../Paginate";
 import {
   paymentMethod,
   SaleRow,
@@ -79,16 +77,8 @@ import { matchSorter } from "match-sorter";
 
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
-import ReactPDF, { PDFViewer } from "@react-pdf/renderer";
-
-import { CustomTableLayout, TDocumentDefinitions } from "pdfmake/interfaces";
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
-
 import SaleContext from "../../../../contexts/SalesContext";
-import { salesReport } from "../relatorio";
 import RadioCard from "./RadioCard";
-import { MyDocument } from "./report";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { fromNumberToStringFormatted } from "../../../../util/formatCurrency";
@@ -97,7 +87,9 @@ import {
   getDateMinusDays,
   getDateMinusMonth,
 } from "../../../../util/getDate";
-import { compareDate, compareDateStrict } from "../../../../util/compareDate";
+import { compareDate } from "../../../../util/compareDate";
+import { cssResizer } from "../../../../theme";
+import Paginate from "../../../../components/Paginate";
 
 interface SalesTableProps {
   columns: Column<SaleRow>[];
@@ -105,62 +97,44 @@ interface SalesTableProps {
   onOpenDrawerAddSale: () => void;
 }
 
-export const getBase64ImageFromURL = (url: any) => {
-  return new Promise((resolve, reject) => {
-    var img = new Image();
-    img.setAttribute("crossOrigin", "anonymous");
+// export const getBase64ImageFromURL = (url: any) => {
+//   return new Promise((resolve, reject) => {
+//     var img = new Image();
+//     img.setAttribute("crossOrigin", "anonymous");
 
-    img.onload = () => {
-      var canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
+//     img.onload = () => {
+//       var canvas = document.createElement("canvas");
+//       canvas.width = img.width;
+//       canvas.height = img.height;
 
-      var ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-      ctx.drawImage(img, 0, 0);
+//       var ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+//       ctx.drawImage(img, 0, 0);
 
-      var dataURL = canvas.toDataURL("image/png");
+//       var dataURL = canvas.toDataURL("image/png");
 
-      resolve(dataURL);
-    };
+//       resolve(dataURL);
+//     };
 
-    img.onerror = (error) => {
-      reject(error);
-    };
+//     img.onerror = (error) => {
+//       reject(error);
+//     };
 
-    img.src = url;
-  });
-};
+//     img.src = url;
+//   });
+// };
 
 export default function Table({
   columns,
   data,
   onOpenDrawerAddSale,
 }: SalesTableProps) {
-  const cssResizer = {
-    _hover: {
-      ".resizer": {
-        background: "#482017",
-      },
-    },
-    ".resizer": {
-      display: "inline-block",
-      position: "absolute",
-      width: "1px",
-      height: "90%",
-      right: "0",
-      top: "0",
-      transform: "translateX(50%)",
-      zIndex: "1",
-      touchAction: "none",
-      "&.isResizing": {
-        background: "#482017",
-      },
-    },
-  };
-
   const { sales } = useContext(SaleContext);
 
+  const [buttonGenerateLoading, setButtonGenerateLoading] = useState(false)
+
   const create = async (type: "daily" | "weekly" | "monthly") => {
+    setButtonGenerateLoading(true)
+
     const storage = getStorage();
     const pathReference = ref(storage, "logo_confeitaria.png");
     const urlImage = await getDownloadURL(pathReference);
@@ -187,7 +161,7 @@ export default function Table({
     const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR");
 
     let salesToReport = sales.filter((sale) => {
-      return compareDate(initDay, fromDatetimeToLocalFormatted(sale.createdAt));
+      return sale.saleStatus === 'done' && compareDate(initDay, fromDatetimeToLocalFormatted(sale.createdAt));
     });
 
     let total = 0;
@@ -257,7 +231,11 @@ export default function Table({
       },
     });
 
-    doc.output("dataurlnewwindow", { filename: "my-report.pdf" });
+    // doc.output("dataurlnewwindow", { filename: "Relatorio.pdf" });
+    // doc.save("Relatorio.pdf")
+    window.open(URL.createObjectURL(doc.output("blob")))
+
+    setButtonGenerateLoading(false)
   };
 
   const [filter, setFilter] = useState<string>("");
@@ -517,6 +495,7 @@ export default function Table({
                             await create("monthly");
                           }
                         }}
+                        isLoading={buttonGenerateLoading}
                       >
                         {"Gerar"}
                       </Button>

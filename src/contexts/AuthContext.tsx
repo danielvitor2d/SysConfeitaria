@@ -4,6 +4,7 @@ import {
   onAuthStateChanged,
   sendEmailVerification,
   signInWithEmailAndPassword,
+  updatePassword,
   User,
 } from "firebase/auth";
 import { FC, ReactNode, useContext, useEffect } from "react";
@@ -20,6 +21,7 @@ interface AuthContextData {
   signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
+  changePassword: (new_password: string) => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -44,8 +46,16 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  async function changePassword(old_password: string, new_password: string) {
-    const user = auth.currentUser;
+  async function changePassword(new_password: string): Promise<boolean> {
+    try {
+      const user = auth.currentUser;
+      await updatePassword(user as User, new_password)
+      return true
+    } catch (err) {
+      console.log(err)
+    }
+
+    return false
   }
 
   async function signIn(email: string, password: string): Promise<boolean> {
@@ -88,7 +98,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   // }, [signed]);
 
   return (
-    <AuthContext.Provider value={{ signed, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ signed, signIn, signUp, signOut, changePassword }}>
       {children}
     </AuthContext.Provider>
   );

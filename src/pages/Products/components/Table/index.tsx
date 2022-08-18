@@ -46,9 +46,10 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import Paginate from "../Paginate";
+import Paginate from "../../../../components/Paginate";
 import { ProductRow } from "../../../../types";
 import { matchSorter } from "match-sorter";
+import { cssResizer } from "../../../../theme";
 
 interface ProductTableProps {
   columns: Column<ProductRow>[];
@@ -61,28 +62,6 @@ export default function Table({
   data,
   onOpenDrawerAddProduct,
 }: ProductTableProps) {
-  const cssResizer = {
-    _hover: {
-      ".resizer": {
-        background: "#482017",
-      },
-    },
-    ".resizer": {
-      display: "inline-block",
-      position: "absolute",
-      width: "1px",
-      height: "90%",
-      right: "0",
-      top: "0",
-      transform: "translateX(50%)",
-      "z-index": "1",
-      "touch-action": "none",
-      "&.isResizing": {
-        background: "#482017",
-      },
-    },
-  };
-
   const [filter, setFilter] = useState<string>("");
   const [filters, setFilters] = useState<string[]>([
     "productCode",

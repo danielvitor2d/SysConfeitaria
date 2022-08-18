@@ -43,56 +43,47 @@ import {
 import { formatCode } from "../../../../util/formatCode";
 import AddItem from "./components/AddItem";
 import SaleContext from "../../../../contexts/SalesContext";
+import GlobalContext from "../../../../contexts/GlobalContext";
 
 interface MakeSaleProps {
-  isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
   handleMakeOrUpdateSale: (sale: Sale) => Promise<boolean>;
 }
 
-export default function MakeSale({
-  isOpen,
-  onClose,
-  handleMakeOrUpdateSale,
-}: MakeSaleProps) {
+export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
   const toast = useToast();
 
-  const { mode, setMode, selectedSale, setSelectedSale, resetSelectedSale } =
-    useContext(SaleContext);
+  const { saleCode } = useContext(GlobalContext)
+
+  const {
+    mode,
+    setMode,
+    selectedSale,
+    setSelectedSale,
+    resetSelectedSale,
+    isOpenMakeOrUpdateSale,
+    onCloseMakeOrUpdateSale,
+  } = useContext(SaleContext);
 
   const [item, setItem] = useState<Item | null>(null);
 
   useEffect(() => {
-    if (selectedSale !== null) {
-      const newTotalValue = selectedSale.items.reduce(
-        (
-          previousValue: number,
-          currentValue: ItemRow,
-          _currentIndex: number,
-          _array: ItemRow[]
-        ) => {
-          return previousValue + currentValue.totalValue;
-        },
-        0
-      );
+    selectedSale.fullValue = selectedSale.items.reduce(
+      (previousValue: number, currentValue: ItemRow) => {
+        return previousValue + currentValue.totalValue;
+      },
+      0
+    );
 
-      Object.assign(selectedSale, {
-        fullValue: newTotalValue,
-      });
-
-      setSelectedSale({ ...selectedSale });
-    }
+    setSelectedSale({ ...selectedSale });
   }, [selectedSale.items]);
 
-  const handleAddItem = (itemRow: ItemRow) => {
-    if (selectedSale !== null) {
-      selectedSale.items = [itemRow, ...selectedSale.items];
-      setSelectedSale({ ...selectedSale });
-    }
+  const handleClickAddItem = (itemRow: ItemRow) => {
+    const { actions, ...newItemRow } = itemRow;
+    selectedSale.items = [...selectedSale.items, newItemRow]
+    setSelectedSale({ ...selectedSale });
   };
 
-  async function handleRemoveItem(itemIndex: number) {
+  const handleRemoveItem = (itemIndex: number) => {
     const toastId = toast({
       title: "Removendo item",
       description: "Removendo dados",
@@ -102,10 +93,10 @@ export default function MakeSale({
       position: "bottom-right",
     });
 
-    if (selectedSale !== null) {
-      selectedSale.items.splice(Number(itemIndex), 1);
-      setSelectedSale({ ...selectedSale });
-    }
+    selectedSale.items = selectedSale.items.filter(
+      (_item, index) => index !== itemIndex
+    );
+    setSelectedSale({ ...selectedSale });
 
     const result = true;
 
@@ -131,7 +122,7 @@ export default function MakeSale({
         position: "bottom-right",
       });
     }
-  }
+  };
 
   const sortByProductName = useCallback(
     (
@@ -283,6 +274,7 @@ export default function MakeSale({
 
   async function handleFinishSale() {
     if (selectedSale === null) return;
+    // console.log("Agora vai: " + JSON.stringify(selectedSale, null, 2))
     // Verificar data
     // Verificar Pagamento
     if (
@@ -356,7 +348,7 @@ export default function MakeSale({
         duration: 3000,
       });
       clearFields();
-      onClose();
+      onCloseMakeOrUpdateSale();
     } else {
       toast({
         title: "Erro ao salvar venda",
@@ -373,15 +365,6 @@ export default function MakeSale({
   const clearFields = () => {
     setMode("create");
     resetSelectedSale();
-    // setSelectedSale({
-    //   saleCode: formatCode(saleCode),
-    //   createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
-    //   saleStatus: "draft",
-    //   paymentMethods: [] as PaymentMethod[],
-    //   items: [] as Item[],
-    //   fullValue: 0,
-    //   client: {} as Client,
-    // } as Sale);
   };
 
   const cancelRefRemoveItem = React.useRef(null);
@@ -397,6 +380,23 @@ export default function MakeSale({
     onOpen: onOpenRemoveItem,
     onClose: onCloseRemoveItem,
   } = useDisclosure();
+
+  useEffect(() => {
+    mode === 'create' && setSelectedSale({
+      ...selectedSale,
+      createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
+    });
+  }, []);
+
+  useEffect(() => {
+    if (mode === 'create') {
+      const { saleCode: _saleCode, ...rest } = selectedSale
+      setSelectedSale({
+        ...rest,
+        saleCode: formatCode(saleCode)
+      });
+    }
+  }, [saleCode]);
 
   return (
     <>
@@ -437,11 +437,13 @@ export default function MakeSale({
         </AlertDialogOverlay>
       </AlertDialog>
       <Modal
-        isOpen={isOpen}
+        isOpen={isOpenMakeOrUpdateSale}
         onClose={() => {
           clearFields();
-          onClose();
+          onCloseMakeOrUpdateSale();
         }}
+        closeOnEsc={true}
+        closeOnOverlayClick={true}
         size={"5xl"}
       >
         <ModalOverlay />
@@ -474,19 +476,14 @@ export default function MakeSale({
                         {"Data"}
                       </Text>
                       <Input
-                        value={
-                          selectedSale?.createdAt ||
-                          getDatetimeLocalFormatted(new Date(Date.now()))
-                        }
+                        value={selectedSale.createdAt}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
                         ) => {
-                          if (selectedSale) {
-                            Object.assign(selectedSale, {
-                              createdAt: event.target.value,
-                            });
-                            setSelectedSale({ ...selectedSale });
-                          }
+                          Object.assign(selectedSale, {
+                            createdAt: event.target.value,
+                          });
+                          setSelectedSale({ ...selectedSale });
                         }}
                         backgroundColor={"#E8E8E8"}
                         type={"datetime-local"}
@@ -511,13 +508,13 @@ export default function MakeSale({
                     {"Itens da venda"}
                   </Text>
                   <AddItem
-                    handleAddItem={handleAddItem}
+                    handleAddItem={handleClickAddItem}
                     isOpenAddItem={isOpenAddItem}
                     onOpenAddItem={onOpenAddItem}
                     onCloseAddItem={onCloseAddItem}
                   />
                 </HStack>
-                <Table columns={columns} data={selectedSale?.items || []} />
+                <Table columns={columns} data={selectedSale.items} />
               </VStack>
             </VStack>
           </ModalBody>
@@ -558,7 +555,7 @@ export default function MakeSale({
                 <Button
                   onClick={() => {
                     clearFields();
-                    onClose();
+                    onCloseMakeOrUpdateSale();
                   }}
                   backgroundColor={"#E8E8E8"}
                   _hover={{

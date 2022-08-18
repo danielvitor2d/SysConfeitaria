@@ -1,4 +1,4 @@
-import { Box, Flex, HStack, Text, VStack } from "@chakra-ui/react";
+import { Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import { useContext, useMemo } from "react";
 import PaymentContext from "../../../../contexts/PaymentContext";
 import SaleContext from "../../../../contexts/SalesContext";
@@ -17,18 +17,19 @@ export default function Header() {
   const { sales } = useContext(SaleContext);
   const { payments } = useContext(PaymentContext);
 
+  const completedSale = useMemo(() => sales.filter(sale => sale.saleStatus === 'done'), [sales])
+
   const salesOfDay = useMemo(() => {
-    return sales.filter((sale: Sale) => {
+    return completedSale.filter((sale: Sale) => {
       const date = getDateMinusDays(1);
       return compareDateStrict(
         date,
         fromDatetimeToLocalFormatted(sale.createdAt)
       );
     });
-  }, [sales]);
+  }, [completedSale]);
 
   const paymentsOfDay = useMemo(() => {
-    // console.log("payments: " + JSON.stringify(payments, null, 2));
     return payments.filter((payment: Payment) => {
       const date = getDateMinusDays(1);
       return compareDateStrict(
@@ -39,19 +40,18 @@ export default function Header() {
   }, [payments]);
 
   const salesOfWeek = useMemo(() => {
-    return sales.filter((sale: Sale) => {
-      const date = getDateMinusDays(30);
+    return completedSale.filter((sale: Sale) => {
+      const date = getDateMinusDays(7);
       return compareDateStrict(
         date,
         fromDatetimeToLocalFormatted(sale.createdAt)
       );
     });
-  }, [sales]);
+  }, [completedSale]);
 
   const paymentsOfWeek = useMemo(() => {
-    // console.log("payments: " + JSON.stringify(payments, null, 2));
     return payments.filter((payment: Payment) => {
-      const date = getDateMinusDays(30);
+      const date = getDateMinusDays(7);
       return compareDateStrict(
         date,
         fromDatetimeToLocalFormatted(payment.createdAt)

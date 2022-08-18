@@ -49,7 +49,7 @@ export default function AddItem({
   const handleCloseAddItem = () => {
     setStep(1);
     setItem({
-      quantity,
+      quantity: 0.0,
     } as Item);
     setQuantity(0);
     onCloseAddItem();

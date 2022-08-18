@@ -58,10 +58,8 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import Paginate from "../Paginate";
-import { paymentMethod, PaymentMethod, PaymentRow } from "../../../../types";
+import { PaymentRow } from "../../../../types";
 import { matchSorter } from "match-sorter";
-import { options } from "pdfkit";
 import RadioCard from "../../../Sales/components/Table/RadioCard";
 import PaymentContext from "../../../../contexts/PaymentContext";
 import { compareDate } from "../../../../util/compareDate";
@@ -73,6 +71,8 @@ import {
   getDateMinusMonth,
   fromDatetimeToLocalFormatted,
 } from "../../../../util/getDate";
+import { cssResizer } from "../../../../theme";
+import Paginate from "../../../../components/Paginate";
 
 interface PaymentTableProps {
   columns: Column<PaymentRow>[];
@@ -85,28 +85,6 @@ export default function Table({
   data,
   onOpenDrawerAddPayment,
 }: PaymentTableProps) {
-  const cssResizer = {
-    _hover: {
-      ".resizer": {
-        background: "#482017",
-      },
-    },
-    ".resizer": {
-      display: "inline-block",
-      position: "absolute",
-      width: "1px",
-      height: "90%",
-      right: "0",
-      top: "0",
-      transform: "translateX(50%)",
-      "z-index": "1",
-      "touch-action": "none",
-      "&.isResizing": {
-        background: "#482017",
-      },
-    },
-  };
-
   const { payments } = useContext(PaymentContext);
 
   const create = async (type: "daily" | "weekly" | "monthly") => {
