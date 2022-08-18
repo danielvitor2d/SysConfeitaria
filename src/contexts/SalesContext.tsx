@@ -136,7 +136,10 @@ export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    console.log("currentSaleCode: " + saleCode)
+    setSelectedSale({
+      ...selectedSale,
+      saleCode: formatCode(saleCode)
+    })
   }, [saleCode])
 
   return (
