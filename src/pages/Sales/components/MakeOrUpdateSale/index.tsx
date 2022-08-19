@@ -389,7 +389,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
   }, []);
 
   useEffect(() => {
-    console.log("saleCode: " + saleCode)
+    // console.log("saleCode: " + saleCode)
 
     if (mode === 'create') {
       const { saleCode: _saleCode, ...rest } = selectedSale
@@ -400,10 +400,10 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     }
   }, [saleCode]);
 
-  useEffect(() => {
-    console.log("sale: " + JSON.stringify(selectedSale, null, 2))
+  // useEffect(() => {
+  //   console.log("sale: " + JSON.stringify(selectedSale, null, 2))
 
-  }, [selectedSale]);
+  // }, [selectedSale]);
 
   return (
     <>

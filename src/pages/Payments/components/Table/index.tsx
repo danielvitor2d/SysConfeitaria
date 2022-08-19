@@ -87,7 +87,11 @@ export default function Table({
 }: PaymentTableProps) {
   const { payments } = useContext(PaymentContext);
 
+  const [buttonGenerateLoading, setButtonGenerateLoading] = useState(false)
+
   const create = async (type: "daily" | "weekly" | "monthly") => {
+    setButtonGenerateLoading(true)
+
     const img = new Image();
     img.src = "./src/assets/logo_confeitaria.png";
 
@@ -121,6 +125,12 @@ export default function Table({
     });
 
     const doc = new jsPDF();
+    doc.setProperties({
+      title: "Relatorio.pdf",
+      subject: "Relatório de vendas",
+      author: "Matrix Tecnologia",
+      creator: "daniel",
+    });
 
     doc.setFontSize(22);
     doc.text("Relatório de Pagamentos", 15, 17);
@@ -159,7 +169,11 @@ export default function Table({
       },
     });
 
-    doc.output("dataurlnewwindow", { filename: "my-report.pdf" });
+    // doc.output("dataurlnewwindow", { filename: "Relatorio.pdf" });
+    // doc.save("Relatorio.pdf")
+    window.open(URL.createObjectURL(doc.output("blob")))
+
+    setButtonGenerateLoading(false)
   };
 
   const [filter, setFilter] = useState<string>("");
@@ -384,6 +398,7 @@ export default function Table({
                           await create("monthly");
                         }
                       }}
+                      isLoading={buttonGenerateLoading}
                     >
                       {"Gerar"}
                     </Button>
