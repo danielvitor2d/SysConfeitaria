@@ -73,6 +73,7 @@ import {
 } from "../../../../util/getDate";
 import { cssResizer } from "../../../../theme";
 import Paginate from "../../../../components/Paginate";
+import { getDownloadURL, getStorage, ref } from "firebase/storage";
 
 interface PaymentTableProps {
   columns: Column<PaymentRow>[];
@@ -92,8 +93,20 @@ export default function Table({
   const create = async (type: "daily" | "weekly" | "monthly") => {
     setButtonGenerateLoading(true)
 
+    const storage = getStorage();
+    const pathReference = ref(storage, "logo_confeitaria.png");
+    const urlImage = await getDownloadURL(pathReference);
+
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = "blob";
+    xhr.onload = (event) => {
+      const blob = xhr.response;
+    };
+    xhr.open("GET", urlImage);
+    xhr.send();
+
     const img = new Image();
-    img.src = "./src/assets/logo_confeitaria.png";
+    img.src = urlImage;
 
     const head = [["Código", "Título", "Valor", "Data do pagamento"]];
 

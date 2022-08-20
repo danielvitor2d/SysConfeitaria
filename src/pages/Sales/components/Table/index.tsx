@@ -122,7 +122,7 @@ export default function Table({
     xhr.send();
 
     const img = new Image();
-    img.src = urlImage; //"./src/assets/logo_confeitaria.png";
+    img.src = urlImage;
 
     const head = [["Código", "Cliente", "Valor", "Forma de pagamento"]];
 
