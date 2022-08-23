@@ -105,15 +105,13 @@ export default function SelectProduct({
   useEffect(() => {
     setItem((prevItem: Item) => {
       if (!product) return { ...(prevItem as Item) };
-      const newProd = { ...product };
-      delete newProd.key;
-      delete newProd.label;
-      delete newProd.value;
+      const { key, value, label, ...newProd } = product;
 
       Object.assign(prevItem, {
         product: newProd as Product,
         unitaryValue: newProd.unitaryValue,
         totalValue: newProd?.unitaryValue,
+        quantity: newProd?.unitaryType === 'unid' ? 1.0 : 0.0
       });
 
       return { ...(prevItem as Item) };

@@ -52,7 +52,7 @@ interface MakeSaleProps {
 export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
   const toast = useToast();
 
-  const { saleCode } = useContext(GlobalContext)
+  const { saleCode } = useContext(GlobalContext);
 
   const {
     mode,
@@ -79,7 +79,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
 
   const handleClickAddItem = (itemRow: ItemRow) => {
     const { actions, ...newItemRow } = itemRow;
-    selectedSale.items = [...selectedSale.items, newItemRow]
+    selectedSale.items = [...selectedSale.items, newItemRow];
     setSelectedSale({ ...selectedSale });
   };
 
@@ -382,20 +382,21 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
   } = useDisclosure();
 
   useEffect(() => {
-    mode === 'create' && setSelectedSale({
-      ...selectedSale,
-      createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
-    });
+    mode === "create" &&
+      setSelectedSale({
+        ...selectedSale,
+        createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
+      });
   }, []);
 
   useEffect(() => {
     // console.log("saleCode: " + saleCode)
 
-    if (mode === 'create') {
-      const { saleCode: _saleCode, ...rest } = selectedSale
+    if (mode === "create") {
+      const { saleCode: _saleCode, ...rest } = selectedSale;
       setSelectedSale({
         ...rest,
-        saleCode: formatCode(saleCode)
+        saleCode: formatCode(saleCode),
       });
     }
   }, [saleCode]);

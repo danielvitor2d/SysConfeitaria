@@ -17,10 +17,16 @@ import {
   Badge,
   InputGroup,
   InputRightAddon,
+  Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import InputNumberFormat from "../../../../../../components/InputNumberFormat";
-import { Item, ItemRow } from "../../../../../../types";
+import { Item, ItemRow, unitaryType } from "../../../../../../types";
 import { toBRLWithSign } from "../../../../../../util/formatCurrency";
 import SelectProduct from "./components/SelectProduct";
 
@@ -62,6 +68,75 @@ export default function AddItem({
     });
     setItem({ ...item });
   }, [quantity]);
+
+  const input: Record<unitaryType, JSX.Element> = {
+    Kg: (
+      <InputNumberFormat
+        bg={"#E8E8E8"}
+        textColor={"#000"}
+        value={quantity}
+        setValue={setQuantity}
+        fractionDigits={3}
+      />
+    ),
+    g: (
+      <InputNumberFormat
+        bg={"#E8E8E8"}
+        textColor={"#000"}
+        value={quantity}
+        setValue={setQuantity}
+        fractionDigits={3}
+      />
+    ),
+    L: (
+      <InputNumberFormat
+        bg={"#E8E8E8"}
+        textColor={"#000"}
+        value={quantity}
+        setValue={setQuantity}
+        fractionDigits={3}
+      />
+    ),
+    unid: (
+      <NumberInput
+        step={1}
+        value={quantity}
+        min={1}
+        onChange={(valueAsString: string, valueAsNumber: number) => {
+          console.log(`Mudou: ${valueAsString} - ${valueAsNumber}`)
+          if (isNaN(Number(valueAsString)) || isNaN(valueAsNumber)) {
+            setQuantity(1)
+          } else {
+            setQuantity(Math.max(1, valueAsNumber));
+          }
+        }}
+        clampValueOnBlur={true}
+      >
+        <NumberInputField
+          bg={"#E8E8E8"}
+          textColor={'#000'}
+        />
+        <NumberInputStepper>
+          <NumberIncrementStepper textColor={'#000'} />
+          <NumberDecrementStepper textColor={'#000'} />
+        </NumberInputStepper>
+      </NumberInput>
+      // <Input
+      //   bg={"#E8E8E8"}
+      //   textColor={"#000"}
+      //   value={quantity}
+      //   type={'number'}
+      //   onChange={(e: React.FormEvent<HTMLInputElement>) => {
+      //     const value = e.currentTarget.valueAsNumber
+      //     if (value.toString().includes(',')) {
+      //       value = Number()
+      //     }
+      //     console.log("Value: " + value)
+      //     setQuantity(value || 0)
+      //   }}
+      // />
+    ),
+  };
 
   return (
     <Popover placement="bottom" closeOnBlur={false} isOpen={isOpenAddItem}>
@@ -193,12 +268,14 @@ export default function AddItem({
                 </Badge>
               </HStack>
               <InputGroup>
+                {/* {item.product.unitaryType}
                 <InputNumberFormat
                   bg={"#E8E8E8"}
                   textColor={"#000"}
                   value={quantity}
                   setValue={setQuantity}
-                />
+                /> */}
+                {input[item.product.unitaryType]}
                 <InputRightAddon
                   bg={"#E8E8E8"}
                   color={"#000"}

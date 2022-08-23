@@ -2,7 +2,7 @@ export type Product = {
   productCode: string;
   productName: string;
   unitaryValue: number;
-  unitaryType: string;
+  unitaryType: unitaryType;
 };
 
 export interface ProductRow extends Product {
@@ -190,3 +190,5 @@ export const colorScheme: string[] = [
   "twitter",
   "telegram",
 ];
+
+export type unitaryType = 'Kg' | 'g' | 'L' | 'unid'

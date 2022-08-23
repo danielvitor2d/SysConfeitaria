@@ -59,7 +59,7 @@ export default function SaveOrUpdateProduct({
       productCode: product?.productCode || formatCode(productCode),
       productName: product?.productName || "",
       unitaryValue: product?.unitaryValue || 0,
-      unitaryType: product?.unitaryType || "",
+      unitaryType: product?.unitaryType || "unid",
     },
     criteriaMode: "firstError",
   });

@@ -20,9 +20,10 @@ export const fromBRLWithSign = (value: string): number => {
 };
 export default function currencyFormatter(
   value: string | number,
-  prefix?: string
+  prefix?: string,
+  fractionDigits?: number
 ) {
-  if (!Number(value)) return prefix ? `R$ 0,00` : "0,00";
+  if (!Number(value)) return prefix ? `R$ 0,00` : `0,${'0'.repeat(fractionDigits || 2)}`;
 
   if (prefix) {
     const amount = new Intl.NumberFormat("pt-BR", {
@@ -32,11 +33,11 @@ export default function currencyFormatter(
     return `${amount}`;
   }
 
-  return toBRL(Number(value));
+  return toBRL(Number(value), fractionDigits);
 }
-export const toBRL = (value: number) => {
+export const toBRL = (value: number, fractionDigits?: number) => {
   const stringValue = String(value);
-  return toNumberString(stringValue);
+  return toNumberString(stringValue, fractionDigits);
 };
 export const fromBRL = (value: string) => {
   return (
@@ -45,7 +46,7 @@ export const fromBRL = (value: string) => {
   );
 };
 
-export function toNumberString(value: string) {
+export function toNumberString(value: string, fractionDigits: number = 2) {
   var result = value;
 
   // Deixa apenas números
@@ -55,13 +56,13 @@ export function toNumberString(value: string) {
   // Remove os zeros do começo
   result = result.replace(/\b0/g, "");
 
-  if (result.length === 0) return "0,00";
+  if (result.length === 0) return `0,${'0'.repeat(fractionDigits)}`;
 
-  if (result.length == 1) result = "00" + result;
-  else if (result.length == 2) result = "0" + result;
+  result = result.padStart(fractionDigits + 1, '0')
 
   // Separa os últimos por vírgula
-  result = result.replace(/(\d)(\d{2})$/, "$1,$2");
+  if (fractionDigits === 2) result = result.replace(/(\d)(\d{2})$/, "$1,$2");
+  else if (fractionDigits === 3) result = result.replace(/(\d)(\d{3})$/, "$1,$2");
 
   if (result.length > 6) {
     result = result.replace(/(?=(\d{3})+(\D))\B/g, ".");

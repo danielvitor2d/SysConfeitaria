@@ -16,8 +16,7 @@ import { ClientOption, Sale } from "../../../../../../types";
 
 export default function SelectClient() {
   const { clients } = useContext(ClientContext);
-  const { mode, selectedSale, setSelectedSale } =
-    useContext(SaleContext);
+  const { mode, selectedSale, setSelectedSale } = useContext(SaleContext);
 
   const [data, setData] = useState<ClientOption[]>([]);
   const [client, setClient] = useState<ClientOption | null>(() => {
@@ -107,8 +106,8 @@ export default function SelectClient() {
 
   useEffect(() => {
     if (selectedSale && client) {
-      const { key, label, value, ...newClient } = client
-      selectedSale.client = newClient
+      const { key, label, value, ...newClient } = client;
+      selectedSale.client = newClient;
       setSelectedSale({ ...selectedSale });
     }
   }, [client]);
@@ -146,7 +145,7 @@ export default function SelectClient() {
             fontWeight={"500"}
             fontFamily={"Montserrat"}
           >
-            {'Selecione'}
+            {"Selecione"}
           </Text>
         }
         blurInputOnSelect={true}

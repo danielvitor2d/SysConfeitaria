@@ -14,6 +14,7 @@ interface InputNumberFormatProps {
   bg?: string;
   textColor?: string;
   prefix?: string;
+  fractionDigits?: number
 }
 
 export default function InputNumberFormat({
@@ -22,25 +23,23 @@ export default function InputNumberFormat({
   bg,
   textColor,
   prefix,
+  fractionDigits
 }: InputNumberFormatProps) {
   return (
     <NumberFormat
-      value={toBRLWithSign(value)}
       onValueChange={(values: NumberFormatValues, _sourceInfo: SourceInfo) => {
-        // console.log(values);
-        // console.log(fromBRLWithSign(values.formattedValue));
-        // console.log("Value: " + value);
-        // console.log("WithSign: " + toBRLWithSign(value));
-        setValue(fromBRLWithSign(values.formattedValue));
+        if (values.formattedValue.length === 0)
+          setValue(0.000)
+        else
+          setValue(fromBRLWithSign(values.formattedValue))
       }}
       allowNegative={false}
-      thousandSeparator={true}
       prefix={prefix || ""}
       format={(value: string | number) => {
-        return currencyFormatter(value, prefix);
+        return currencyFormatter(value, prefix, fractionDigits);
       }}
-      renderText={(value: any) => {
-        return <Text>{value}</Text>;
+      renderText={(formattedValue: string) => {
+        return <Text>{formattedValue}</Text>;
       }}
       style={{
         borderWidth: "1px",

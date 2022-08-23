@@ -47,12 +47,7 @@ import {
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   Column,
   IdType,
@@ -104,10 +99,10 @@ export default function Table({
 }: SalesTableProps) {
   const { sales } = useContext(SaleContext);
 
-  const [buttonGenerateLoading, setButtonGenerateLoading] = useState(false)
+  const [buttonGenerateLoading, setButtonGenerateLoading] = useState(false);
 
   const create = async (type: "daily" | "weekly" | "monthly") => {
-    setButtonGenerateLoading(true)
+    setButtonGenerateLoading(true);
 
     const storage = getStorage();
     const pathReference = ref(storage, "logo_confeitaria.png");
@@ -135,7 +130,10 @@ export default function Table({
     const lastDay = new Date(Date.now()).toLocaleDateString("pt-BR");
 
     let salesToReport = sales.filter((sale) => {
-      return sale.saleStatus === 'done' && compareDate(initDay, fromDatetimeToLocalFormatted(sale.createdAt));
+      return (
+        sale.saleStatus === "done" &&
+        compareDate(initDay, fromDatetimeToLocalFormatted(sale.createdAt))
+      );
     });
 
     let total = 0;
@@ -213,9 +211,9 @@ export default function Table({
 
     // doc.output("dataurlnewwindow", { filename: "Relatorio.pdf" });
     // doc.save("Relatorio.pdf")
-    window.open(URL.createObjectURL(doc.output("blob")))
+    window.open(URL.createObjectURL(doc.output("blob")));
 
-    setButtonGenerateLoading(false)
+    setButtonGenerateLoading(false);
   };
 
   const [filter, setFilter] = useState<string>("");

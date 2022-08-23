@@ -9,7 +9,7 @@ import {
   getDateMinusMonth,
 } from "../../util/getDate";
 import { compareDate } from "../../util/compareDate";
-import { fromNumberToStringFormatted } from "../../util/formatCurrency";
+import { fromNumberToStringFormatted, toBRLWithSign } from "../../util/formatCurrency";
 
 export default function Start() {
   const { sales } = useContext(SaleContext);
@@ -201,23 +201,17 @@ export default function Start() {
           alignContent={"center"}
           alignItems={"center"}
           flexDirection={"column"}
-          gap={"25px"}
+          gap={"10px"}
         >
           <Pie {...config_01} />
           <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
             {"Diário (" + initDay + " - " + lastDay + ")"}
           </Text>
-        </Flex>
-        <Flex
-          boxSize={"400px"}
-          alignContent={"center"}
-          alignItems={"center"}
-          flexDirection={"column"}
-          gap={"25px"}
-        >
-          <Pie {...config_02} />
-          <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {"Semanal (" + initWeek + " - " + lastDay + ")"}
+          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {`Vendas: ${toBRLWithSign(totalSalesDay)}`}
+          </Text>
+          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {`Pagamentos: ${toBRLWithSign(totalPaymentsDay)}`}
           </Text>
         </Flex>
         <Flex
@@ -225,11 +219,35 @@ export default function Start() {
           alignContent={"center"}
           alignItems={"center"}
           flexDirection={"column"}
-          gap={"25px"}
+          gap={"10px"}
+        >
+          <Pie {...config_02} />
+          <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {"Semanal (" + initWeek + " - " + lastDay + ")"}
+          </Text>
+          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {`Vendas: ${toBRLWithSign(totalSalesWeek)}`}
+          </Text>
+          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {`Pagamentos: ${toBRLWithSign(totalPaymentsWeek)}`}
+          </Text>
+        </Flex>
+        <Flex
+          boxSize={"400px"}
+          alignContent={"center"}
+          alignItems={"center"}
+          flexDirection={"column"}
+          gap={"10px"}
         >
           <Pie {...config_03} />
           <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
             {"Mensal (" + initMonth + " - " + lastDay + ")"}
+          </Text>
+          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {`Vendas: ${toBRLWithSign(totalSalesMonth)}`}
+          </Text>
+          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+            {`Pagamentos: ${toBRLWithSign(totalPaymentsMonth)}`}
           </Text>
         </Flex>
       </SimpleGrid>
