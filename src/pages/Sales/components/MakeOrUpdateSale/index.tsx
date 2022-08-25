@@ -439,7 +439,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     const printPaymentForms: string[] = [];
 
     selectedSale.paymentMethods.forEach((method: PaymentMethod) => {
-      printPaymentForms.push(`${paymentMethod[method]}\n\n`);
+      printPaymentForms.push(`${paymentMethod[method]}\n`);
     });
 
     const printAddressExists =
@@ -508,6 +508,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       "Formas de pagamento: ", // Imprimo o tipo de pagamento
       "\x1B" + "\x45\n", // Desativo negrito
       ...printPaymentForms, // Imprimindo cartões
+      '\x0A',
 
       printAddressExists ? printRua + "\x0A": printAddressError,
       printAddressError ? printCidade + "\x0A": '',
