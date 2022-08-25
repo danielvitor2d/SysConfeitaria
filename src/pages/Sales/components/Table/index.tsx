@@ -105,7 +105,7 @@ export default function Table({
     setButtonGenerateLoading(true);
 
     const storage = getStorage();
-    const pathReference = ref(storage, "logo_confeitaria.png");
+    const pathReference = ref(storage, "logo2_confeitaria.png");
     const urlImage = await getDownloadURL(pathReference);
 
     const xhr = new XMLHttpRequest();
@@ -185,7 +185,7 @@ export default function Table({
     doc.setFontSize(12);
     doc.text(`${initDay} - ${lastDay}`, 60, 32);
 
-    doc.addImage(img, "png", 140, 5, 60, 20);
+    doc.addImage(img, "png", 140, 5, 60, 25);
 
     autoTable(doc, {
       head: head,

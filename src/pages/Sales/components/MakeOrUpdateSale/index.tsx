@@ -416,7 +416,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
 
       //coxinha             3,000  un  R$ 6,00  R$ 18,00
       prodName.forEach((value, index) => {
-        if (index === prodName.length - 1) {
+        if (index === value.length - 1) {
           const itemQuantity = fromNumberToStringFormatted(
             item.quantity
           )
@@ -425,11 +425,11 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
           const totalValue = toBRLWithSign(item.totalValue)
 
           printItems.push(
-            `${prodName} ${itemQuantity}  ${unitaryType.padStart(2, ' ')}  ${unitaryValue}  ${totalValue}\n\n`
+            `${value.padEnd(18, ' ')} ${itemQuantity}  ${unitaryType.padStart(2, ' ')}  ${unitaryValue}  ${totalValue}\n\n`
           );
         } else {
           const space = " ".repeat(48 - value.length);
-          printItems.push(`${prodName}${space}\n\n`);
+          printItems.push(`${value}${space}\n\n`);
         }
       });
     });
@@ -465,6 +465,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
         flavor: "file",
         data: urlImage,
         options: { language: "escp", dotDensity: "double" },
+        size: { width: 4, height: 6 }
       },
       `${formatCellphone(phone)}`,
       `Av. Pedro Alves, 130`,
@@ -511,7 +512,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       printAddressError ? printCidade + "\x0A": '',
       printAddressError ? printCEP + "\x0A": '',
 
-      "\x0A" + "\x0A",
+      "\x0A",
       "\x1B" + "\x61" + "\x31", // Defino o alinhamento ao centro
       `NÃO É DOCUMENTO FISCAL` + "\x0A" + "\x0A", // Imprimo observação
 
