@@ -145,7 +145,7 @@ export type PaymentMethod =
   | "credit-card"
   | "debit-card"
   | "bank-payment-slip"
-  | "crediary"
+  | "promissory"
   | "transference"
   | "pay-link";
 
@@ -155,7 +155,7 @@ export type TranslatedPaymentMethod =
   | "Cartão de Crédito"
   | "Cartão de Débito"
   | "Boleto"
-  | "Crediário"
+  | "Promissória"
   | "Transferência"
   | "Link de Pagamento";
 
@@ -165,7 +165,7 @@ export const paymentMethod: Record<PaymentMethod, TranslatedPaymentMethod> = {
   "credit-card": "Cartão de Crédito",
   "debit-card": "Cartão de Débito",
   "bank-payment-slip": "Boleto",
-  crediary: "Crediário",
+  promissory: "Promissória",
   transference: "Transferência",
   "pay-link": "Link de Pagamento",
 };

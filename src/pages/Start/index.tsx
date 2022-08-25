@@ -1,4 +1,4 @@
-import { Flex, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import { Flex, GridItem, SimpleGrid, Text, VStack } from "@chakra-ui/react";
 import { useContext, useEffect, useMemo } from "react";
 import { ChartConfig, Pie } from "@kimizuy/react-chartjs";
 import SaleContext from "../../contexts/SalesContext";
@@ -179,7 +179,13 @@ export default function Start() {
   }, [completedSale, payments]);
 
   return (
-    <VStack backgroundColor={"#FFF"} height={"100%"} gap={10}>
+    <VStack 
+      backgroundColor={"#FFF"} 
+      height={"100%"}
+      overflow={'auto'}
+      paddingBottom={'10px'}
+      gap={10}
+    >
       <Text
         fontSize={"30px"}
         textAlign={"center"}
@@ -190,66 +196,68 @@ export default function Start() {
       </Text>
       <SimpleGrid
         flexDirection={"row"}
-        justifyContent={"space-between"}
         alignContent={"center"}
         alignItems={"center"}
-        columns={[1, 1, 1, 2, 3, 3]}
+        columns={[1, 1, 1, 2, 2, 3]}
         gap={[55, 55, 55, 55, 45, 45]}
       >
-        <Flex
-          boxSize={"400px"}
-          alignContent={"center"}
-          alignItems={"center"}
-          flexDirection={"column"}
-          gap={"10px"}
-        >
-          <Pie {...config_01} />
-          <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {"Diário (" + initDay + " - " + lastDay + ")"}
-          </Text>
-          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {`Vendas: ${toBRLWithSign(totalSalesDay)}`}
-          </Text>
-          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {`Pagamentos: ${toBRLWithSign(totalPaymentsDay)}`}
-          </Text>
-        </Flex>
-        <Flex
-          boxSize={"400px"}
-          alignContent={"center"}
-          alignItems={"center"}
-          flexDirection={"column"}
-          gap={"10px"}
-        >
-          <Pie {...config_02} />
-          <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {"Semanal (" + initWeek + " - " + lastDay + ")"}
-          </Text>
-          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {`Vendas: ${toBRLWithSign(totalSalesWeek)}`}
-          </Text>
-          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {`Pagamentos: ${toBRLWithSign(totalPaymentsWeek)}`}
-          </Text>
-        </Flex>
-        <Flex
-          boxSize={"400px"}
-          alignContent={"center"}
-          alignItems={"center"}
-          flexDirection={"column"}
-          gap={"10px"}
-        >
-          <Pie {...config_03} />
-          <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {"Mensal (" + initMonth + " - " + lastDay + ")"}
-          </Text>
-          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {`Vendas: ${toBRLWithSign(totalSalesMonth)}`}
-          </Text>
-          <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
-            {`Pagamentos: ${toBRLWithSign(totalPaymentsMonth)}`}
-          </Text>
-        </Flex>
+        <GridItem>
+          <VStack
+            alignContent={"center"}
+            alignItems={"center"}
+            flexDirection={"column"}
+            gap={"10px"}
+          >
+            <Pie {...config_01} />
+            <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
+              {"Diário (" + initDay + " - " + lastDay + ")"}
+            </Text>
+            <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+              {`Vendas: ${toBRLWithSign(totalSalesDay)}`}
+            </Text>
+            <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+              {`Pagamentos: ${toBRLWithSign(totalPaymentsDay)}`}
+            </Text>
+          </VStack>
+        </GridItem>
+        <GridItem>
+          <VStack
+            alignContent={"center"}
+            alignItems={"center"}
+            flexDirection={"column"}
+            gap={"10px"}
+          >
+            <Pie {...config_02} />
+            <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
+              {"Semanal (" + initWeek + " - " + lastDay + ")"}
+            </Text>
+            <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+              {`Vendas: ${toBRLWithSign(totalSalesWeek)}`}
+            </Text>
+            <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+              {`Pagamentos: ${toBRLWithSign(totalPaymentsWeek)}`}
+            </Text>
+          </VStack>
+        </GridItem>
+        <GridItem>
+          <VStack
+            alignContent={"center"}
+            alignItems={"center"}
+            flexDirection={"column"}
+            gap={"10px"}
+          >
+            <Pie {...config_03} />
+            <Text fontSize={"20px"} fontWeight={600} fontFamily={"Montserrat"}>
+              {"Mensal (" + initMonth + " - " + lastDay + ")"}
+            </Text>
+            <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+              {`Vendas: ${toBRLWithSign(totalSalesMonth)}`}
+            </Text>
+            <Text fontSize={"15px"} fontWeight={600} fontFamily={"Montserrat"}>
+              {`Pagamentos: ${toBRLWithSign(totalPaymentsMonth)}`}
+            </Text>
+          </VStack>
+        </GridItem>
       </SimpleGrid>
     </VStack>
   );

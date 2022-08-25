@@ -1,4 +1,4 @@
-import { Flex, HStack, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, GridItem, HStack, SimpleGrid, Text, VStack } from "@chakra-ui/react";
 import { useContext, useMemo } from "react";
 import PaymentContext from "../../../../contexts/PaymentContext";
 import SaleContext from "../../../../contexts/SalesContext";
@@ -82,17 +82,23 @@ export default function Header() {
   }, [salesOfWeek, paymentsOfWeek]);
 
   return (
-    <Flex
-      width={"100%"}
-      height={"86px"}
+    <Box
+      width={'100%'}
       backgroundColor={"#482017"}
-      alignContent={"flex-start"}
-      justifyContent={"flex-start"}
-      paddingX={"10px"}
     >
-      <HStack>
-        <Flex
-          width={"190px"}
+      <SimpleGrid
+        backgroundColor={"#482017"}
+        alignContent={"flex-start"}
+        justifyContent={"flex-start"}
+        alignItems={'center'}
+        padding={"10px"}
+        flexDirection={'row'}
+        gap={3}
+        width={'fit-content'}
+        columns={[1, 2, 2, 2, 2, 2]}
+      >
+        <GridItem
+          minWidth={"190px"}
           height={"66px"}
           justifyContent={"center"}
           bg={"rgba(217, 217, 217, 0.19)"}
@@ -121,9 +127,9 @@ export default function Header() {
               {toBRLWithSign(cashReceiptsOfDay)}
             </Text>
           </VStack>
-        </Flex>
-        <Flex
-          width={"190px"}
+        </GridItem>
+        <GridItem
+          minWidth={"190px"}
           height={"66px"}
           justifyContent={"center"}
           bg={"rgba(217, 217, 217, 0.19)"}
@@ -152,8 +158,8 @@ export default function Header() {
               {toBRLWithSign(cashReceiptsOfWeek)}
             </Text>
           </VStack>
-        </Flex>
-      </HStack>
-    </Flex>
+        </GridItem>
+      </SimpleGrid>
+    </Box>
   );
 }

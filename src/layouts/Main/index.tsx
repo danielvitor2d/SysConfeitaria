@@ -11,12 +11,16 @@ export default function MainLayout({ page }: MainlLayoutProps) {
   return (
     <Flex
       height={"100vh"}
-      width={"100%"}
-      overflow={"auto"}
+      width={"auto"}
       backgroundColor={"#C9A795"}
     >
       <Sidebar />
-      <Flex width={"100%"} flexDirection={"column"}>
+      <Flex
+        height={'100vh'}
+        width={"100%"}
+        flexDirection={"column"}
+        overflow={'auto'}
+      >
         <Header />
         {page}
       </Flex>

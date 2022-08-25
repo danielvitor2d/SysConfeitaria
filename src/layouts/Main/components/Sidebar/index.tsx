@@ -156,9 +156,7 @@ export default function Sidebar() {
 
   return (
     <Box
-      left={0}
-      top={0}
-      height={"100%"}
+      height={"100vh"}
       width={sidebarState.mode == "open" ? "20rem" : "4rem"}
       minWidth={sidebarState.mode == "open" ? "20rem" : "4rem"}
       transition={"0.5s"}
