@@ -28,7 +28,13 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Item, ItemRow, Sale } from "../../../../types";
+import {
+  Item,
+  ItemRow,
+  paymentMethod,
+  PaymentMethod,
+  Sale,
+} from "../../../../types";
 import { getDatetimeLocalFormatted } from "../../../../util/getDate";
 import SelectPaymentMethod from "./components/SelectPaymentMethod";
 import SelectSaleStatus from "./components/SelectSaleStatus";
@@ -48,6 +54,7 @@ import GlobalContext from "../../../../contexts/GlobalContext";
 import * as qz from "qz-tray";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { formatCellphone } from "../../../../util/formatCellphone";
+import { isNull } from "lodash";
 
 interface MakeSaleProps {
   handleMakeOrUpdateSale: (sale: Sale) => Promise<boolean>;
@@ -371,10 +378,10 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
   const spliter = (str: string, nr: number) => {
     const parts = [];
     for (let i = 0, length = str.length; i < length; i += nr) {
-        parts.push(str.substring(i, i + nr));
+      parts.push(str.substring(i, i + nr));
     }
     return parts;
-  }
+  };
 
   const handlePrintSale = async () => {
     console.log("Imprimindo...");
@@ -398,20 +405,43 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     const printPhone =
       formatCellphone(selectedSale?.client?.contact) ?? "(xx) xxxxx-xxxx";
 
-    const printItems: string[] = []
+    const printItems: string[] = [];
     selectedSale?.items?.forEach((item: Item) => {
-      const prodName = spliter(item.product.productName, 32)
+      const prodName = spliter(item.product.productName, 32);
 
       prodName.forEach((value, index) => {
         if (index === prodName.length - 1) {
-          const space = ' '.repeat(37 - value.length)
-          printItems.push(`${prodName}${space}(${fromNumberToStringFormatted(item.quantity)}) ${toBRLWithSign(item.totalValue)}\n\n`)
+          const space = " ".repeat(37 - value.length);
+          printItems.push(
+            `${prodName}${space}(${fromNumberToStringFormatted(
+              item.quantity
+            )}) ${toBRLWithSign(item.totalValue)}\n\n`
+          );
         } else {
-          const space = ' '.repeat(48 - value.length)
-          printItems.push(`${prodName}${space}\n\n`)
+          const space = " ".repeat(48 - value.length);
+          printItems.push(`${prodName}${space}\n\n`);
         }
-      })
+      });
     });
+
+    const printPaymentForms: string[] = [];
+
+    selectedSale.paymentMethods.forEach((method: PaymentMethod) => {
+      printPaymentForms.push(`${paymentMethod[method]}\n\n`);
+    });
+
+    const printAddressExists =
+      !isNull(selectedSale?.client?.address?.rua) &&
+      !isNull(selectedSale?.client?.address?.numero) &&
+      !isNull(selectedSale?.client?.address?.cidade) &&
+      !isNull(selectedSale?.client?.address?.estado) &&
+      !isNull(selectedSale?.client?.address?.cep)
+
+    const printAddressError = "Endereço não informado".toUpperCase();
+
+    const printRua = `${selectedSale?.client?.address?.rua}, ${selectedSale?.client?.address?.numero}`;
+    const printCidade = `${selectedSale?.client?.address?.cidade}, ${selectedSale?.client?.address?.estado}`;
+    const printCEP = `${selectedSale?.client?.address?.cep}`;
 
     var order = [
       "\x1B" + "\x40", // Inicializo o documento
@@ -448,7 +478,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       // Imprimo linha tracejada
       "------------------------------------------------" + "\x0A" + "\x0A",
 
-      [ ...printItems ],
+      ...printItems,
       // "Macaxeira                            (1) R$ 2,94\n\n", // Imprimo o produto
       // "Alface Crespa                        (1) R$ 2,50\n\n", // Imprimo o produto
       // "Coentro                              (1) R$ 2,50\n\n", // Imprimo o produto
@@ -465,33 +495,39 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       "------------------------------------------------" + "\x0A" + "\x0A",
 
       "\x1B" + "\x21" + "\x30", // Ativo modo em
-      `Total           ${toBRLWithSign(selectedSale.fullValue as number)}` + "\x0A", // Imprimo o total do pedido
+      `Total          ${toBRLWithSign(selectedSale.fullValue as number)}` +
+        "\x0A", // Imprimo o total do pedido
       "\x1B" + "\x21" + "\x0A" + "\x1B" + "\x45" + "\x0A" + "\x0A", // Desativo modo em
 
       // Imprimo linha tracejada
       "------------------------------------------------" + "\x0A" + "\x0A",
 
       "\x1B" + "\x45" + "\x0D", // Ativo negrito
-      "Forma de pagamento Cartão online" + "\x0A" + "\x0A", // Imprimo o tipo de pagamento
-      "MasterCard - Crédito" + "\x0A" + "\x0A", // Imprimo nome do cartão
+      "Formas de pagamento:" + "\x0A", // Imprimo o tipo de pagamento
+      // "MasterCard - Crédito" + "\x0A" + "\x0A", // Imprimo nome do cartão
       "\x1B" + "\x45\n", // Desativo negrito
+      ...printPaymentForms, // Imprimindo cartões
 
       "\x0A" + "\x0A", // Quebra de linha
 
-      "Entregar em 29/11/2018" + "\x0A" + "\x0A", // Imprimo data de entrega
-      "Rua Bananeiras, 999" + "\x0A", // Imprimo endereço
-      "Manaíra, João Pessoa" + "\x0A", // Imprimo bairro e cidade
-      "58038-170" + "\x0A" + "\x0A", // Imprimo cep
+      // `Rua Bananeiras, 999` + "\x0A", // Imprimo endereço
+      // `Manaíra, João Pessoa` + "\x0A", // Imprimo bairro e cidade
+      // `58038-170` + "\x0A" + "\x0A", // Imprimo cep
+      printAddressExists ? printRua : printAddressError,
+      printAddressError ? printCidade : '',
+      printAddressError ? printCEP : '',
 
       "\x0A" + "\x0A",
       "\x1B" + "\x61" + "\x31", // Defino o alinhamento ao centro
-      "NÃO É DOCUMENTO FISCAL" + "\x0A" + "\x0A", // Imprimo observação
+      `NÃO É DOCUMENTO FISCAL` + "\x0A" + "\x0A", // Imprimo observação
 
       "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A",
       "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A",
       "\x1B" + "\x69", // Corto o papel
       "\x10" + "\x14" + "\x01" + "\x00" + "\x05", // Dou um pulso
     ];
+
+    console.log(JSON.stringify(order, null, 2));
 
     qz.print(config, order).catch((err: any) => {
       console.error(err);
