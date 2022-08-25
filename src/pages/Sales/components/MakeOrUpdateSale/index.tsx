@@ -414,7 +414,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     ];
 
     selectedSale?.items?.forEach((item: Item) => {
-      const prodName = spliter(item.product.productName, 20);
+      const prodName = spliter(item.product.productName, 17);
 
       //coxinha             3,000  un  R$ 6,00  R$ 18,00
       prodName.forEach((value, index) => {
@@ -427,7 +427,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
           const totalValue = toBRLWithSign(item.totalValue)
 
           printItems.push(
-            `${value.padEnd(21, ' ')} ${itemQuantity}  ${unitaryType.padStart(2, ' ')}  ${unitaryValue}  ${totalValue}\n\n`
+            `${value.padEnd(18, ' ')} ${itemQuantity}  ${unitaryType.padStart(2, ' ')}  ${unitaryValue}  ${totalValue}\n\n`
           );
         } else {
           const space = " ".repeat(48 - value.length);
@@ -504,7 +504,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       `${fromDateAndTimeToLocalFormatted(selectedSale.createdAt)}\n\n`,
 
       "\x1B" + "\x45" + "\x0D", // Ativo negrito
-      "Formas de pagamento: \n", // Imprimo o tipo de pagamento
+      "Forma(s) de pagamento: \n", // Imprimo o tipo de pagamento
       "\x1B" + "\x45\n", // Desativo negrito
       ...printPaymentForms, // Imprimindo cartões
       '\x0A',
