@@ -111,7 +111,7 @@ export default function SelectProduct({
         product: newProd as Product,
         unitaryValue: newProd.unitaryValue,
         totalValue: newProd?.unitaryValue,
-        quantity: newProd?.unitaryType === "unid" ? 1.0 : 0.0,
+        quantity: newProd?.unitaryType === "un" ? 1.0 : 0.0,
       });
 
       return { ...(prevItem as Item) };

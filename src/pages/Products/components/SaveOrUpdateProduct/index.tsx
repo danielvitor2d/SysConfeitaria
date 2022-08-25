@@ -59,7 +59,7 @@ export default function SaveOrUpdateProduct({
       productCode: product?.productCode || formatCode(productCode),
       productName: product?.productName || "",
       unitaryValue: product?.unitaryValue || 0,
-      unitaryType: product?.unitaryType || "unid",
+      unitaryType: product?.unitaryType || "un",
     },
     criteriaMode: "firstError",
   });
@@ -104,7 +104,7 @@ export default function SaveOrUpdateProduct({
     setValue("productCode", formatCode(productCode));
     setValue("productName", "");
     setValue("unitaryValue", 0);
-    setValue("unitaryType", "unid");
+    setValue("unitaryType", "un");
   };
 
   useEffect(() => {
@@ -162,8 +162,8 @@ export default function SaveOrUpdateProduct({
                 ) : (
                   <></>
                 )} */}
-                <Select {...register("unitaryType")} defaultValue={"unid"}>
-                  <option key={"unid"} value={"unid"}>
+                <Select {...register("unitaryType")} defaultValue={"un"}>
+                  <option key={"un"} value={"un"}>
                     Unidade
                   </option>
                   <option key={"g"} value={"g"}>

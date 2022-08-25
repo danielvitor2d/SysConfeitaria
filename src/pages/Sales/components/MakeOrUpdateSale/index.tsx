@@ -75,7 +75,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     onCloseMakeOrUpdateSale,
   } = useContext(SaleContext);
 
-  const { printer } = useContext(GlobalContext);
+  const { printer, phone } = useContext(GlobalContext);
 
   const [item, setItem] = useState<Item | null>(null);
 
@@ -388,7 +388,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     var config = qz.configs.create(printer, { encoding: "Cp1252" });
 
     const storage = getStorage();
-    const pathReference = ref(storage, "logo_confeitaria.png");
+    const pathReference = ref(storage, "logo2_confeitaria.png");
     const urlImage = await getDownloadURL(pathReference);
 
     const xhr = new XMLHttpRequest();
@@ -405,17 +405,27 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     const printPhone =
       formatCellphone(selectedSale?.client?.contact) ?? "(xx) xxxxx-xxxx";
 
-    const printItems: string[] = [];
-    selectedSale?.items?.forEach((item: Item) => {
-      const prodName = spliter(item.product.productName, 32);
+    // 48 colunas
 
+    const printItems: string[] = [
+      `Produto         Qtde. Unid. Vl.unit. Valor total\n\n`
+    ];
+
+    selectedSale?.items?.forEach((item: Item) => {
+      const prodName = spliter(item.product.productName, 19);
+
+      //coxinha             3,000  un  R$ 6,00  R$ 18,00
       prodName.forEach((value, index) => {
         if (index === prodName.length - 1) {
-          const space = " ".repeat(37 - value.length);
+          const itemQuantity = fromNumberToStringFormatted(
+            item.quantity
+          )
+          const unitaryType = item.product.unitaryType
+          const unitaryValue = toBRLWithSign(item.unitaryValue)
+          const totalValue = toBRLWithSign(item.totalValue)
+
           printItems.push(
-            `${prodName}${space}(${fromNumberToStringFormatted(
-              item.quantity
-            )}) ${toBRLWithSign(item.totalValue)}\n\n`
+            `${prodName} ${itemQuantity}  ${unitaryType.padStart(2, ' ')}  ${unitaryValue}  ${totalValue}\n\n`
           );
         } else {
           const space = " ".repeat(48 - value.length);
@@ -456,17 +466,15 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
         data: urlImage,
         options: { language: "escp", dotDensity: "double" },
       },
+      `${formatCellphone(phone)}`,
+      `Av. Pedro Alves, 130`,
+      `Centro, Acopiara-CE`,
 
       "\x1B" + "\x74" + "\x10",
       "\x0A" + "\x0A", // Quebra de linha
 
       `Cupom de Venda Nº ${printSaleCode}` + "\x0A" + "\x0A", // Imprimo número do pedido
       "\x0A", // Quebra de linha
-
-      "\x1B" + "\x45" + "\x0D", // Ativo negrito
-      "Seus produtos" + "\x0A" + "\x0A", // Imprimo título
-      "\x1B" + "\x45\n", // Desativo negrito
-
       "\x0A",
       "\x1B" + "\x61" + "\x30", // Defino o alinhamento a esquerda
 
@@ -477,26 +485,12 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
 
       // Imprimo linha tracejada
       "------------------------------------------------" + "\x0A" + "\x0A",
-
       ...printItems,
-      // "Macaxeira                            (1) R$ 2,94\n\n", // Imprimo o produto
-      // "Alface Crespa                        (1) R$ 2,50\n\n", // Imprimo o produto
-      // "Coentro                              (1) R$ 2,50\n\n", // Imprimo o produto
-      // "Banana pacovan                       (1) R$ 5,00\n\n", // Imprimo o produto
-      // "Batata doce                          (1) R$ 3,80\n\n", // Imprimo o produto
-      // "Salsa                                (1) R$ 3,00\n\n", // Imprimo o produto
-      // "Manjericão                           (1) R$ 2,21\n\n", // Imprimo o produto
-      // "Abacaxi                              (2) R$ 7,60\n\n", // Imprimo o produto
-      // "Goma de tapioca 1kg                  (1) R$ 6,00\n\n", // Imprimo o produto
-      // "Tomate Cereja 500 gramas             (1) R$ 5,00\n\n", // Imprimo o produto
-      // "Mamão havaí                          (1) R$ 4,00\n\n", // Imprimo o produto
-
       // Imprimo linha tracejada
       "------------------------------------------------" + "\x0A" + "\x0A",
 
       "\x1B" + "\x21" + "\x30", // Ativo modo em
-      `Total          ${toBRLWithSign(selectedSale.fullValue as number)}` +
-        "\x0A", // Imprimo o total do pedido
+      `Total          ${toBRLWithSign(selectedSale.fullValue as number)}` + "\x0A", // Imprimo o total do pedido
       "\x1B" + "\x21" + "\x0A" + "\x1B" + "\x45" + "\x0A" + "\x0A", // Desativo modo em
 
       // Imprimo linha tracejada
@@ -513,9 +507,9 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       // `Rua Bananeiras, 999` + "\x0A", // Imprimo endereço
       // `Manaíra, João Pessoa` + "\x0A", // Imprimo bairro e cidade
       // `58038-170` + "\x0A" + "\x0A", // Imprimo cep
-      printAddressExists ? printRua : printAddressError,
-      printAddressError ? printCidade : '',
-      printAddressError ? printCEP : '',
+      printAddressExists ? printRua + "\x0A": printAddressError,
+      printAddressError ? printCidade + "\x0A": '',
+      printAddressError ? printCEP + "\x0A": '',
 
       "\x0A" + "\x0A",
       "\x1B" + "\x61" + "\x31", // Defino o alinhamento ao centro

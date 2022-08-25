@@ -326,7 +326,7 @@ export default function Products() {
                 productCode: formatCode(productCode),
                 productName: "",
                 unitaryValue: 0,
-                unitaryType: "unid",
+                unitaryType: "un",
               });
               onOpenAddOrUpdateProduct();
             }}

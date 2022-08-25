@@ -97,7 +97,7 @@ export default function AddItem({
         fractionDigits={3}
       />
     ),
-    unid: (
+    un: (
       <NumberInput
         step={1}
         value={quantity}
