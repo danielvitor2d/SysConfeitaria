@@ -100,10 +100,15 @@ export default function Header() {
         <GridItem
           minWidth={"190px"}
           height={"66px"}
-          justifyContent={"center"}
+          justifyContent={"center"} 
+          justifyItems={"center"}
+          alignItems={'center'}
+          alignContent={'center'}
           bg={"rgba(217, 217, 217, 0.19)"}
         >
-          <VStack gap={0} justifyContent={"center"} justifyItems={"center"}>
+          <VStack
+            marginTop={'6px'}
+          >
             <Text
               fontFamily={"Montserrat"}
               fontWeight={"600"}
@@ -134,7 +139,7 @@ export default function Header() {
           justifyContent={"center"}
           bg={"rgba(217, 217, 217, 0.19)"}
         >
-          <VStack gap={0} justifyContent={"center"} justifyItems={"center"}>
+          <VStack marginTop={'6px'}>
             <Text
               fontFamily={"Montserrat"}
               fontWeight={"600"}
