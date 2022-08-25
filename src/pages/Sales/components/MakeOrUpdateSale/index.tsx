@@ -410,11 +410,11 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     const printItems: string[] = [
       "\x1B" + "\x45" + "\x0D",
       `Produto         Qtde. Unid. Vl.unit. Valor total\n\n`,
-      "\x1B" + "\x45",
+      "\x1B" + "\x45\n",
     ];
 
     selectedSale?.items?.forEach((item: Item) => {
-      const prodName = spliter(item.product.productName, 19);
+      const prodName = spliter(item.product.productName, 20);
 
       //coxinha             3,000  un  R$ 6,00  R$ 18,00
       prodName.forEach((value, index) => {
@@ -427,7 +427,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
           const totalValue = toBRLWithSign(item.totalValue)
 
           printItems.push(
-            `${value.padEnd(18, ' ')} ${itemQuantity}  ${unitaryType.padStart(2, ' ')}  ${unitaryValue}  ${totalValue}\n\n`
+            `${value.padEnd(21, ' ')} ${itemQuantity}  ${unitaryType.padStart(2, ' ')}  ${unitaryValue}  ${totalValue}\n\n`
           );
         } else {
           const space = " ".repeat(48 - value.length);
@@ -467,10 +467,9 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
         flavor: "file",
         data: urlImage,
         options: { language: "escp", dotDensity: "double" },
-        size: { width: 4, height: 6 }
       },
-      `${formatCellphone(phone)}\n\n`,
-      `Av. Pedro Alves, 130\n\n`,
+      `${formatCellphone(phone)}\n`,
+      `Av. Pedro Alves, 130\n`,
       `Centro, Acopiara-CE`,
 
       "\x1B" + "\x74" + "\x10",
@@ -482,8 +481,8 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       "\x1B" + "\x61" + "\x30", // Defino o alinhamento a esquerda
 
       "\x1B" + "\x45" + "\x0D", // Ativo negrito
-      `Cliente: ${printClientName}` + "\x0A" + "\x0A", // Imprimo nome do cliente
-      `Telefone: ${printPhone}` + "\x0A" + "\x0A", // Imprimo telefone
+      `Cliente: ${printClientName}` + "\x0A", // Imprimo nome do cliente
+      `Telefone: ${printPhone}` + "\x0A", // Imprimo telefone
       "\x1B" + "\x45\n", // Desativo negrito
 
       // Imprimo linha tracejada
@@ -505,7 +504,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       `${fromDateAndTimeToLocalFormatted(selectedSale.createdAt)}\n\n`,
 
       "\x1B" + "\x45" + "\x0D", // Ativo negrito
-      "Formas de pagamento: ", // Imprimo o tipo de pagamento
+      "Formas de pagamento: \n", // Imprimo o tipo de pagamento
       "\x1B" + "\x45\n", // Desativo negrito
       ...printPaymentForms, // Imprimindo cartões
       '\x0A',
