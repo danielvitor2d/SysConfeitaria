@@ -1,4 +1,12 @@
-import { Box, Flex, GridItem, HStack, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  GridItem,
+  HStack,
+  SimpleGrid,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { useContext, useMemo } from "react";
 import PaymentContext from "../../../../contexts/PaymentContext";
 import SaleContext from "../../../../contexts/SalesContext";
@@ -17,7 +25,10 @@ export default function Header() {
   const { sales } = useContext(SaleContext);
   const { payments } = useContext(PaymentContext);
 
-  const completedSale = useMemo(() => sales.filter(sale => sale.saleStatus === 'done'), [sales])
+  const completedSale = useMemo(
+    () => sales.filter((sale) => sale.saleStatus === "done"),
+    [sales]
+  );
 
   const salesOfDay = useMemo(() => {
     return completedSale.filter((sale: Sale) => {
@@ -82,33 +93,28 @@ export default function Header() {
   }, [salesOfWeek, paymentsOfWeek]);
 
   return (
-    <Box
-      width={'100%'}
-      backgroundColor={"#482017"}
-    >
+    <Box width={"100%"} backgroundColor={"#482017"}>
       <SimpleGrid
         backgroundColor={"#482017"}
         alignContent={"flex-start"}
         justifyContent={"flex-start"}
-        alignItems={'center'}
+        alignItems={"center"}
         padding={"10px"}
-        flexDirection={'row'}
+        flexDirection={"row"}
         gap={3}
-        width={'fit-content'}
+        width={"fit-content"}
         columns={[1, 2, 2, 2, 2, 2]}
       >
         <GridItem
           minWidth={"190px"}
           height={"66px"}
-          justifyContent={"center"} 
+          justifyContent={"center"}
           justifyItems={"center"}
-          alignItems={'center'}
-          alignContent={'center'}
+          alignItems={"center"}
+          alignContent={"center"}
           bg={"rgba(217, 217, 217, 0.19)"}
         >
-          <VStack
-            marginTop={'6px'}
-          >
+          <VStack marginTop={"6px"}>
             <Text
               fontFamily={"Montserrat"}
               fontWeight={"600"}
@@ -139,7 +145,7 @@ export default function Header() {
           justifyContent={"center"}
           bg={"rgba(217, 217, 217, 0.19)"}
         >
-          <VStack marginTop={'6px'}>
+          <VStack marginTop={"6px"}>
             <Text
               fontFamily={"Montserrat"}
               fontWeight={"600"}

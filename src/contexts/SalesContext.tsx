@@ -138,9 +138,9 @@ export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
   useEffect(() => {
     setSelectedSale({
       ...selectedSale,
-      saleCode: formatCode(saleCode)
-    })
-  }, [saleCode])
+      saleCode: formatCode(saleCode),
+    });
+  }, [saleCode]);
 
   return (
     <SaleContext.Provider

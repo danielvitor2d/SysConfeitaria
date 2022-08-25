@@ -23,7 +23,8 @@ export default function currencyFormatter(
   prefix?: string,
   fractionDigits?: number
 ) {
-  if (!Number(value)) return prefix ? `R$ 0,00` : `0,${'0'.repeat(fractionDigits || 2)}`;
+  if (!Number(value))
+    return prefix ? `R$ 0,00` : `0,${"0".repeat(fractionDigits || 2)}`;
 
   if (prefix) {
     const amount = new Intl.NumberFormat("pt-BR", {
@@ -56,13 +57,14 @@ export function toNumberString(value: string, fractionDigits: number = 2) {
   // Remove os zeros do começo
   result = result.replace(/\b0/g, "");
 
-  if (result.length === 0) return `0,${'0'.repeat(fractionDigits)}`;
+  if (result.length === 0) return `0,${"0".repeat(fractionDigits)}`;
 
-  result = result.padStart(fractionDigits + 1, '0')
+  result = result.padStart(fractionDigits + 1, "0");
 
   // Separa os últimos por vírgula
   if (fractionDigits === 2) result = result.replace(/(\d)(\d{2})$/, "$1,$2");
-  else if (fractionDigits === 3) result = result.replace(/(\d)(\d{3})$/, "$1,$2");
+  else if (fractionDigits === 3)
+    result = result.replace(/(\d)(\d{3})$/, "$1,$2");
 
   if (result.length > 6) {
     result = result.replace(/(?=(\d{3})+(\D))\B/g, ".");

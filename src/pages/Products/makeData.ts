@@ -14,12 +14,7 @@ const newProduct = (): Product => {
     productCode: faker.random.numeric(6),
     productName: faker.commerce.productName(),
     unitaryValue: Number(faker.commerce.price(0, 10000, 2)),
-    unitaryType: faker.helpers.arrayElement([
-      "unid",
-      "g",
-      "Kg",
-      "L",
-    ]),
+    unitaryType: faker.helpers.arrayElement(["unid", "g", "Kg", "L"]),
   };
 };
 

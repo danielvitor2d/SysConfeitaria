@@ -21,7 +21,7 @@ interface AuthContextData {
   signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
-  changePassword: (new_password: string) => Promise<boolean>
+  changePassword: (new_password: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -49,13 +49,13 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   async function changePassword(new_password: string): Promise<boolean> {
     try {
       const user = auth.currentUser;
-      await updatePassword(user as User, new_password)
-      return true
+      await updatePassword(user as User, new_password);
+      return true;
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
 
-    return false
+    return false;
   }
 
   async function signIn(email: string, password: string): Promise<boolean> {
@@ -98,7 +98,9 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   // }, [signed]);
 
   return (
-    <AuthContext.Provider value={{ signed, signIn, signUp, signOut, changePassword }}>
+    <AuthContext.Provider
+      value={{ signed, signIn, signUp, signOut, changePassword }}
+    >
       {children}
     </AuthContext.Provider>
   );

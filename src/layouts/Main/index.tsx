@@ -9,17 +9,13 @@ interface MainlLayoutProps {
 
 export default function MainLayout({ page }: MainlLayoutProps) {
   return (
-    <Flex
-      height={"100vh"}
-      width={"auto"}
-      backgroundColor={"#C9A795"}
-    >
+    <Flex height={"100vh"} width={"auto"} backgroundColor={"#C9A795"}>
       <Sidebar />
       <Flex
-        height={'100vh'}
+        height={"100vh"}
         width={"100%"}
         flexDirection={"column"}
-        overflow={'auto'}
+        overflow={"auto"}
       >
         <Header />
         {page}

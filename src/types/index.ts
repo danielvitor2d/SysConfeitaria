@@ -191,4 +191,4 @@ export const colorScheme: string[] = [
   "telegram",
 ];
 
-export type unitaryType = 'Kg' | 'g' | 'L' | 'unid'
+export type unitaryType = "Kg" | "g" | "L" | "unid";

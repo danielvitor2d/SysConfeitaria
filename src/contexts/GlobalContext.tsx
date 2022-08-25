@@ -32,7 +32,7 @@ interface GlobalContextData {
   paymentCode: number;
   register: () => Promise<void>;
   registered: boolean;
-  printer: string
+  printer: string;
 }
 
 const GlobalContext = createContext<GlobalContextData>({} as GlobalContextData);
@@ -43,7 +43,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
   const [saleCode, setSaleCode] = useState(1);
   const [paymentCode, setPaymentCode] = useState(1);
   const [registered, setRegistered] = useState(false);
-  const [printer, setPrinter] = useState('Jetway')
+  const [printer, setPrinter] = useState("Jetway");
 
   const db = getFirestore(app);
 
@@ -129,7 +129,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         setProductCode(data.productCode || 1);
         setSaleCode(data.saleCode || 1);
         setPaymentCode(data.paymentCode || 1);
-        setPrinter(data.printer || '')
+        setPrinter(data.printer || "");
         if (data.registered) {
           setRegistered(data.registered);
         }
@@ -167,7 +167,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         productCode,
         saleCode,
         paymentCode,
-        printer
+        printer,
       }}
     >
       {children}

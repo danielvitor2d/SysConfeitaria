@@ -45,7 +45,9 @@ import AddItem from "./components/AddItem";
 import SaleContext from "../../../../contexts/SalesContext";
 import GlobalContext from "../../../../contexts/GlobalContext";
 
-import * as qz from 'qz-tray'
+import * as qz from "qz-tray";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { formatCellphone } from "../../../../util/formatCellphone";
 
 interface MakeSaleProps {
   handleMakeOrUpdateSale: (sale: Sale) => Promise<boolean>;
@@ -66,7 +68,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     onCloseMakeOrUpdateSale,
   } = useContext(SaleContext);
 
-  const { printer } = useContext(GlobalContext)
+  const { printer } = useContext(GlobalContext);
 
   const [item, setItem] = useState<Item | null>(null);
 
@@ -366,124 +368,135 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     }
   }
 
-  const handlePrintSale = () => {
-    console.log("Imprimindo...")
-    /**
-     * Defino a impressora que será utilizada, no meu caso dei o nome de GP-L80180 Series
-     * e seto o encoding que será utilizado para evitar problemas com caracteres especiais
-     */
-    var config = qz.configs.create(printer, { encoding: 'Cp1252' });
-  
-    /**
-     * Defino um array com todos os itens que irá compor o corpo do documento a ser impresso
-     */
+  const spliter = (str: string, nr: number) => {
+    const parts = [];
+    for (let i = 0, length = str.length; i < length; i += nr) {
+        parts.push(str.substring(i, i + nr));
+    }
+    return parts;
+  }
+
+  const handlePrintSale = async () => {
+    console.log("Imprimindo...");
+    var config = qz.configs.create(printer, { encoding: "Cp1252" });
+
+    const storage = getStorage();
+    const pathReference = ref(storage, "logo_confeitaria.png");
+    const urlImage = await getDownloadURL(pathReference);
+
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = "blob";
+    xhr.onload = (event) => {
+      const blob = xhr.response;
+    };
+    xhr.open("GET", urlImage);
+    xhr.send();
+
+    const printSaleCode = selectedSale.saleCode ?? "000000";
+    const printClientName =
+      selectedSale?.client?.clientName ?? "Sem identificação";
+    const printPhone =
+      formatCellphone(selectedSale?.client?.contact) ?? "(xx) xxxxx-xxxx";
+
+    const printItems: string[] = []
+    selectedSale?.items?.forEach((item: Item) => {
+      const prodName = spliter(item.product.productName, 32)
+
+      prodName.forEach((value, index) => {
+        if (index === prodName.length - 1) {
+          const space = ' '.repeat(37 - value.length)
+          printItems.push(`${prodName}${space}(${fromNumberToStringFormatted(item.quantity)}) ${toBRLWithSign(item.totalValue)}\n\n`)
+        } else {
+          const space = ' '.repeat(48 - value.length)
+          printItems.push(`${prodName}${space}\n\n`)
+        }
+      })
+    });
+
     var order = [
-      '\x1B' + '\x40',                                          // Inicializo o documento
-      '\x10' + '\x14' + '\x01' + '\x00' + '\x05',               // É dado um pulso para iniciar a impressão
-      '\x1B' + '\x61' + '\x31',                                 // Defino o alinhamento ao centro
-  
-  
+      "\x1B" + "\x40", // Inicializo o documento
+      "\x10" + "\x14" + "\x01" + "\x00" + "\x05", // É dado um pulso para iniciar a impressão
+      "\x1B" + "\x61" + "\x31", // Defino o alinhamento ao centro
+
       // Imprimo a logo
-      // {
-      //   type: 'raw',
-      //   format: 'image',
-      //   flavor: 'file',
-      //   data: 'https://seusite.com.br/assets/images/brand.png',
-      //   options: { language: "escp", dotDensity: 'double' },
-      // },
-  
-  
-      '\x1B' + '\x74' + '\x10',
-      '\x0A' + '\x0A',                                          // Quebra de linha
-    
-      'Pedido Nº LVE182422' + '\x0A' + '\x0A',                  // Imprimo número do pedido
-      '\x0A',                                                   // Quebra de linha
-  
-  
-      '\x1B' + '\x45' + '\x0D',                                 // Ativo negrito
-      'SEU PEDIDO' + '\x0A' + '\x0A',                           // Imprimo título
-      '\x1B' + '\x45\n',                                        // Desativo negrito
-  
-  
-      '\x0A',
-      '\x1B' + '\x61' + '\x30',                                 // Defino o alinhamento a esquerda
-  
-  
-      '\x1B' + '\x45' + '\x0D',                                 // Ativo negrito
-      'Cliente: Hugo' + '\x0A' + '\x0A',                        // Imprimo nome do cliente
-      'Telefone: (83) 98805-0131' + '\x0A' + '\x0A',            // Imprimo telefone
-      '\x1B' + '\x45\n',                                        // Desativo negrito
-  
-  
+      {
+        type: "raw",
+        format: "image",
+        flavor: "file",
+        data: urlImage,
+        options: { language: "escp", dotDensity: "double" },
+      },
+
+      "\x1B" + "\x74" + "\x10",
+      "\x0A" + "\x0A", // Quebra de linha
+
+      `Cupom de Venda Nº ${printSaleCode}` + "\x0A" + "\x0A", // Imprimo número do pedido
+      "\x0A", // Quebra de linha
+
+      "\x1B" + "\x45" + "\x0D", // Ativo negrito
+      "Seus produtos" + "\x0A" + "\x0A", // Imprimo título
+      "\x1B" + "\x45\n", // Desativo negrito
+
+      "\x0A",
+      "\x1B" + "\x61" + "\x30", // Defino o alinhamento a esquerda
+
+      "\x1B" + "\x45" + "\x0D", // Ativo negrito
+      `Cliente: ${printClientName}` + "\x0A" + "\x0A", // Imprimo nome do cliente
+      `Telefone: ${printPhone}` + "\x0A" + "\x0A", // Imprimo telefone
+      "\x1B" + "\x45\n", // Desativo negrito
+
       // Imprimo linha tracejada
-      '------------------------------------------------' + '\x0A' + '\x0A',
-  
-  
-      "Macaxeira                            (1) R$ 2,94\n\n",   // Imprimo o produto
-      "Alface Crespa                        (1) R$ 2,50\n\n",   // Imprimo o produto
-      "Coentro                              (1) R$ 2,50\n\n",   // Imprimo o produto
-      "Banana pacovan                       (1) R$ 5,00\n\n",   // Imprimo o produto
-      "Batata doce                          (1) R$ 3,80\n\n",   // Imprimo o produto
-      "Salsa                                (1) R$ 3,00\n\n",   // Imprimo o produto
-      "Manjericão                           (1) R$ 2,21\n\n",   // Imprimo o produto
-      "Abacaxi                              (2) R$ 7,60\n\n",   // Imprimo o produto
-      "Goma de tapioca 1kg                  (1) R$ 6,00\n\n",   // Imprimo o produto
-      "Tomate Cereja 500 gramas             (1) R$ 5,00\n\n",   // Imprimo o produto
-      "Mamão havaí                          (1) R$ 4,00\n\n",   // Imprimo o produto
-  
-  
+      "------------------------------------------------" + "\x0A" + "\x0A",
+
+      [ ...printItems ],
+      // "Macaxeira                            (1) R$ 2,94\n\n", // Imprimo o produto
+      // "Alface Crespa                        (1) R$ 2,50\n\n", // Imprimo o produto
+      // "Coentro                              (1) R$ 2,50\n\n", // Imprimo o produto
+      // "Banana pacovan                       (1) R$ 5,00\n\n", // Imprimo o produto
+      // "Batata doce                          (1) R$ 3,80\n\n", // Imprimo o produto
+      // "Salsa                                (1) R$ 3,00\n\n", // Imprimo o produto
+      // "Manjericão                           (1) R$ 2,21\n\n", // Imprimo o produto
+      // "Abacaxi                              (2) R$ 7,60\n\n", // Imprimo o produto
+      // "Goma de tapioca 1kg                  (1) R$ 6,00\n\n", // Imprimo o produto
+      // "Tomate Cereja 500 gramas             (1) R$ 5,00\n\n", // Imprimo o produto
+      // "Mamão havaí                          (1) R$ 4,00\n\n", // Imprimo o produto
+
       // Imprimo linha tracejada
-      '------------------------------------------------' + '\x0A' + '\x0A',
-  
-  
-      'Subtotal                                R$ 44,55' + '\x0A',               // Imprimo subtotal
-      'Desconto                                 R$ 0,00\n' + '\x0A' + '\x0A',    // Imprimo desconto
-      'Entrega                                   Grátis\n' + '\x0A' + '\x0A',    // Imprimo entrega
-  
-  
+      "------------------------------------------------" + "\x0A" + "\x0A",
+
+      "\x1B" + "\x21" + "\x30", // Ativo modo em
+      `Total           ${toBRLWithSign(selectedSale.fullValue as number)}` + "\x0A", // Imprimo o total do pedido
+      "\x1B" + "\x21" + "\x0A" + "\x1B" + "\x45" + "\x0A" + "\x0A", // Desativo modo em
+
       // Imprimo linha tracejada
-      '------------------------------------------------' + '\x0A' + '\x0A',
-  
-  
-      '\x1B' + '\x21' + '\x30',                                                  // Ativo modo em
-      'Total           R$ 44,55' + '\x0A',                                       // Imprimo o total do pedido
-      '\x1B' + '\x21' + '\x0A' + '\x1B' + '\x45' + '\x0A' + '\x0A',              // Desativo modo em
-  
-  
-      // Imprimo linha tracejada
-      '------------------------------------------------' + '\x0A' + '\x0A',
-  
-  
-      '\x1B' + '\x45' + '\x0D',                                 // Ativo negrito
-      'Forma de pagamento Cartão online' + '\x0A' + '\x0A',     // Imprimo o tipo de pagamento
-      'MasterCard - Crédito' + '\x0A' + '\x0A',                 // Imprimo nome do cartão
-      '\x1B' + '\x45\n',                                        // Desativo negrito
-  
-  
-      '\x0A' + '\x0A',                                          // Quebra de linha
-  
-  
-      'Entregar em 29/11/2018' + '\x0A' + '\x0A',               // Imprimo data de entrega
-      'Rua Bananeiras, 999' + '\x0A',                           // Imprimo endereço
-      'Manaíra, João Pessoa' + '\x0A',                          // Imprimo bairro e cidade
-      '58038-170' + '\x0A' + '\x0A',                            // Imprimo cep
-  
-  
-      '\x0A' + '\x0A',
-      '\x1B' + '\x61' + '\x31',                                 // Defino o alinhamento ao centro
-      'NÃO É DOCUMENTO FISCAL' + '\x0A' + '\x0A',               // Imprimo observação
-  
-  
-      '\x0A' + '\x0A' + '\x0A' + '\x0A' + '\x0A' + '\x0A' + '\x0A',
-      '\x0A' + '\x0A' + '\x0A' + '\x0A' + '\x0A' + '\x0A' + '\x0A',
-      '\x1B' + '\x69',                                          // Corto o papel
-      '\x10' + '\x14' + '\x01' + '\x00' + '\x05',               // Dou um pulso
+      "------------------------------------------------" + "\x0A" + "\x0A",
+
+      "\x1B" + "\x45" + "\x0D", // Ativo negrito
+      "Forma de pagamento Cartão online" + "\x0A" + "\x0A", // Imprimo o tipo de pagamento
+      "MasterCard - Crédito" + "\x0A" + "\x0A", // Imprimo nome do cartão
+      "\x1B" + "\x45\n", // Desativo negrito
+
+      "\x0A" + "\x0A", // Quebra de linha
+
+      "Entregar em 29/11/2018" + "\x0A" + "\x0A", // Imprimo data de entrega
+      "Rua Bananeiras, 999" + "\x0A", // Imprimo endereço
+      "Manaíra, João Pessoa" + "\x0A", // Imprimo bairro e cidade
+      "58038-170" + "\x0A" + "\x0A", // Imprimo cep
+
+      "\x0A" + "\x0A",
+      "\x1B" + "\x61" + "\x31", // Defino o alinhamento ao centro
+      "NÃO É DOCUMENTO FISCAL" + "\x0A" + "\x0A", // Imprimo observação
+
+      "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A",
+      "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A",
+      "\x1B" + "\x69", // Corto o papel
+      "\x10" + "\x14" + "\x01" + "\x00" + "\x05", // Dou um pulso
     ];
-  
+
     qz.print(config, order).catch((err: any) => {
       console.error(err);
     });
-  }
+  };
 
   const clearFields = () => {
     setMode("create");
@@ -583,21 +596,21 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
             <HStack>
               <Text>{"Cadastrar venda"}</Text>
               <Button
-                  backgroundColor={"#63342B"}
-                  _hover={{ backgroundColor: "#502A22" }}
-                  _active={{ backgroundColor: "#482017" }}
-                  marginRight={3}
-                  onClick={() => handlePrintSale()}
+                backgroundColor={"#63342B"}
+                _hover={{ backgroundColor: "#502A22" }}
+                _active={{ backgroundColor: "#482017" }}
+                marginRight={3}
+                onClick={() => handlePrintSale()}
+              >
+                <Text
+                  color={"white"}
+                  fontSize={"15px"}
+                  fontWeight={"600"}
+                  fontFamily={"Montserrat"}
                 >
-                  <Text
-                    color={"white"}
-                    fontSize={"15px"}
-                    fontWeight={"600"}
-                    fontFamily={"Montserrat"}
-                  >
-                    {"Imprimir venda"}
-                  </Text>
-                </Button>
+                  {"Imprimir venda"}
+                </Text>
+              </Button>
             </HStack>
           </ModalHeader>
           <ModalCloseButton />

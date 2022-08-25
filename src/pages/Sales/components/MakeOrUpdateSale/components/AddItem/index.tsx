@@ -103,22 +103,19 @@ export default function AddItem({
         value={quantity}
         min={1}
         onChange={(valueAsString: string, valueAsNumber: number) => {
-          console.log(`Mudou: ${valueAsString} - ${valueAsNumber}`)
+          console.log(`Mudou: ${valueAsString} - ${valueAsNumber}`);
           if (isNaN(Number(valueAsString)) || isNaN(valueAsNumber)) {
-            setQuantity(1)
+            setQuantity(1);
           } else {
             setQuantity(Math.max(1, valueAsNumber));
           }
         }}
         clampValueOnBlur={true}
       >
-        <NumberInputField
-          bg={"#E8E8E8"}
-          textColor={'#000'}
-        />
+        <NumberInputField bg={"#E8E8E8"} textColor={"#000"} />
         <NumberInputStepper>
-          <NumberIncrementStepper textColor={'#000'} />
-          <NumberDecrementStepper textColor={'#000'} />
+          <NumberIncrementStepper textColor={"#000"} />
+          <NumberDecrementStepper textColor={"#000"} />
         </NumberInputStepper>
       </NumberInput>
       // <Input

@@ -9,13 +9,19 @@ import {
   getDateMinusMonth,
 } from "../../util/getDate";
 import { compareDate } from "../../util/compareDate";
-import { fromNumberToStringFormatted, toBRLWithSign } from "../../util/formatCurrency";
+import {
+  fromNumberToStringFormatted,
+  toBRLWithSign,
+} from "../../util/formatCurrency";
 
 export default function Start() {
   const { sales } = useContext(SaleContext);
   const { payments } = useContext(PaymentContext);
 
-  const completedSale = useMemo(() => sales.filter(sale => sale.saleStatus === 'done'), [sales])
+  const completedSale = useMemo(
+    () => sales.filter((sale) => sale.saleStatus === "done"),
+    [sales]
+  );
 
   const initDay = getDateMinusDays(0);
   const initWeek = getDateMinusDays(6);
@@ -179,11 +185,11 @@ export default function Start() {
   }, [completedSale, payments]);
 
   return (
-    <VStack 
-      backgroundColor={"#FFF"} 
+    <VStack
+      backgroundColor={"#FFF"}
       height={"100%"}
-      overflow={'auto'}
-      paddingBottom={'10px'}
+      overflow={"auto"}
+      paddingBottom={"10px"}
       gap={10}
     >
       <Text

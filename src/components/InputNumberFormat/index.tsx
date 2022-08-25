@@ -14,7 +14,7 @@ interface InputNumberFormatProps {
   bg?: string;
   textColor?: string;
   prefix?: string;
-  fractionDigits?: number
+  fractionDigits?: number;
 }
 
 export default function InputNumberFormat({
@@ -23,15 +23,13 @@ export default function InputNumberFormat({
   bg,
   textColor,
   prefix,
-  fractionDigits
+  fractionDigits,
 }: InputNumberFormatProps) {
   return (
     <NumberFormat
       onValueChange={(values: NumberFormatValues, _sourceInfo: SourceInfo) => {
-        if (values.formattedValue.length === 0)
-          setValue(0.000)
-        else
-          setValue(fromBRLWithSign(values.formattedValue))
+        if (values.formattedValue.length === 0) setValue(0.0);
+        else setValue(fromBRLWithSign(values.formattedValue));
       }}
       allowNegative={false}
       prefix={prefix || ""}

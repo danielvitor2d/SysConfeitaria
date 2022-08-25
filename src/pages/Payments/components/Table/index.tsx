@@ -88,10 +88,10 @@ export default function Table({
 }: PaymentTableProps) {
   const { payments } = useContext(PaymentContext);
 
-  const [buttonGenerateLoading, setButtonGenerateLoading] = useState(false)
+  const [buttonGenerateLoading, setButtonGenerateLoading] = useState(false);
 
   const create = async (type: "daily" | "weekly" | "monthly") => {
-    setButtonGenerateLoading(true)
+    setButtonGenerateLoading(true);
 
     const storage = getStorage();
     const pathReference = ref(storage, "logo_confeitaria.png");
@@ -184,9 +184,9 @@ export default function Table({
 
     // doc.output("dataurlnewwindow", { filename: "Relatorio.pdf" });
     // doc.save("Relatorio.pdf")
-    window.open(URL.createObjectURL(doc.output("blob")))
+    window.open(URL.createObjectURL(doc.output("blob")));
 
-    setButtonGenerateLoading(false)
+    setButtonGenerateLoading(false);
   };
 
   const [filter, setFilter] = useState<string>("");

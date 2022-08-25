@@ -24,7 +24,7 @@ interface FormData {
 }
 
 export default function Settings() {
-  const { signIn, changePassword } = useContext(AuthContext)
+  const { signIn, changePassword } = useContext(AuthContext);
 
   const toast = useToast();
 
@@ -61,27 +61,28 @@ export default function Settings() {
       return;
     }
 
-    const auth = getAuth()
+    const auth = getAuth();
 
-    const passwordIsCorrect = await signIn(auth?.currentUser?.email as string, data.old_password);
+    const passwordIsCorrect = await signIn(
+      auth?.currentUser?.email as string,
+      data.old_password
+    );
 
     if (passwordIsCorrect) {
       if (await changePassword(data.new_password)) {
         toast({
           title: "Dados atualizados",
-          description:
-            "Senha atualizada",
+          description: "Senha atualizada",
           isClosable: true,
           status: "success",
           variant: "left-accent",
           position: "bottom-right",
         });
-        clearFields()
+        clearFields();
       } else {
         toast({
           title: "Erro no sistema",
-          description:
-            "Erro ao alterar senha. Tente novamente",
+          description: "Erro ao alterar senha. Tente novamente",
           isClosable: true,
           status: "warning",
           variant: "left-accent",
@@ -91,8 +92,7 @@ export default function Settings() {
     } else {
       toast({
         title: "Dados incorretos",
-        description:
-          "A senha informada está incorreta. Tente novamente",
+        description: "A senha informada está incorreta. Tente novamente",
         isClosable: true,
         status: "warning",
         variant: "left-accent",
@@ -102,21 +102,21 @@ export default function Settings() {
   }
 
   const clearFields = () => {
-    setValue('confirm_password', '')
-    setValue('new_password', '')
-    setValue('old_password', '')
-  }
+    setValue("confirm_password", "");
+    setValue("new_password", "");
+    setValue("old_password", "");
+  };
 
   return (
     <form onSubmit={handleSubmit(handleChangePassword)}>
       <Flex
-        margin={'20px'}
+        margin={"20px"}
         flexDirection={"column"}
         alignItems={"center"}
         width={"420px"}
         height={"auto"}
-        paddingY={'40px'}
-        paddingX={'50px'}
+        paddingY={"40px"}
+        paddingX={"50px"}
         bg={"#E8E8E8"}
         boxShadow={"2xl"}
         borderRadius={"15px"}
@@ -137,7 +137,7 @@ export default function Settings() {
           width={"100%"}
           gap={5}
         >
-          <VStack width={'100%'}>
+          <VStack width={"100%"}>
             <InputGroup>
               <Input
                 {...register("old_password", { required: true })}
@@ -171,7 +171,7 @@ export default function Settings() {
               <></>
             )}
           </VStack>
-          <VStack width={'100%'}>
+          <VStack width={"100%"}>
             <InputGroup>
               <Input
                 {...register("new_password", { required: true })}
@@ -205,7 +205,7 @@ export default function Settings() {
               <></>
             )}
           </VStack>
-          <VStack width={'100%'}>
+          <VStack width={"100%"}>
             <InputGroup>
               <Input
                 {...register("confirm_password", { required: true })}
