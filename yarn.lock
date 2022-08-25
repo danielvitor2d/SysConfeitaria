@@ -2826,6 +2826,11 @@ protobufjs@^7.0.0:
     "@types/node" ">=13.7.0"
     long "^5.0.0"
 
+qz-tray@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/qz-tray/-/qz-tray-2.2.1.tgz#ad0381208e265c23f8f4b58905b6c2078ae30143"
+  integrity sha512-TPm4+JIm5XczPP6iC/GPWjo7iktm+jL4cfCV6CU3ZIeyHry9ohmbuceC2jTZ0FZyhlPgkz+vWDvmfqo+HMC2rw==
+
 raf@^3.4.1:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/raf/-/raf-3.4.1.tgz#0742e99a4a6552f445d73e3ee0328af0ff1ede39"

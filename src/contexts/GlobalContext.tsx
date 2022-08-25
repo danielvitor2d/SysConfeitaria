@@ -32,6 +32,7 @@ interface GlobalContextData {
   paymentCode: number;
   register: () => Promise<void>;
   registered: boolean;
+  printer: string
 }
 
 const GlobalContext = createContext<GlobalContextData>({} as GlobalContextData);
@@ -42,6 +43,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
   const [saleCode, setSaleCode] = useState(1);
   const [paymentCode, setPaymentCode] = useState(1);
   const [registered, setRegistered] = useState(false);
+  const [printer, setPrinter] = useState('Jetway')
 
   const db = getFirestore(app);
 
@@ -91,13 +93,13 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
     const currentPaymentCode = paymentCode;
     try {
       await updateDoc(doc(db, "global", "0"), {
-        paymentCode: paymentCode + 1,
+        paymentCode: currentPaymentCode + 1,
       });
-      setPaymentCode(paymentCode + 1);
+      setPaymentCode(currentPaymentCode + 1);
     } catch (error) {
       console.log(error);
     } finally {
-      return paymentCode;
+      return currentPaymentCode;
     }
   }
 
@@ -127,6 +129,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         setProductCode(data.productCode || 1);
         setSaleCode(data.saleCode || 1);
         setPaymentCode(data.paymentCode || 1);
+        setPrinter(data.printer || '')
         if (data.registered) {
           setRegistered(data.registered);
         }
@@ -164,6 +167,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         productCode,
         saleCode,
         paymentCode,
+        printer
       }}
     >
       {children}

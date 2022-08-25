@@ -9,7 +9,12 @@ import { SaleProvider } from "./contexts/SalesContext";
 import Routes from "./routes";
 import { customTheme } from "./util/themeChakra";
 
+import * as qz from 'qz-tray'
+
 function App() {
+  qz.websocket.connect().then(() => {
+    console.log("Conectado com sucesso!")
+  });
   return (
     <ChakraProvider theme={customTheme}>
       <GlobalProvider>
