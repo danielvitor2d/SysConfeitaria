@@ -35,7 +35,7 @@ import {
   PaymentMethod,
   Sale,
 } from "../../../../types";
-import { getDatetimeLocalFormatted } from "../../../../util/getDate";
+import { fromDateAndTimeToLocalFormatted, fromDatetimeToLocalFormatted, getDatetimeLocalFormatted } from "../../../../util/getDate";
 import SelectPaymentMethod from "./components/SelectPaymentMethod";
 import SelectSaleStatus from "./components/SelectSaleStatus";
 import SelectClient from "./components/SelectClient";
@@ -408,7 +408,9 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     // 48 colunas
 
     const printItems: string[] = [
-      `Produto         Qtde. Unid. Vl.unit. Valor total\n\n`
+      "\x1B" + "\x45" + "\x0D",
+      `Produto         Qtde. Unid. Vl.unit. Valor total\n\n`,
+      "\x1B" + "\x45",
     ];
 
     selectedSale?.items?.forEach((item: Item) => {
@@ -416,7 +418,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
 
       //coxinha             3,000  un  R$ 6,00  R$ 18,00
       prodName.forEach((value, index) => {
-        if (index === value.length - 1) {
+        if (index === prodName.length - 1) {
           const itemQuantity = fromNumberToStringFormatted(
             item.quantity
           )
@@ -467,8 +469,8 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
         options: { language: "escp", dotDensity: "double" },
         size: { width: 4, height: 6 }
       },
-      `${formatCellphone(phone)}`,
-      `Av. Pedro Alves, 130`,
+      `${formatCellphone(phone)}\n\n`,
+      `Av. Pedro Alves, 130\n\n`,
       `Centro, Acopiara-CE`,
 
       "\x1B" + "\x74" + "\x10",
@@ -498,16 +500,15 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       "------------------------------------------------" + "\x0A" + "\x0A",
 
       "\x1B" + "\x45" + "\x0D", // Ativo negrito
-      "Formas de pagamento:" + "\x0A", // Imprimo o tipo de pagamento
-      // "MasterCard - Crédito" + "\x0A" + "\x0A", // Imprimo nome do cartão
+      "Data da venda: ", // Imprimo o tipo de pagamento
+      "\x1B" + "\x45\n", // Desativo negrito
+      `${fromDateAndTimeToLocalFormatted(selectedSale.createdAt)}\n\n`,
+
+      "\x1B" + "\x45" + "\x0D", // Ativo negrito
+      "Formas de pagamento: ", // Imprimo o tipo de pagamento
       "\x1B" + "\x45\n", // Desativo negrito
       ...printPaymentForms, // Imprimindo cartões
 
-      "\x0A" + "\x0A", // Quebra de linha
-
-      // `Rua Bananeiras, 999` + "\x0A", // Imprimo endereço
-      // `Manaíra, João Pessoa` + "\x0A", // Imprimo bairro e cidade
-      // `58038-170` + "\x0A" + "\x0A", // Imprimo cep
       printAddressExists ? printRua + "\x0A": printAddressError,
       printAddressError ? printCidade + "\x0A": '',
       printAddressError ? printCEP + "\x0A": '',

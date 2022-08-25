@@ -22,6 +22,10 @@ export const fromDatetimeToLocalFormatted = (_date: string) => {
   const [date] = _date.split("T");
   return date.split("-").reverse().join("/");
 };
+export const fromDateAndTimeToLocalFormatted = (_date: string) => {
+  const [date, time] = _date.split("T");
+  return date.split("-").reverse().join("/") + " " + time;
+};
 export const getDateMinusDays = (days: number) => {
   var date = moment().subtract(days, "day").toDate();
 
