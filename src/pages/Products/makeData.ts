@@ -15,10 +15,10 @@ const newProduct = (): Product => {
     productName: faker.commerce.productName(),
     unitaryValue: Number(faker.commerce.price(0, 10000, 2)),
     unitaryType: faker.helpers.arrayElement([
-      "Unidade",
-      "Grama",
-      "Quilograma",
-      "Litro",
+      "unid",
+      "g",
+      "Kg",
+      "L",
     ]),
   };
 };
