@@ -614,7 +614,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
           <ModalHeader>
             <HStack>
               <Text>{"Cadastrar venda"}</Text>
-              <Button
+              {/* <Button
                 backgroundColor={"#63342B"}
                 _hover={{ backgroundColor: "#502A22" }}
                 _active={{ backgroundColor: "#482017" }}
@@ -629,7 +629,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
                 >
                   {"Imprimir venda"}
                 </Text>
-              </Button>
+              </Button> */}
             </HStack>
           </ModalHeader>
           <ModalCloseButton />

@@ -61,7 +61,7 @@ export default function Sales() {
 
   const toast = useToast();
 
-  const { printer, phone } = useContext(GlobalContext);
+  const { printer, phone, ruaNumero, cidadeEstado } = useContext(GlobalContext);
   const { signed } = useContext(AuthContext);
 
   const {
@@ -209,8 +209,8 @@ export default function Sales() {
         options: { language: "escp", dotDensity: "double" },
       },
       `${formatCellphone(phone)}\n`,
-      `Av. Pedro Alves, 130\n`,
-      `Centro, Acopiara-CE`,
+      `${ruaNumero}\n`,
+      `${cidadeEstado}`,
 
       "\x1B" + "\x74" + "\x10",
       "\x0A" + "\x0A", // Quebra de linha
@@ -229,7 +229,7 @@ export default function Sales() {
       // Imprimo linha tracejada
       "------------------------------------------------" + "\x0A",
 
-      `Total                                   ${toBRLWithSign(
+      `Total                                 ${toBRLWithSign(
         saleToPrint.fullValue as number
       )}` + "\x0A", // Imprimo o total do pedido
 
