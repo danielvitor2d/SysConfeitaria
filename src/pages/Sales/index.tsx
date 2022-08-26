@@ -21,17 +21,12 @@ import {
   AlertDialogOverlay,
   Button,
 } from "@chakra-ui/react";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { faPrint, faReceipt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { CellProps, Column, Row } from "react-table";
 import AuthContext from "../../contexts/AuthContext";
-import SaleContext from "../../contexts/SalesContext";
 import SalesContext from "../../contexts/SalesContext";
 import {
   paymentMethod,
@@ -39,12 +34,25 @@ import {
   SaleRow,
   bagdeColor,
   Sale,
+  Item,
+  PaymentMethod,
 } from "../../types";
 import { compareDate } from "../../util/compareDate";
-import { toBRLWithSign } from "../../util/formatCurrency";
-import { fromDatetimeToLocalFormatted } from "../../util/getDate";
+import {
+  fromNumberToStringFormatted,
+  toBRLWithSign,
+} from "../../util/formatCurrency";
+import {
+  fromDateAndTimeToLocalFormatted,
+  fromDatetimeToLocalFormatted,
+} from "../../util/getDate";
 import MakeOrUpdateSale from "./components/MakeOrUpdateSale";
 import Table from "./components/Table";
+
+import * as qz from "qz-tray";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { formatCellphone } from "../../util/formatCellphone";
+import GlobalContext from "../../contexts/GlobalContext";
 
 export default function Sales() {
   const [isLargerThan1440] = useMediaQuery("(min-width: 1440px)");
@@ -53,8 +61,8 @@ export default function Sales() {
 
   const toast = useToast();
 
+  const { printer, phone } = useContext(GlobalContext);
   const { signed } = useContext(AuthContext);
-  const { resetSelectedSale } = useContext(SaleContext);
 
   const {
     mode,
@@ -67,6 +75,7 @@ export default function Sales() {
     removeSale,
     isOpenMakeOrUpdateSale,
     onOpenMakeOrUpdateSale,
+    resetSelectedSale,
   } = useContext(SalesContext);
 
   const cancelRefRemoveSale = React.useRef(null);
@@ -85,7 +94,7 @@ export default function Sales() {
     []
   );
 
-  const sortByDate = useCallback(
+  const sortByDateCreatedAt = useCallback(
     (
       rowA: Row<SaleRow>,
       rowB: Row<SaleRow>,
@@ -99,6 +108,169 @@ export default function Sales() {
     []
   );
 
+  const sortByPaymentDate = useCallback(
+    (
+      rowA: Row<SaleRow>,
+      rowB: Row<SaleRow>,
+      _columnId: String,
+      _desc: boolean
+    ) => {
+      if (!rowA.values["paymentDate"]) return -1
+      if (!rowB.values["paymentDate"]) return 1
+      return compareDate(rowA.values["paymentDate"], rowB.values["paymentDate"])
+        ? -1
+        : 1;
+    },
+    []
+  );
+
+  const handlePrintSale = async (saleToPrint: Sale) => {
+    console.log(JSON.stringify(saleToPrint, null, 2));
+    console.log("Imprimindo...");
+    var config = qz.configs.create(printer, { encoding: "Cp1252" });
+
+    const storage = getStorage();
+    const pathReference = ref(storage, "logo2_confeitaria.png");
+    const urlImage = await getDownloadURL(pathReference);
+
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = "blob";
+    xhr.onload = (event) => {
+      const blob = xhr.response;
+    };
+    xhr.open("GET", urlImage);
+    xhr.send();
+
+    const printSaleCode = saleToPrint.saleCode ?? "000000";
+    const printClientName =
+      saleToPrint?.client?.clientName ?? "Sem identificação";
+    const printPhone = saleToPrint?.client?.contact
+      ? formatCellphone(saleToPrint?.client?.contact)
+      : "(xx) xxxxx-xxxx";
+
+    // 48 colunas
+
+    const printItems: string[] = [
+      "\x1B" + "\x45" + "\x0D",
+      `Cód. Produto    Qtde. Unid. Vl.unit. Valor total\n`,
+      "\x1B" + "\x45\n",
+      "\x1B" + "\x4D" + "\x31",
+    ];
+
+    saleToPrint?.items?.forEach((item: Item) => {
+      const prodName = item.product.productName;
+      const itemQuantity = fromNumberToStringFormatted(item.quantity);
+      const unitaryType = item.product.unitaryType;
+      const unitaryValue = toBRLWithSign(item.unitaryValue);
+      const totalValue = toBRLWithSign(item.totalValue);
+
+      printItems.push(
+        `${item.product.productCode} ${prodName
+          .substring(0, 28)
+          .padEnd(29, " ")}${itemQuantity} ${unitaryType.padStart(
+          2,
+          " "
+        )} ${unitaryValue} ${totalValue}\n`
+      );
+    });
+
+    printItems.push("\x1B" + "\x4D" + "\x30");
+
+    const printPaymentForms: string[] = [];
+
+    saleToPrint.paymentMethods.forEach((method: PaymentMethod) => {
+      printPaymentForms.push(`${paymentMethod[method]}\n`);
+    });
+
+    const printAddressExists =
+      saleToPrint?.client?.address?.rua &&
+      saleToPrint?.client?.address?.numero &&
+      saleToPrint?.client?.address?.cidade &&
+      saleToPrint?.client?.address?.estado &&
+      saleToPrint?.client?.address?.cep;
+
+    const printAddressError = "Endereço não informado".toUpperCase();
+
+    const printRua = `${saleToPrint?.client?.address?.rua}, ${saleToPrint?.client?.address?.numero}`;
+    const printCidade = `${saleToPrint?.client?.address?.cidade}, ${saleToPrint?.client?.address?.estado}`;
+    const printCEP = `${saleToPrint?.client?.address?.cep}`;
+
+    var order = [
+      "\x1B" + "\x40", // Inicializo o documento
+      "\x10" + "\x14" + "\x01" + "\x00" + "\x05", // É dado um pulso para iniciar a impressão
+      "\x1B" + "\x61" + "\x31", // Defino o alinhamento ao centro
+
+      // Imprimo a logo
+      {
+        type: "raw",
+        format: "image",
+        flavor: "file",
+        data: urlImage,
+        options: { language: "escp", dotDensity: "double" },
+      },
+      `${formatCellphone(phone)}\n`,
+      `Av. Pedro Alves, 130\n`,
+      `Centro, Acopiara-CE`,
+
+      "\x1B" + "\x74" + "\x10",
+      "\x0A" + "\x0A", // Quebra de linha
+
+      `Cupom de Venda Nº ${printSaleCode}` + "\x0A" + "\x0A", // Imprimo número do pedido
+      "\x1B" + "\x61" + "\x30", // Defino o alinhamento a esquerda
+
+      "\x1B" + "\x45" + "\x0D", // Ativo negrito
+      `Cliente: ${printClientName}` + "\x0A", // Imprimo nome do cliente
+      `Telefone: ${printPhone}` + "\x0A", // Imprimo telefone
+      "\x1B" + "\x45\n", // Desativo negrito
+
+      // Imprimo linha tracejada
+      "------------------------------------------------" + "\x0A",
+      ...printItems,
+      // Imprimo linha tracejada
+      "------------------------------------------------" + "\x0A",
+
+      `Total                                   ${toBRLWithSign(
+        saleToPrint.fullValue as number
+      )}` + "\x0A", // Imprimo o total do pedido
+
+      // Imprimo linha tracejada
+      "------------------------------------------------" + "\x0A",
+
+      "\x1B" + "\x45" + "\x0D", // Ativo negrito
+      "Data da venda: ", // Imprimo o tipo de pagamento
+      "\x1B" + "\x45\n", // Desativo negrito
+      `${fromDateAndTimeToLocalFormatted(saleToPrint.createdAt)}\n\n`,
+
+      "\x1B" + "\x45" + "\x0D", // Ativo negrito
+      "Forma(s) de pagamento: \n", // Imprimo o tipo de pagamento
+      "\x1B" + "\x45\n", // Desativo negrito
+      ...printPaymentForms, // Imprimindo cartões
+      "\x0A",
+
+      "\x1B" + "\x45" + "\x0D", // Ativo negrito
+      "Endereço: \n", // Imprimo o tipo de pagamento
+      "\x1B" + "\x45\n", // Desativo negrito
+      printAddressExists ? printRua + "\x0A" : printAddressError,
+      printAddressError ? printCidade + "\x0A" : "",
+      printAddressError ? printCEP + "\x0A" : "",
+
+      "\x0A",
+      "\x1B" + "\x61" + "\x31", // Defino o alinhamento ao centro
+      `NÃO É DOCUMENTO FISCAL` + "\x0A" + "\x0A", // Imprimo observação
+
+      // "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A",
+      "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A",
+      "\x1B" + "\x69", // Corto o papel
+      "\x10" + "\x14" + "\x01" + "\x00" + "\x05", // Dou um pulso
+    ];
+
+    console.log(JSON.stringify(order, null, 2));
+
+    qz.print(config, order).catch((err: any) => {
+      console.error(err);
+    });
+  };
+
   const columns = useMemo(
     () =>
       [
@@ -107,7 +279,7 @@ export default function Sales() {
           Footer: "Código".toUpperCase(),
           Cell: ({ value }) => (
             <Flex
-              height={"100%"}
+              height={"100%"} 
               alignItems={"center"}
               justifyContent={"start"}
             >
@@ -135,7 +307,27 @@ export default function Sales() {
             </Flex>
           ),
           accessor: "createdAt",
-          sortType: sortByDate,
+          sortType: sortByDateCreatedAt,
+          isSorted: true,
+          disableResizing: false,
+          width: 140,
+        },
+        {
+          Header: "D. do Pagamento".toUpperCase(),
+          Footer: "D. do Pagamento".toUpperCase(),
+          Cell: ({ value }) => (
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Text fontWeight={"600"} fontFamily={"Montserrat"}>
+                {value ? fromDatetimeToLocalFormatted(value) : "Não pago"}
+              </Text>
+            </Flex>
+          ),
+          accessor: "paymentDate",
+          sortType: sortByPaymentDate,
           isSorted: true,
           disableResizing: false,
           width: 140,
@@ -144,31 +336,37 @@ export default function Sales() {
           Header: "Cliente".toUpperCase(),
           Footer: "Cliente".toUpperCase(),
           Cell: ({ value }) => (
-            <Tag size={"lg"} colorScheme={value.color} borderRadius={"full"}>
-              <Avatar
-                src={value.avatar}
-                size="xs"
-                name={value.clientName}
-                ml={-1}
-                mr={2}
-              />
-              <TagLabel>
-                <Flex
-                  height={"100%"}
-                  alignItems={"center"}
-                  justifyContent={"start"}
-                >
-                  <Text
-                    fontWeight={"500"}
-                    fontFamily={"Montserrat"}
-                    fontSize={"16px"}
-                    whiteSpace={"normal"}
+            <Flex
+              height={"100%"}
+              alignItems={"center"}
+              justifyContent={"start"}
+            >
+              <Tag size={"lg"} colorScheme={value.color} borderRadius={"full"}>
+                <Avatar
+                  src={value.avatar}
+                  size="xs"
+                  name={value.clientName}
+                  ml={-1}
+                  mr={2}
+                />
+                <TagLabel>
+                  <Flex
+                    height={"100%"}
+                    alignItems={"center"}
+                    justifyContent={"start"}
                   >
-                    {value.clientName}
-                  </Text>
-                </Flex>
-              </TagLabel>
-            </Tag>
+                    <Text
+                      fontWeight={"500"}
+                      fontFamily={"Montserrat"}
+                      fontSize={"16px"}
+                      whiteSpace={"normal"}
+                    >
+                      {value.clientName || 'Cliente sem identificação'}
+                    </Text>
+                  </Flex>
+                </TagLabel>
+              </Tag>
+            </Flex>
           ),
           accessor: "client",
           disableResizing: false,
@@ -248,6 +446,13 @@ export default function Sales() {
               alignItems={"center"}
               justifyContent={"start"}
             >
+              <FontAwesomeIcon
+                color={"#1A202C"}
+                size={"lg"}
+                cursor={"pointer"}
+                onClick={() => handlePrintSale(cellProps.row.original)}
+                icon={faPrint}
+              />
               <EditIcon
                 boxSize={"6"}
                 cursor={"pointer"}
@@ -265,10 +470,10 @@ export default function Sales() {
           disableSortBy: true,
           disableFilters: true,
           disableGlobalFilter: true,
-          width: 100,
+          width: 120,
         },
       ] as Array<Column<SaleRow>>,
-    [isLargerThan1440]
+    [isLargerThan1440, selectedSale, setSelectedSale]
   );
 
   async function handleClickUpdateSale(sale: SaleRow): Promise<void> {

@@ -11,13 +11,7 @@ import Select, {
   SingleValue,
 } from "react-select";
 import SaleContext from "../../../../../../contexts/SalesContext";
-import {
-  bagdeColor,
-  Client,
-  Sale,
-  SaleStatus,
-  saleStatus,
-} from "../../../../../../types";
+import { bagdeColor, SaleStatus, saleStatus } from "../../../../../../types";
 
 export default function SelectSaleStatus() {
   const { mode, selectedSale, setSelectedSale } = useContext(SaleContext);
@@ -62,7 +56,8 @@ export default function SelectSaleStatus() {
     control: (styles) => ({
       ...styles,
       boxShadow: "unset",
-      width: "250px",
+      minWidth: "280px",
+      maxWidth: "280px",
       backgroundColor: "#E8E8E8",
       ":focus": {
         ...styles[":focus"],

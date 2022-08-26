@@ -98,6 +98,7 @@ export type Sale = {
   saleStatus: SaleStatus;
   fullValue: string | number;
   createdAt: string;
+  paymentDate: string;
   paymentMethods: PaymentMethod[];
 };
 

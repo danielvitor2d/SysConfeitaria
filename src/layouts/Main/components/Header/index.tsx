@@ -1,12 +1,4 @@
-import {
-  Box,
-  Flex,
-  GridItem,
-  HStack,
-  SimpleGrid,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, GridItem, SimpleGrid, Text, VStack } from "@chakra-ui/react";
 import { useContext, useMemo } from "react";
 import PaymentContext from "../../../../contexts/PaymentContext";
 import SaleContext from "../../../../contexts/SalesContext";
@@ -26,7 +18,8 @@ export default function Header() {
   const { payments } = useContext(PaymentContext);
 
   const completedSale = useMemo(
-    () => sales.filter((sale) => sale.saleStatus === "done"),
+    () =>
+      sales.filter((sale) => sale.saleStatus === "done" && sale.paymentDate),
     [sales]
   );
 

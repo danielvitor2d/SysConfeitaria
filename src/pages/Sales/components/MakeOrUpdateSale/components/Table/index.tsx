@@ -22,7 +22,6 @@ import {
 } from "react-table";
 import Paginate from "../../../../../../components/Paginate";
 import { ItemRow } from "../../../../../../types";
-import makeData from "../../makeData";
 
 interface ItemTableProps {
   readonly columns: Column<ItemRow>[];

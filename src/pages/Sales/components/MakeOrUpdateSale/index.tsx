@@ -20,6 +20,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
+  SimpleGrid,
+  GridItem,
 } from "@chakra-ui/react";
 import React, {
   useCallback,
@@ -35,7 +37,10 @@ import {
   PaymentMethod,
   Sale,
 } from "../../../../types";
-import { fromDateAndTimeToLocalFormatted, fromDatetimeToLocalFormatted, getDatetimeLocalFormatted } from "../../../../util/getDate";
+import {
+  fromDateAndTimeToLocalFormatted,
+  getDatetimeLocalFormatted,
+} from "../../../../util/getDate";
 import SelectPaymentMethod from "./components/SelectPaymentMethod";
 import SelectSaleStatus from "./components/SelectSaleStatus";
 import SelectClient from "./components/SelectClient";
@@ -54,7 +59,6 @@ import GlobalContext from "../../../../contexts/GlobalContext";
 import * as qz from "qz-tray";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { formatCellphone } from "../../../../util/formatCellphone";
-import { isNull } from "lodash";
 
 interface MakeSaleProps {
   handleMakeOrUpdateSale: (sale: Sale) => Promise<boolean>;
@@ -287,27 +291,12 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
 
   async function handleFinishSale() {
     if (selectedSale === null) return;
-    // console.log("Agora vai: " + JSON.stringify(selectedSale, null, 2))
-    // Verificar data
-    // Verificar Pagamento
     if (
       !(selectedSale.paymentMethods && selectedSale.paymentMethods.length > 0)
     ) {
       toast({
         title: "Dados faltando",
         description: "Por favor, escolha um ou mais métodos de pagamento",
-        isClosable: true,
-        status: "warning",
-        variant: "left-accent",
-        position: "bottom-right",
-      });
-      return;
-    }
-    // Verificar cliente
-    if (!selectedSale.client) {
-      toast({
-        title: "Dados faltando",
-        description: "Por favor, escolha um cliente",
         isClosable: true,
         status: "warning",
         variant: "left-accent",
@@ -375,14 +364,6 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     }
   }
 
-  const spliter = (str: string, nr: number) => {
-    const parts = [];
-    for (let i = 0, length = str.length; i < length; i += nr) {
-      parts.push(str.substring(i, i + nr));
-    }
-    return parts;
-  };
-
   const handlePrintSale = async () => {
     console.log("Imprimindo...");
     var config = qz.configs.create(printer, { encoding: "Cp1252" });
@@ -409,32 +390,29 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
 
     const printItems: string[] = [
       "\x1B" + "\x45" + "\x0D",
-      `Produto         Qtde. Unid. Vl.unit. Valor total\n\n`,
+      `Cód. Produto    Qtde. Unid. Vl.unit. Valor total\n`,
       "\x1B" + "\x45\n",
+      "\x1B" + "\x4D" + "\x31",
     ];
 
     selectedSale?.items?.forEach((item: Item) => {
-      const prodName = spliter(item.product.productName, 17);
+      const prodName = item.product.productName;
+      const itemQuantity = fromNumberToStringFormatted(item.quantity);
+      const unitaryType = item.product.unitaryType;
+      const unitaryValue = toBRLWithSign(item.unitaryValue);
+      const totalValue = toBRLWithSign(item.totalValue);
 
-      //coxinha             3,000  un  R$ 6,00  R$ 18,00
-      prodName.forEach((value, index) => {
-        if (index === prodName.length - 1) {
-          const itemQuantity = fromNumberToStringFormatted(
-            item.quantity
-          )
-          const unitaryType = item.product.unitaryType
-          const unitaryValue = toBRLWithSign(item.unitaryValue)
-          const totalValue = toBRLWithSign(item.totalValue)
-
-          printItems.push(
-            `${value.padEnd(18, ' ')} ${itemQuantity}  ${unitaryType.padStart(2, ' ')}  ${unitaryValue}  ${totalValue}\n\n`
-          );
-        } else {
-          const space = " ".repeat(48 - value.length);
-          printItems.push(`${value}${space}\n\n`);
-        }
-      });
+      printItems.push(
+        `${item.product.productCode} ${prodName
+          .substring(0, 28)
+          .padEnd(29, " ")}${itemQuantity} ${unitaryType.padStart(
+          2,
+          " "
+        )} ${unitaryValue} ${totalValue}\n`
+      );
     });
+
+    printItems.push("\x1B" + "\x4D" + "\x30");
 
     const printPaymentForms: string[] = [];
 
@@ -443,11 +421,11 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     });
 
     const printAddressExists =
-      !isNull(selectedSale?.client?.address?.rua) &&
-      !isNull(selectedSale?.client?.address?.numero) &&
-      !isNull(selectedSale?.client?.address?.cidade) &&
-      !isNull(selectedSale?.client?.address?.estado) &&
-      !isNull(selectedSale?.client?.address?.cep)
+      selectedSale?.client?.address?.rua &&
+      selectedSale?.client?.address?.numero &&
+      selectedSale?.client?.address?.cidade &&
+      selectedSale?.client?.address?.estado &&
+      selectedSale?.client?.address?.cep;
 
     const printAddressError = "Endereço não informado".toUpperCase();
 
@@ -476,8 +454,6 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       "\x0A" + "\x0A", // Quebra de linha
 
       `Cupom de Venda Nº ${printSaleCode}` + "\x0A" + "\x0A", // Imprimo número do pedido
-      "\x0A", // Quebra de linha
-      "\x0A",
       "\x1B" + "\x61" + "\x30", // Defino o alinhamento a esquerda
 
       "\x1B" + "\x45" + "\x0D", // Ativo negrito
@@ -486,17 +462,17 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       "\x1B" + "\x45\n", // Desativo negrito
 
       // Imprimo linha tracejada
-      "------------------------------------------------" + "\x0A" + "\x0A",
+      "------------------------------------------------" + "\x0A",
       ...printItems,
       // Imprimo linha tracejada
-      "------------------------------------------------" + "\x0A" + "\x0A",
+      "------------------------------------------------" + "\x0A",
 
-      "\x1B" + "\x21" + "\x30", // Ativo modo em
-      `Total          ${toBRLWithSign(selectedSale.fullValue as number)}` + "\x0A", // Imprimo o total do pedido
-      "\x1B" + "\x21" + "\x0A" + "\x1B" + "\x45" + "\x0A" + "\x0A", // Desativo modo em
+      `Total                                   ${toBRLWithSign(
+        selectedSale.fullValue as number
+      )}` + "\x0A", // Imprimo o total do pedido
 
       // Imprimo linha tracejada
-      "------------------------------------------------" + "\x0A" + "\x0A",
+      "------------------------------------------------" + "\x0A",
 
       "\x1B" + "\x45" + "\x0D", // Ativo negrito
       "Data da venda: ", // Imprimo o tipo de pagamento
@@ -507,17 +483,20 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       "Forma(s) de pagamento: \n", // Imprimo o tipo de pagamento
       "\x1B" + "\x45\n", // Desativo negrito
       ...printPaymentForms, // Imprimindo cartões
-      '\x0A',
+      "\x0A",
 
-      printAddressExists ? printRua + "\x0A": printAddressError,
-      printAddressError ? printCidade + "\x0A": '',
-      printAddressError ? printCEP + "\x0A": '',
+      "\x1B" + "\x45" + "\x0D", // Ativo negrito
+      "Endereço: \n", // Imprimo o tipo de pagamento
+      "\x1B" + "\x45\n", // Desativo negrito
+      printAddressExists ? printRua + "\x0A" : printAddressError,
+      printAddressError ? printCidade + "\x0A" : "",
+      printAddressError ? printCEP + "\x0A" : "",
 
       "\x0A",
       "\x1B" + "\x61" + "\x31", // Defino o alinhamento ao centro
       `NÃO É DOCUMENTO FISCAL` + "\x0A" + "\x0A", // Imprimo observação
 
-      "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A",
+      // "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A",
       "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A" + "\x0A",
       "\x1B" + "\x69", // Corto o papel
       "\x10" + "\x14" + "\x01" + "\x00" + "\x05", // Dou um pulso
@@ -554,12 +533,11 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
       setSelectedSale({
         ...selectedSale,
         createdAt: getDatetimeLocalFormatted(new Date(Date.now())),
+        // paymentDate: getDatetimeLocalFormatted(new Date(Date.now()))
       });
   }, []);
 
   useEffect(() => {
-    // console.log("saleCode: " + saleCode)
-
     if (mode === "create") {
       const { saleCode: _saleCode, ...rest } = selectedSale;
       setSelectedSale({
@@ -569,10 +547,19 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
     }
   }, [saleCode]);
 
-  // useEffect(() => {
-  //   console.log("sale: " + JSON.stringify(selectedSale, null, 2))
-
-  // }, [selectedSale]);
+  useEffect(() => {
+    if (selectedSale.saleStatus === "done") {
+      setSelectedSale({
+        ...selectedSale,
+        paymentDate: getDatetimeLocalFormatted(new Date(Date.now())),
+      });
+    } else {
+      setSelectedSale({
+        ...selectedSale,
+        paymentDate: "",
+      });
+    }
+  }, [selectedSale.saleStatus]);
 
   return (
     <>
@@ -622,8 +609,8 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
         closeOnOverlayClick={true}
         size={"5xl"}
       >
-        <ModalOverlay />
-        <ModalContent bg={"#f1f1f1"}>
+        <ModalOverlay overflow={"auto"} />
+        <ModalContent bg={"#f1f1f1"} overflow={"auto"} minWidth={"600px"}>
           <ModalHeader>
             <HStack>
               <Text>{"Cadastrar venda"}</Text>
@@ -657,8 +644,12 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
                 >
                   {"Dados da venda"}
                 </Text>
-                <HStack gap={20}>
-                  <VStack alignItems={"flex-start"}>
+                <SimpleGrid
+                  columns={[1, 1, 1, 2, 2, 2]}
+                  columnGap={10}
+                  rowGap={5}
+                >
+                  <GridItem>
                     <HStack>
                       <Text
                         minWidth={"120px"}
@@ -670,6 +661,7 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
                         {"Data"}
                       </Text>
                       <Input
+                        minWidth={"250px"}
                         value={selectedSale.createdAt}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>
@@ -683,13 +675,44 @@ export default function MakeSale({ handleMakeOrUpdateSale }: MakeSaleProps) {
                         type={"datetime-local"}
                       />
                     </HStack>
+                  </GridItem>
+                  <GridItem>
                     <SelectClient />
-                  </VStack>
-                  <VStack alignItems={"flex-start"}>
+                  </GridItem>
+                  <GridItem>
                     <SelectPaymentMethod />
+                  </GridItem>
+                  <GridItem>
                     <SelectSaleStatus />
-                  </VStack>
-                </HStack>
+                  </GridItem>
+                  <GridItem>
+                    <HStack>
+                      <Text
+                        minWidth={"120px"}
+                        maxWidth={"120px"}
+                        fontWeight={"600"}
+                        fontSize={"15px"}
+                        fontFamily={"Montserrat"}
+                      >
+                        {"Data do Pagamento"}
+                      </Text>
+                      <Input
+                        minWidth={"250px"}
+                        value={selectedSale.paymentDate}
+                        onChange={(
+                          event: React.ChangeEvent<HTMLInputElement>
+                        ) => {
+                          Object.assign(selectedSale, {
+                            paymentDate: event.target.value,
+                          });
+                          setSelectedSale({ ...selectedSale });
+                        }}
+                        backgroundColor={"#E8E8E8"}
+                        type={"datetime-local"}
+                      />
+                    </HStack>
+                  </GridItem>
+                </SimpleGrid>
               </VStack>
               <VStack gap={3} alignItems={"center"} width={"100%"}>
                 <HStack gap={4} width={"100%"} justifyContent={"space-between"}>

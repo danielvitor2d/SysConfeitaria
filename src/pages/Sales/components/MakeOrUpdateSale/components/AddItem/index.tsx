@@ -118,25 +118,11 @@ export default function AddItem({
           <NumberDecrementStepper textColor={"#000"} />
         </NumberInputStepper>
       </NumberInput>
-      // <Input
-      //   bg={"#E8E8E8"}
-      //   textColor={"#000"}
-      //   value={quantity}
-      //   type={'number'}
-      //   onChange={(e: React.FormEvent<HTMLInputElement>) => {
-      //     const value = e.currentTarget.valueAsNumber
-      //     if (value.toString().includes(',')) {
-      //       value = Number()
-      //     }
-      //     console.log("Value: " + value)
-      //     setQuantity(value || 0)
-      //   }}
-      // />
     ),
   };
 
   return (
-    <Popover placement="bottom" closeOnBlur={false} isOpen={isOpenAddItem}>
+    <Popover placement="top-start" closeOnBlur={false} isOpen={isOpenAddItem}>
       <PopoverTrigger>
         <Button
           backgroundColor={"#70453c"}

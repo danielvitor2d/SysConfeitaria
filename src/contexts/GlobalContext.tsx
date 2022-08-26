@@ -1,6 +1,5 @@
 import {
   collection,
-  deleteDoc,
   doc,
   DocumentData,
   getDocs,
@@ -8,7 +7,6 @@ import {
   Query,
   query,
   QuerySnapshot,
-  setDoc,
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
@@ -33,7 +31,12 @@ interface GlobalContextData {
   register: () => Promise<void>;
   registered: boolean;
   printer: string;
-  phone: string
+  phone: string;
+  updatePhone(newPhone: string): Promise<void>
+  ruaNumero: string;
+  updateRuaNumero(newRuaNumero: string): Promise<void>
+  cidadeEstado: string;
+  updateCidadeEstado(newCidadeEstado: string): Promise<void>
 }
 
 const GlobalContext = createContext<GlobalContextData>({} as GlobalContextData);
@@ -44,7 +47,9 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
   const [saleCode, setSaleCode] = useState(1);
   const [paymentCode, setPaymentCode] = useState(1);
   const [registered, setRegistered] = useState(false);
-  const [phone, setPhone] = useState('88996159591');
+  const [phone, setPhone] = useState("88996159591");
+  const [ruaNumero, setRuaNumero] = useState("Av. Pedro Alves, 130");
+  const [cidadeEstado, setCidadeEstado] = useState("Centro, Acopiara-CE");
   const [printer, setPrinter] = useState("Jetway");
 
   const db = getFirestore(app);
@@ -105,6 +110,39 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
     }
   }
 
+  async function updatePhone(newPhone: string) {
+    try {
+      await updateDoc(doc(db, "global", "0"), {
+        phone: newPhone,
+      });
+      setPhone(newPhone)
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function updateRuaNumero(newRuaNumero: string) {
+    try {
+      await updateDoc(doc(db, "global", "0"), {
+        ruaNumero: newRuaNumero,
+      });
+      setRuaNumero(newRuaNumero)
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function updateCidadeEstado(newCidadeEstado: string) {
+    try {
+      await updateDoc(doc(db, "global", "0"), {
+        cidadeEstado: newCidadeEstado,
+      });
+      setCidadeEstado(newCidadeEstado)
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async function register() {
     try {
       await updateDoc(doc(db, "global", "0"), {
@@ -132,7 +170,7 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         setSaleCode(data.saleCode || 1);
         setPaymentCode(data.paymentCode || 1);
         setPrinter(data.printer || "");
-        setPhone(data.phone || '88996159591')
+        setPhone(data.phone || "88996159591");
         if (data.registered) {
           setRegistered(data.registered);
         }
@@ -153,10 +191,6 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    // console.log("registered: " + registered);
-  }, [registered]);
-
   return (
     <GlobalContext.Provider
       value={{
@@ -165,13 +199,18 @@ export const GlobalProvider: FC<GlobalProviderProps> = ({ children }) => {
         getNextSaleCode,
         getNextPaymentCode,
         register,
+        updatePhone,
+        updateRuaNumero,
+        updateCidadeEstado,
         registered,
         clientCode,
         productCode,
         saleCode,
         paymentCode,
         printer,
-        phone
+        phone,
+        ruaNumero,
+        cidadeEstado
       }}
     >
       {children}

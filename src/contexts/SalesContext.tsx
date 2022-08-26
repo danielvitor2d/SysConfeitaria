@@ -54,6 +54,7 @@ export const SaleProvider: FC<SaleProviderProps> = ({ children }) => {
       items: [] as Item[],
       fullValue: 0,
       client: {} as Client,
+      paymentDate: getDatetimeLocalFormatted(new Date(Date.now())),
     } as Sale;
   }, [saleCode]);
 

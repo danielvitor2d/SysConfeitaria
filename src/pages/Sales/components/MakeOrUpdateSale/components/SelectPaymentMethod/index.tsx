@@ -1,10 +1,5 @@
 import { Badge, HStack, Text } from "@chakra-ui/react";
-import {
-  PaymentMethod,
-  paymentMethod,
-  Sale,
-  SaleStatus,
-} from "../../../../../../types";
+import { PaymentMethod, paymentMethod } from "../../../../../../types";
 import Select, {
   components,
   OptionProps,
@@ -16,7 +11,7 @@ import Select, {
   SingleValue,
 } from "react-select";
 import makeAnimated from "react-select/animated";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SaleContext from "../../../../../../contexts/SalesContext";
 
 interface SelectPaymentMethodProps {}
@@ -35,7 +30,7 @@ export default function SelectPaymentMethod() {
     control: (styles) => ({
       ...styles,
       boxShadow: "unset",
-      minWidth: "250px",
+      minWidth: "280px",
       maxWidth: "280px",
       backgroundColor: "#E8E8E8",
       ":focus": {

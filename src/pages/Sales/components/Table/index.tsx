@@ -66,7 +66,6 @@ import {
   PaymentMethod,
   SaleStatus,
   bagdeColor,
-  Sale,
 } from "../../../../types";
 import { matchSorter } from "match-sorter";
 
@@ -132,6 +131,7 @@ export default function Table({
     let salesToReport = sales.filter((sale) => {
       return (
         sale.saleStatus === "done" &&
+        sale.paymentDate &&
         compareDate(initDay, fromDatetimeToLocalFormatted(sale.createdAt))
       );
     });
@@ -142,7 +142,7 @@ export default function Table({
       total += sale.fullValue as number;
       return [
         sale.saleCode,
-        sale.client.clientName,
+        sale.client.clientName || 'Cliente sem identificação',
         "R$ " + fromNumberToStringFormatted(sale.fullValue as number),
         sale.paymentMethods.reduce(
           (
@@ -229,18 +229,28 @@ export default function Table({
 
   const globalFilterFunction = useCallback(
     (rows: Row<SaleRow>[], _ids: IdType<SaleRow>[], query: string) => {
-      // console.log("filters: " + JSON.stringify(filters, null, 2))
-      // console.log("paymentMethodsFilter: " + JSON.stringify(paymentMethodsFilter, null, 2))
-      // console.log("saleStatusFilter: " + JSON.stringify(saleStatusFilter, null, 2))
-      // if (filters.length === 0) return rows;
+      if (filters.length === 0) {
+        return rows.filter((row) => {
+          return (paymentMethodsFilter.length === 0 ||
+            row.original.paymentMethods.some((row) =>
+              paymentMethodsFilter.includes(row)
+            )) &&
+          (saleStatusFilter.length === 0 ||
+            saleStatusFilter.includes(row.original.saleStatus))
+        })
+      }
       const newRows = rows.filter((row) => {
-        // console.log(row);
         return (
           filters.some((filter) => {
             if (filter === "client") {
               return (
                 matchSorter([row.values[filter].clientName], query).length === 1
               );
+            }
+            if (filter === 'createdAt' || filter === 'paymentDate') {
+              return (
+                matchSorter([fromDatetimeToLocalFormatted(row.values[filter])], query).length === 1
+              )
             }
             return matchSorter([row.values[filter]], query).length === 1;
           }) &&
@@ -342,7 +352,7 @@ export default function Table({
 
   return (
     <>
-      <VStack gap={1}>
+      <VStack gap={1} width={'auto'}>
         <SimpleGrid
           width={"100%"}
           alignItems={"flex-start"}
@@ -483,8 +493,8 @@ export default function Table({
               </Popover>
             </HStack>
           </GridItem>
-          <GridItem colSpan={[1, 1, 1, 1, 1]}>
-            <HStack>
+          <GridItem colSpan={[1, 1, 1, 1, 1]} width={'100%'}>
+            <HStack width={'100%'} alignContent={'flex-end'} alignItems={'flex-end'} justify={'flex-end'}>
               <Menu closeOnSelect={false}>
                 <MenuButton
                   as={Button}
@@ -590,6 +600,9 @@ export default function Table({
                   >
                     <MenuItemOption value="saleCode">Código</MenuItemOption>
                     <MenuItemOption value="createdAt">Data</MenuItemOption>
+                    <MenuItemOption value="paymentDate">
+                      Data do Pagamento
+                    </MenuItemOption>
                     <MenuItemOption value="client">Cliente</MenuItemOption>
                     <MenuItemOption value="fullValue">Total</MenuItemOption>
                   </MenuOptionGroup>

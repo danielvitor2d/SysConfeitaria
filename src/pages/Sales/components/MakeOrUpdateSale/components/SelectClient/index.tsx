@@ -12,7 +12,7 @@ import Select, {
 } from "react-select";
 import ClientContext from "../../../../../../contexts/ClientsContext";
 import SaleContext from "../../../../../../contexts/SalesContext";
-import { ClientOption, Sale } from "../../../../../../types";
+import { ClientOption } from "../../../../../../types";
 
 export default function SelectClient() {
   const { clients } = useContext(ClientContext);
@@ -56,8 +56,9 @@ export default function SelectClient() {
     control: (styles) => ({
       ...styles,
       boxShadow: "unset",
-      width: "270px",
       backgroundColor: "#E8E8E8",
+      minWidth: "280px",
+      maxWidth: "280px",
       ":focus": {
         ...styles[":focus"],
         borderColor: "#63342B",

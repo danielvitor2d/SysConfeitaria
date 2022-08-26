@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy": "tsc && vite build"
+    "deploy": "tsc && vite build && firebase deploy"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.4",
